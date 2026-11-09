@@ -6,7 +6,7 @@
 <title>Кепчик у Германа</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Neucha&family=Rubik:wght@500;800&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Press+Start+2P&display=swap">
 <style>
   /* Layout: one cinema stage, centered, with a caption strip and controls below. Single dark look by choice. */
   :root {
@@ -17,8 +17,8 @@
     --accent: #ffcf3f;
     --ink: #1d1a22;
     --bubble: #fffdf6;
-    --f-display: "Rubik", system-ui, sans-serif;
-    --f-hand: "Neucha", "Comic Sans MS", cursive;
+    --f-display: "Press Start 2P", ui-monospace, monospace;
+    --f-hand: "Pixelify Sans", ui-monospace, monospace;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
@@ -117,8 +117,8 @@
   .card[hidden] { display: none !important; }
   .card .big {
     font-weight: 800;
-    font-size: clamp(20px, 5vw, 48px);
-    line-height: 1.05;
+    font-size: clamp(14px, 3vw, 30px);
+    line-height: 1.3;
     text-wrap: balance;
     text-shadow: 0 3px 0 #000;
   }
@@ -160,6 +160,14 @@
 
   #ivanWalk { transition: transform 4s linear; }
   #german { transition: transform .8s ease-in-out; }
+  .sticker { transform-box: fill-box; transform-origin: center; animation: pop 1.5s cubic-bezier(.3,1.7,.5,1) forwards; }
+  @keyframes pop {
+    0% { transform: scale(0) rotate(var(--r)); opacity: 1; }
+    18% { transform: scale(1.15) rotate(var(--r)); }
+    28%, 80% { transform: scale(1) rotate(var(--r)); opacity: 1; }
+    100% { transform: scale(1) rotate(var(--r)); opacity: 0; }
+  }
+  #textLayer { transition: transform 1.2s cubic-bezier(.6,0,.3,1); transform-origin: 330px 190px; }
   #world { transition: transform 1.2s cubic-bezier(.6,0,.3,1); transform-origin: 330px 190px; }
   #fade { transition: opacity .7s; }
   .scene { transition: opacity .01s; }
@@ -200,16 +208,16 @@
   body.vertical > h1, body.vertical .controls, body.vertical .note { display: none; }
   body.vertical .vwrap { width: 100vw; height: 100vh; display: grid; grid-template-rows: 15.625% 75% 9.375%; }
   body.vertical .vtop { display: flex; align-items: center; justify-content: center; padding: 0 5%; }
-  body.vertical .vbottom { display: flex; align-items: center; justify-content: center; font: 800 3.4vw var(--f-display); letter-spacing: .12em; color: var(--accent); }
+  body.vertical .vbottom { display: flex; align-items: center; justify-content: center; font: 2.6vw var(--f-display); letter-spacing: .08em; color: var(--accent); }
   body.vertical .stage { max-width: none; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
   body.vertical .caption {
     position: static; background: none; padding: 0; text-shadow: none;
     font-size: 8.4vw; line-height: 1.1; color: #fff; text-wrap: balance;
   }
   body.vertical .bubble { font-size: 5.2vw; max-width: 72%; border-width: .5vw; border-radius: 4vw; }
-  body.vertical .card .big { font-size: 11vw; }
+  body.vertical .card .big { font-size: 6vw; }
   body.vertical .card .small { font-size: 4.6vw; }
-  body.vertical .card button { font-size: 5vw; }
+  body.vertical .card button { font-size: 3.6vw; }
   .vwrap { display: contents; }
   .vtop, .vbottom { display: none; }
 </style>
@@ -250,8 +258,16 @@
       </linearGradient>
       <clipPath id="poleClip"><rect x="-9" y="-40" width="18" height="80" rx="9"/></clipPath>
       <clipPath id="poleClip2"><rect x="-9" y="-40" width="18" height="80" rx="9"/></clipPath>
+      <filter id="pixelate" x="0" y="0" width="800" height="450" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood x="2" y="2" height="1" width="1"/>
+        <feComposite width="5" height="5"/>
+        <feTile result="grid"/>
+        <feComposite in="SourceGraphic" in2="grid" operator="in"/>
+        <feMorphology operator="dilate" radius="2.5"/>
+      </filter>
     </defs>
 
+    <g id="pixelLayer" filter="url(#pixelate)"><rect width="800" height="450" fill="#000"/>
     <g id="world">
       <!-- ================= SCENE 1: STREET ================= -->
       <g id="street" class="scene">
@@ -274,14 +290,10 @@
         <!-- barbershop -->
         <rect x="430" y="110" width="370" height="250" fill="url(#brick)" stroke="#1d1a22" stroke-width="4"/>
         <rect x="448" y="122" width="340" height="56" rx="8" fill="#1d1a22"/>
-        <text x="618" y="146" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="17" fill="#ffcf3f" letter-spacing="2">БАРБЕРШОП</text>
-        <text x="618" y="169" text-anchor="middle" font-family="Neucha, cursive" font-size="20" fill="#fff">«У Германа» · с 2019 года</text>
         <rect x="560" y="215" width="80" height="145" fill="#5a3a2a" stroke="#1d1a22" stroke-width="4"/>
         <rect x="572" y="228" width="56" height="60" fill="#cfe9ff" stroke="#1d1a22" stroke-width="3"/>
         <circle cx="626" cy="300" r="4" fill="#ffcf3f"/>
         <rect x="662" y="210" width="118" height="100" fill="#cfe9ff" stroke="#1d1a22" stroke-width="4"/>
-        <text x="721" y="252" text-anchor="middle" font-family="Neucha, cursive" font-size="17" fill="#1d1a22">ОТКРЫТО</text>
-        <text x="721" y="276" text-anchor="middle" font-family="Neucha, cursive" font-size="14" fill="#c84a3c">без записи!</text>
         <g transform="translate(528 255)">
           <g clip-path="url(#poleClip)"><rect class="pole-stripes" x="-9" y="-40" width="18" height="140" fill="url(#poleStripe)"/></g>
           <rect x="-9" y="-40" width="18" height="80" rx="9" fill="none" stroke="#1d1a22" stroke-width="3"/>
@@ -323,12 +335,6 @@
         </g>
         <!-- price list -->
         <rect x="545" y="40" width="200" height="120" rx="6" fill="#1d1a22" stroke="#c99a3a" stroke-width="4"/>
-        <text x="645" y="68" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="14" fill="#ffcf3f" letter-spacing="1.5">ПРАЙС</text>
-        <g font-family="Neucha, cursive" font-size="15" fill="#fff">
-          <text x="560" y="94">Классика</text><text x="730" y="94" text-anchor="end">900 ₽</text>
-          <text x="560" y="116">Фейд</text><text x="730" y="116" text-anchor="end">1200 ₽</text>
-          <text x="560" y="138" fill="#ff8a7a">«Шедевр от Германа»</text><text x="730" y="138" text-anchor="end" fill="#ff8a7a">1500 ₽</text>
-        </g>
         <g transform="translate(770 220)">
           <g clip-path="url(#poleClip2)"><rect class="pole-stripes" x="-9" y="-40" width="18" height="140" fill="url(#poleStripe)"/></g>
           <rect x="-9" y="-40" width="18" height="80" rx="9" fill="none" stroke="#1d1a22" stroke-width="3"/>
@@ -368,7 +374,6 @@
             <text x="-6" y="18" font-size="34" stroke="none" fill="#c84a3c" font-family="Rubik, sans-serif" font-weight="800">✂</text>
           </g>
         </g></g>
-        <text id="vzh" x="330" y="62" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="46" fill="#ffcf3f" stroke="#1d1a22" stroke-width="3" paint-order="stroke">ВЖЖЖЖЖ!</text>
 
         <g id="hairFx"></g>
 
@@ -418,6 +423,25 @@
       </g>
     </g>
 
+    </g>
+    <g id="textLayer">
+      <g id="streetText">
+        <text x="618" y="148" text-anchor="middle" font-family="'Press Start 2P', monospace" font-size="15" fill="#ffcf3f">БАРБЕРШОП</text>
+        <text x="618" y="169" text-anchor="middle" font-family="'Pixelify Sans', monospace" font-size="17" fill="#fff">«У Германа» · с 2019 года</text>
+        <text x="721" y="254" text-anchor="middle" font-family="'Press Start 2P', monospace" font-size="12" fill="#1d1a22">ОТКРЫТО</text>
+        <text x="721" y="278" text-anchor="middle" font-family="'Pixelify Sans', monospace" font-size="14" fill="#c84a3c">без записи!</text>
+      </g>
+      <g id="shopText" opacity="0">
+        <text x="645" y="70" text-anchor="middle" font-family="'Press Start 2P', monospace" font-size="12" fill="#ffcf3f">ПРАЙС</text>
+        <g font-family="'Pixelify Sans', monospace" font-size="15" fill="#fff">
+          <text x="560" y="94">Классика</text><text x="730" y="94" text-anchor="end">900 ₽</text>
+          <text x="560" y="116">Фейд</text><text x="730" y="116" text-anchor="end">1200 ₽</text>
+          <text x="560" y="138" fill="#ff8a7a">«Шедевр от Германа»</text><text x="730" y="138" text-anchor="end" fill="#ff8a7a">1500 ₽</text>
+        </g>
+        <text id="vzh" x="330" y="62" text-anchor="middle" font-family="'Press Start 2P', monospace" font-size="30" fill="#ffcf3f" stroke="#1d1a22" stroke-width="4" paint-order="stroke">ВЖЖЖЖЖ!</text>
+      </g>
+      <g id="stickers"></g>
+    </g>
     <rect id="fade" width="800" height="450" fill="#000" opacity="0" pointer-events="none"/>
   </svg>
 
@@ -428,11 +452,6 @@
     <div class="big">А что если ты —<br>Иван Кепчик…</div>
     <div class="small">мультик на 47 секунд · с озвучкой, включи звук</div>
     <button id="playBtn" type="button">▶ Смотреть</button>
-  </div>
-  <div class="card" id="endCard" hidden>
-    <div class="big">КОНЕЦ</div>
-    <div class="small">Ни один Кепчик не пострадал. Ну, почти.</div>
-    <button id="againBtn" type="button">↻ Ещё раз</button>
   </div>
 </div>
 
@@ -468,7 +487,7 @@
     document.getElementById('vtop').appendChild(document.getElementById('caption'));
     document.getElementById('german').style.transform = `translate(${GX}px, 392px)`;
     setCam(0);
-    document.getElementById('vzh').setAttribute('font-size', '32');
+    document.getElementById('vzh').setAttribute('font-size', '26');
     document.getElementById('vzh').setAttribute('x', '400');
   }
   const NS = 'http://www.w3.org/2000/svg';
@@ -562,7 +581,26 @@
   function scene(name) {
     $('street').setAttribute('opacity', name === 'street' ? 1 : 0);
     $('shop').setAttribute('opacity', name === 'shop' ? 1 : 0);
+    $('streetText').setAttribute('opacity', name === 'street' ? 1 : 0);
+    $('shopText').setAttribute('opacity', name === 'shop' ? 1 : 0);
   }
+  function sticker(word, x, y, rot, color, size) {
+    const t = document.createElementNS(NS, 'text');
+    if (VERT && x > 400) x = Math.min(x, 400 + VW / 2 - 70);
+    if (VERT && x < 400) x = Math.max(x, 400 - VW / 2 + 70);
+    t.setAttribute('x', x); t.setAttribute('y', y);
+    t.setAttribute('text-anchor', 'middle');
+    t.setAttribute('font-family', "'Press Start 2P', monospace");
+    t.setAttribute('font-size', size || 18);
+    t.setAttribute('fill', color || '#ff4fd8');
+    t.setAttribute('stroke', '#1d1a22'); t.setAttribute('stroke-width', '4'); t.setAttribute('paint-order', 'stroke');
+    t.setAttribute('class', 'sticker');
+    t.style.setProperty('--r', rot + 'deg');
+    t.textContent = word;
+    $('stickers').appendChild(t);
+    setTimeout(() => t.remove(), 1600);
+  }
+  function zoom(t) { $('world').style.transform = t; $('textLayer').style.transform = t; }
   const fade = v => $('fade').setAttribute('opacity', v);
 
   // ---------- falling hair ----------
@@ -634,13 +672,12 @@
     $('ivanWalk').style.transform = 'translate(-120px, 360px)';
     $('ivanWalk').classList.remove('walking');
     $('german').style.transform = `translate(${GX}px, 392px)`;
-    $('world').style.transform = '';
+    zoom('');
     cancelAnimationFrame(camAnim); setCam(0);
-    $('hairFx').innerHTML = '';
+    $('hairFx').innerHTML = ''; $('stickers').innerHTML = '';
     bubbles.innerHTML = '';
     cap('');
     scene('street'); fade(0);
-    $('endCard').hidden = true;
     svg.getBoundingClientRect();
     svg.classList.remove('no-trans');
   }
@@ -691,19 +728,18 @@
     at(28800, () => { vo('g3'); say('Готово! Красавчик!', 74, 24, 2700, { tail: 'tail-l' }); });
 
     // 4. reveal
-    at(31600, () => { $('world').style.transform = 'translate(70px, 35px) scale(2.2)'; ding(); });
+    at(31600, () => { zoom('translate(70px, 35px) scale(2.2)'); ding(); });
     at(32400, () => { cap('…и он подстриг тебя хуже всех в этом городе'); vo('n4'); });
     at(36300, () => cap(''));
     at(36400, () => { vo('i4'); say('Герман… это что вообще такое?', 50, 14, 3400, {}); });
-    at(39900, () => { $('world').style.transform = ''; });
+    at(39900, () => { zoom(''); });
     at(40400, () => { vo('g4'); say('Это модно. С тебя 1500 ₽.', 74, 24, 3000, { tail: 'tail-l' }); });
     at(43600, () => { set('face', 'sad'); set('cap', 'on'); set('tuft', 'on'); });
     at(44200, () => { cap('Вот поэтому он теперь и Кепчик.'); vo('n5'); });
-    at(47200, () => { cap(''); $('endCard').hidden = false; });
+    at(47200, () => cap(''));
   }
 
   $('playBtn').addEventListener('click', play);
-  $('againBtn').addEventListener('click', play);
   $('replayBtn').addEventListener('click', play);
   $('soundBtn').addEventListener('click', e => {
     soundOn = !soundOn;
