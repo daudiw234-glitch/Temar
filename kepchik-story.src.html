@@ -580,6 +580,12 @@
     at(t + d2 - 300, () => stk('ШМЫРДЯК', 70, 40, -12));
     sfx(t + d2 - 300, 'pop');
     t += d2 + G;
+    if (WORDS.i5) {
+      const d = speak(t, 'i5', 'ivan');
+      at(t + 250, () => stk('ЦИБУДИН', 30, 38, -10, '#7dff6a'));
+      sfx(t + 250, 'pop');
+      t += d + G;
+    }
 
     // 3. barbershop front
     at(t, () => { scene('front', { cast: 'ivan' }); hud('vTime', '14:31'); popup('<div class="k"><span>КАРТЫ · 4 МИН ПЕШКОМ</span><span>★ 4,2</span></div><div class="t">Барбершоп «У Германа»</div><div class="s">«норм, но цибудин был холодный» — Олег</div>', '', 2800); });
@@ -592,12 +598,21 @@
     const d4 = speak(t, 'g1', 'german');
     at(t + 600, () => stk('КРАКАБУЛЯ', 28, 22 + 18, 8, '#7dff6a'));
     t += d4 + G;
+    if (WORDS.g5) {
+      at(t, () => set('gface', 'wink'));
+      const d = speak(t, 'g5', 'german');
+      at(t + 300, () => stk('С СОУСОМ', 70, 36, -6, '#ffd23f'));
+      sfx(t + 300, 'pop');
+      at(t + d, () => set('gface', 'smile'));
+      t += d + G;
+    }
 
     // 5. Ivan in the chair, takes off cap; price list
     at(t, () => { scene('chair', { cast: 'ivan', body: 'cape' }); });
     sfx(t, 'whoosh');
     at(t + 200, () => set('cap', 'off'));
     at(t + 400, () => popup('<div class="k"><span>ПРАЙС</span><span>₽</span></div><div class="row"><span>Классика</span><span>900</span></div><div class="row"><span>Фейд</span><span>1200</span></div><div class="row hot"><span>«Кракабуля» + цибудин</span><span>1500</span></div>', '', 3000));
+    if (WORDS.i6) { t += speak(t, 'i6', 'ivan') + G; }
     t += speak(t, 'i2', 'ivan') + G;
 
     // 6. German winks
@@ -610,18 +625,22 @@
 
     // 7. 15 minutes later — the cut
     at(t, () => { scene('chair', { cast: 'ivan', body: 'cape' }); set('gface', 'smile'); set('face', 'shock'); set('cut', 'on'); $('cam').classList.add('shake'); $('later').classList.add('show'); hud('vTime', '14:47');
-      const iv = setInterval(hairBits, 40); intervals.push(iv); at(5200, () => clearInterval(iv)); });
+      const iv = setInterval(hairBits, 40); intervals.push(iv); window.__hairIv = iv; });
     sfx(t, 'buzzOn');
     at(t, () => countdown('vHair', 100, 7, 5000, v => v + '%'));
     at(t + 1900, () => $('later').classList.remove('show'));
     t += speak(t, 'n3') + G;
     at(t - 100, () => { stk('БЖМЫРК', 26, 33, -14, '#ff4fd8', 7); stk('ЖМЫХ', 76, 50, 10, '#7dff6a'); });
     sfx(t - 100, 'pop');
+    if (WORDS.g6) {
+      // German whispers off-screen while the clipper keeps going
+      t += speak(t, 'g6', null) + G;
+    }
 
     // 8. Ivan yells
     at(t + 900, () => set('hair', 'bad'));
     const d8 = speak(t, 'i3', 'ivan');
-    at(t + d8 - 200, () => { set('cut', 'off'); $('cam').classList.remove('shake'); $('vHair').classList.add('red'); hud('vHair', '7%', true); });
+    at(t + d8 - 200, () => { clearInterval(window.__hairIv); set('cut', 'off'); $('cam').classList.remove('shake'); $('vHair').classList.add('red'); hud('vHair', '7%', true); });
     sfx(t + d8 - 200, 'buzzOff');
     sfx(t + d8 - 150, 'alarm');
     t += d8 + G;
@@ -651,6 +670,12 @@
     at(t + d12 - 700, () => { $('vBal').classList.add('red'); countdown('vBal', 1500, 0, 500, v => v + ' ₽'); hud('vBal', '1500 ₽', true); });
     sfx(t + d12 - 700, 'alarm');
     t += d12 + G;
+    if (WORDS.g7) {
+      const d = speak(t, 'g7', 'german');
+      at(t + 400, () => stk('ЖМЫХАРЬ', 30, 40, -10, '#ff4fd8'));
+      sfx(t + 400, 'pop');
+      t += d + G;
+    }
 
     // 13. night, cap on, tuft sticking out
     at(t, () => { scene('night', { cast: 'ivan', body: 'hoodie' }); set('face', 'sad'); set('cap', 'on'); set('tuft', 'on'); hud('vTime', '23:47'); });
@@ -659,7 +684,7 @@
     t += d13 + 150;
     at(t, () => { stk('ЦИБУДИН', 50, 30, -6, '#ff4fd8', 11); $('pill').classList.add('show'); });
     sfx(t, 'pop');
-    t += 2300;
+    if (WORDS.n6) { t += 200; t += speak(t, 'n6') + 900; } else { t += 2300; }
     window.__timeline = { total: t, events: EVENTS };
   }
 
