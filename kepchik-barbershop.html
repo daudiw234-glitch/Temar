@@ -194,12 +194,31 @@
     svg[data-cut="on"] #cloudInner, svg[data-cut="on"] #german .bob, svg[data-cut="on"] #vzh,
     .pole-stripes, .walking .leg-l, .walking .leg-r, .walking .arm-l, .walking .arm-r, .walking .bob { animation: none; }
   }
+
+  /* ---------- vertical 9:16 mode (open with #vertical) ---------- */
+  body.vertical { padding: 0; gap: 0; min-height: 0; background: #17131c; }
+  body.vertical > h1, body.vertical .controls, body.vertical .note { display: none; }
+  body.vertical .vwrap { width: 100vw; height: 100vh; display: grid; grid-template-rows: 15.625% 75% 9.375%; }
+  body.vertical .vtop { display: flex; align-items: center; justify-content: center; padding: 0 5%; }
+  body.vertical .vbottom { display: flex; align-items: center; justify-content: center; font: 800 3.4vw var(--f-display); letter-spacing: .12em; color: var(--accent); }
+  body.vertical .stage { max-width: none; width: 100%; height: 100%; aspect-ratio: auto; border-radius: 0; box-shadow: none; }
+  body.vertical .caption {
+    position: static; background: none; padding: 0; text-shadow: none;
+    font-size: 8.4vw; line-height: 1.1; color: #fff; text-wrap: balance;
+  }
+  body.vertical .bubble { font-size: 5.2vw; max-width: 72%; border-width: .5vw; border-radius: 4vw; }
+  body.vertical .card .big { font-size: 11vw; }
+  body.vertical .card .small { font-size: 4.6vw; }
+  body.vertical .card button { font-size: 5vw; }
+  .vwrap { display: contents; }
+  .vtop, .vbottom { display: none; }
 </style>
 </head>
 <body>
 
 <h1>А что если ты — <span>Иван Кепчик</span> у Германа в барбершопе</h1>
 
+<div class="vwrap"><div class="vtop" id="vtop"></div>
 <div class="stage" id="stageBox">
   <svg id="stage" viewBox="0 0 800 450" data-hair="good" data-face="happy" data-gface="smile" data-cap="on" data-tuft="off" data-cut="off" role="img" aria-label="Мультфильм: Иван Кепчик идёт в барбершоп к Герману и уходит с ужасной стрижкой">
     <defs>
@@ -417,6 +436,8 @@
   </div>
 </div>
 
+<div class="vbottom">ИВАН КЕПЧИК · У ГЕРМАНА</div></div>
+
 <div class="controls">
   <button id="replayBtn" type="button">↻ С начала</button>
   <button id="soundBtn" type="button" aria-pressed="true">🔊 Звук: вкл</button>
@@ -426,6 +447,30 @@
 <script>
 (() => {
   const svg = document.getElementById('stage');
+  const VERT = location.hash === '#vertical';
+  const VW = 337.5;               // 3:4 window into the 800x450 scene
+  const GX = VERT ? 500 : 580;    // German stands closer in the vertical crop
+  let camX = 0, camAnim = null;
+  function setCam(x) { camX = x; if (VERT) svg.setAttribute('viewBox', `${x} 0 ${VW} 450`); }
+  function camTo(x, ms) {
+    if (!VERT) return;
+    cancelAnimationFrame(camAnim);
+    const from = camX, t0 = performance.now();
+    const step = now => {
+      const k = Math.min(1, (now - t0) / ms);
+      setCam(from + (x - from) * k);
+      if (k < 1) camAnim = requestAnimationFrame(step);
+    };
+    camAnim = requestAnimationFrame(step);
+  }
+  if (VERT) {
+    document.body.classList.add('vertical');
+    document.getElementById('vtop').appendChild(document.getElementById('caption'));
+    document.getElementById('german').style.transform = `translate(${GX}px, 392px)`;
+    setCam(0);
+    document.getElementById('vzh').setAttribute('font-size', '32');
+    document.getElementById('vzh').setAttribute('x', '400');
+  }
   const NS = 'http://www.w3.org/2000/svg';
 
   // ---------- Ivan's head (inserted into both slots) ----------
@@ -499,6 +544,11 @@
     const b = document.createElement('div');
     b.className = 'bubble ' + (opts.tail || '') + (opts.yell ? ' yell' : '');
     b.textContent = text;
+    if (VERT) {
+      let sx = xPct / 100 * 800;
+      if (sx > 450) sx -= (580 - GX);
+      xPct = Math.max(32, Math.min(68, (sx - camX) / VW * 100));
+    }
     b.style.left = xPct + '%';
     b.style.top = yPct + '%';
     bubbles.appendChild(b);
@@ -583,8 +633,9 @@
     Object.assign(svg.dataset, { hair: 'good', face: 'happy', gface: 'smile', cap: 'on', tuft: 'off', cut: 'off' });
     $('ivanWalk').style.transform = 'translate(-120px, 360px)';
     $('ivanWalk').classList.remove('walking');
-    $('german').style.transform = 'translate(580px, 392px)';
+    $('german').style.transform = `translate(${GX}px, 392px)`;
     $('world').style.transform = '';
+    cancelAnimationFrame(camAnim); setCam(0);
     $('hairFx').innerHTML = '';
     bubbles.innerHTML = '';
     cap('');
@@ -611,7 +662,7 @@
     $('startCard').hidden = true;
 
     // 1. street
-    at(100, () => { $('ivanWalk').classList.add('walking'); $('ivanWalk').style.transform = 'translate(600px, 360px)'; });
+    at(100, () => { $('ivanWalk').classList.add('walking'); $('ivanWalk').style.transform = 'translate(600px, 360px)'; camTo(800 - VW, 4000); });
     at(300, () => { cap('А что если ты — Иван Кепчик…'); vo('n1'); });
     at(3700, () => cap(''));
     at(4100, () => $('ivanWalk').classList.remove('walking'));
@@ -619,7 +670,7 @@
     at(7400, () => fade(1));
 
     // 2. shop
-    at(8200, () => { scene('shop'); fade(0); });
+    at(8200, () => { scene('shop'); setCam(400 - VW / 2); fade(0); });
     at(8400, () => { cap('…и ты пришёл в барбершоп к Герману'); vo('n2'); });
     at(11300, () => cap(''));
     at(11500, () => { vo('g1'); say('Заходи, брат! Садись. Как стрижём?', 74, 24, 3500, { tail: 'tail-l' }); });
@@ -636,7 +687,7 @@
     at(25600, () => { vo('i3'); say('ГЕРМАН, ТЫ ЧТО ДЕЛАЕШЬ?!', 22, 30, 2400, { yell: true, tail: 'tail-r' }); });
     at(27000, () => set('hair', 'bad'));
     at(27900, () => { set('cut', 'off'); clearInterval(hairTimer); buzzStop(); });
-    at(28200, () => { $('german').style.transform = 'translate(580px, 392px)'; });
+    at(28200, () => { $('german').style.transform = `translate(${GX}px, 392px)`; });
     at(28800, () => { vo('g3'); say('Готово! Красавчик!', 74, 24, 2700, { tail: 'tail-l' }); });
 
     // 4. reveal
