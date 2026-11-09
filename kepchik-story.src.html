@@ -1,0 +1,670 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кепчик у Германа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Press+Start+2P&display=swap">
+<style>
+  /* Layout: one 9:16 frame, centered; art is pixelated SVG, UI on top stays crisp. Single dark look by choice. */
+  :root {
+    --bg: #120f17;
+    --ink: #1d1a22;
+    --card: #fffdf6;
+    --accent: #ffd23f;
+    --hot: #ff3b5c;
+    --pink: #ff4fd8;
+    --f-pix: "Press Start 2P", ui-monospace, monospace;
+    --f-sub: "Pixelify Sans", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: #fff;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+  }
+  .frame {
+    position: relative;
+    height: min(100vh, calc(100vw * 16 / 9));
+    aspect-ratio: 9 / 16;
+    overflow: hidden;
+    container-type: inline-size;
+    background: #000;
+  }
+  .frame svg.art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* ---------- HUD (top cards) ---------- */
+  .hud {
+    position: absolute; left: 3cqw; right: 3cqw; top: 3.2cqw;
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2cqw;
+  }
+  .hud .c {
+    background: var(--card); color: var(--ink);
+    border: .7cqw solid var(--ink);
+    padding: 1.4cqw 2cqw 1.6cqw;
+    display: grid; gap: 1.2cqw;
+    box-shadow: 0 .9cqw 0 rgba(0,0,0,.45);
+  }
+  .hud .c.dark { background: #1d1a22; color: #fff; border-color: #000; }
+  .hud .l { font: 1.7cqw var(--f-pix); letter-spacing: .1em; opacity: .65; }
+  .hud .v { font: 3.6cqw var(--f-pix); font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .hud .c.alarm { animation: alarm .25s steps(2) 6; }
+  .hud .c.alarm .v, .hud .v.red { color: var(--hot); }
+  @keyframes alarm { 50% { transform: translateY(-.8cqw) rotate(-2deg); background: #ffd5dc; } }
+
+  /* ---------- top badge ---------- */
+  .badge {
+    position: absolute; left: 50%; top: 15cqw; transform: translateX(-50%);
+    background: #000; color: #fff; font: 2.3cqw var(--f-pix);
+    padding: 1.6cqw 2.6cqw; letter-spacing: .06em; white-space: nowrap;
+    border: .5cqw solid #fff;
+  }
+
+  /* ---------- popups ---------- */
+  .pop {
+    position: absolute; left: 7cqw; right: 7cqw; top: 26cqw;
+    background: var(--card); color: var(--ink);
+    border: .8cqw solid var(--ink);
+    padding: 3cqw 3.4cqw;
+    box-shadow: 0 1.4cqw 0 rgba(0,0,0,.5);
+    transform: scale(.4) rotate(-3deg); opacity: 0;
+    transition: transform .28s cubic-bezier(.3,1.7,.5,1), opacity .15s;
+  }
+  .pop.show { transform: scale(1) rotate(-1deg); opacity: 1; }
+  .pop .k { font: 1.8cqw var(--f-pix); letter-spacing: .08em; opacity: .6; margin-bottom: 1.6cqw; display: flex; justify-content: space-between; gap: 2cqw; }
+  .pop .t { font: 700 5cqw/1.15 var(--f-sub); }
+  .pop .s { font: 400 3.6cqw/1.25 var(--f-sub); margin-top: 1.4cqw; }
+  .pop .big { font: 6.2cqw/1.2 var(--f-pix); color: var(--hot); margin-top: 1cqw; }
+  .pop.notif { background: #1d1a22; color: #fff; border-color: #000; }
+  .pop.notif .k { opacity: .75; }
+  .pop .row { display: flex; justify-content: space-between; gap: 3cqw; font: 400 4cqw/1.45 var(--f-sub); }
+  .pop .row.hot { color: #d81b60; font-weight: 700; }
+  .pop .legend { color: #b8860b; }
+
+  /* ---------- tilted time sticker (like "2 дня спустя") ---------- */
+  .later {
+    position: absolute; left: 50%; top: 30cqw;
+    background: var(--accent); color: var(--ink);
+    border: .8cqw solid var(--ink);
+    font: 4.4cqw var(--f-pix); padding: 2.6cqw 3.6cqw; white-space: nowrap;
+    transform: translateX(-50%) rotate(-5deg) scale(0);
+    transition: transform .3s cubic-bezier(.3,1.7,.5,1);
+  }
+  .later.show { transform: translateX(-50%) rotate(-5deg) scale(1); }
+
+  /* ---------- subtitles ---------- */
+  .subs {
+    position: absolute; left: 4cqw; right: 4cqw; top: 136cqw;
+    text-align: center;
+    font: 700 8.6cqw/1.1 var(--f-sub);
+    color: #fff;
+    text-shadow:
+      .6cqw 0 0 #000, -.6cqw 0 0 #000, 0 .6cqw 0 #000, 0 -.6cqw 0 #000,
+      .6cqw .6cqw 0 #000, -.6cqw -.6cqw 0 #000, .6cqw -.6cqw 0 #000, -.6cqw .6cqw 0 #000,
+      0 1.4cqw 0 #000;
+    text-wrap: balance;
+  }
+  .subs span { display: inline-block; margin: 0 .9cqw; }
+  .subs span.on { color: var(--accent); transform: scale(1.08); }
+
+  /* ---------- word stickers ---------- */
+  .stk {
+    position: absolute; font: 6cqw var(--f-pix); white-space: nowrap;
+    color: var(--pink);
+    text-shadow: .7cqw .7cqw 0 #000, -.4cqw -.4cqw 0 #000, .4cqw -.4cqw 0 #000, -.4cqw .4cqw 0 #000;
+    animation: stk 1.4s cubic-bezier(.3,1.7,.5,1) forwards;
+    pointer-events: none;
+  }
+  @keyframes stk {
+    0% { transform: translate(-50%,-50%) rotate(var(--r)) scale(0); }
+    20% { transform: translate(-50%,-50%) rotate(var(--r)) scale(1.2); }
+    30%, 85% { transform: translate(-50%,-50%) rotate(var(--r)) scale(1); opacity: 1; }
+    100% { transform: translate(-50%,-50%) rotate(var(--r)) scale(1); opacity: 0; }
+  }
+
+  /* ---------- end pill ---------- */
+  .pill {
+    position: absolute; left: 50%; top: 150cqw; transform: translateX(-50%) scale(0);
+    background: var(--accent); color: var(--ink); border: .7cqw solid var(--ink);
+    font: 2.8cqw var(--f-pix); padding: 2.2cqw 3cqw; white-space: nowrap;
+    transition: transform .3s cubic-bezier(.3,1.7,.5,1);
+  }
+  .pill.show { transform: translateX(-50%) scale(1); }
+
+  /* ---------- start overlay ---------- */
+  .start {
+    position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5cqw;
+    background: rgba(10,8,14,.78); text-align: center; padding: 6cqw;
+  }
+  .start[hidden] { display: none !important; }
+  .start h1 { font: 6cqw/1.5 var(--f-pix); margin: 0; text-wrap: balance; }
+  .start p { font: 4.4cqw var(--f-sub); margin: 0; color: #cbbfd8; }
+  .start button {
+    font: 4cqw var(--f-pix); background: var(--accent); color: var(--ink);
+    border: .8cqw solid var(--ink); padding: 3cqw 5cqw; cursor: pointer; box-shadow: 0 1.2cqw 0 #000;
+  }
+  .start button:focus-visible { outline: .8cqw solid #fff; outline-offset: 1cqw; }
+
+  /* ---------- SVG states ---------- */
+  .bgs > g, .cast > g { display: none; }
+  svg[data-scene="street"]   #bg-street,
+  svg[data-scene="front"]    #bg-front,
+  svg[data-scene="shop"]     #bg-shop,
+  svg[data-scene="chair"]    #bg-chair,
+  svg[data-scene="mirror"]   #bg-mirror,
+  svg[data-scene="night"]    #bg-night { display: inline; }
+  svg[data-cast="ivan"] #ivan, svg[data-cast="german"] #german { display: inline; }
+  .body-hoodie, .body-cape { display: none; }
+  svg[data-body="hoodie"] .body-hoodie, svg[data-body="cape"] .body-cape { display: inline; }
+
+  .h-good, .h-bad, .tuft-out, .f-happy, .f-shock, .f-sad, .g-smile, .g-wink, .mo { display: none; }
+  svg[data-hair="good"] .h-good { display: inline; }
+  svg[data-hair="bad"]  .h-bad  { display: inline; }
+  svg[data-tuft="on"] .tuft-out { display: inline; }
+  svg[data-face="happy"] .f-happy { display: inline; }
+  svg[data-face="shock"] .f-shock { display: inline; }
+  svg[data-face="sad"]   .f-sad   { display: inline; }
+  svg[data-gface="smile"] .g-smile { display: inline; }
+  svg[data-gface="wink"]  .g-wink  { display: inline; }
+  svg[data-mo="1"][data-talk="ivan"] #ivan .mo,
+  svg[data-mo="1"][data-talk="german"] #german .mo { display: inline; }
+
+  .cap { transition: transform .6s cubic-bezier(.5,-0.4,.5,1.4), opacity .4s; transform-box: view-box; }
+  svg[data-cap="off"] .cap { transform: translate(60px, -140px) rotate(25deg); opacity: 0; }
+
+  #cam { transform-origin: 180px 330px; transition: transform .35s cubic-bezier(.2,.8,.3,1); }
+  #cam.punch { transform: scale(1.07); transition: none; }
+  #cam.zoom { transform: scale(1.35) translateY(10px); transition: transform 1s cubic-bezier(.6,0,.3,1); }
+  #cam.shake { animation: shake .09s linear infinite; }
+  @keyframes shake { 0% { translate: 0 0; } 25% { translate: 4px -3px; } 50% { translate: -3px 3px; } 75% { translate: 3px 4px; } 100% { translate: -4px -2px; } }
+  .bob { animation: bob 1.6s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(4px); } }
+  #cloud { transform-origin: 180px 240px; transform: scale(0); transition: transform .3s cubic-bezier(.3,1.6,.5,1); }
+  svg[data-cut="on"] #cloud { transform: scale(1); }
+  svg[data-cut="on"] #cloudIn, svg[data-cut="on"] #clipHand { animation: shake .07s linear infinite; }
+  #clipHand { display: none; }
+  svg[data-cut="on"] #clipHand { display: inline; }
+  .twinkle { animation: tw 1.2s steps(2) infinite; }
+  @keyframes tw { 50% { opacity: .2; } }
+  .pole { animation: pole 1s linear infinite; }
+  @keyframes pole { to { transform: translateY(-28px); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .bob, #cam.shake, .twinkle, .pole, svg[data-cut="on"] #cloudIn, svg[data-cut="on"] #clipHand { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <svg class="art" id="art" viewBox="0 0 360 640" data-scene="street" data-cast="ivan" data-body="hoodie" data-hair="good" data-face="happy" data-gface="smile" data-cap="on" data-tuft="off" data-cut="off" data-mo="0" data-talk="" role="img" aria-label="Пиксельный мультик: Иван Кепчик приходит в барбершоп к Герману">
+    <defs>
+      <filter id="px" x="0" y="0" width="360" height="640" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood x="2" y="2" width="1" height="1"/>
+        <feComposite width="4" height="4"/>
+        <feTile result="grid"/>
+        <feComposite in="SourceGraphic" in2="grid" operator="in"/>
+        <feMorphology operator="dilate" radius="2"/>
+      </filter>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5fbfff"/><stop offset="1" stop-color="#c7ecff"/></linearGradient>
+      <linearGradient id="nsky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0c0b2a"/><stop offset="1" stop-color="#2b2266"/></linearGradient>
+      <pattern id="brick" width="40" height="20" patternUnits="userSpaceOnUse"><rect width="40" height="20" fill="#a8473a"/><path d="M0 0H40M0 10H40M10 0V10M30 10V20" stroke="#8a3a30" stroke-width="2"/></pattern>
+      <pattern id="wall" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#2f5d57"/><rect width="20" height="40" fill="#29524d"/></pattern>
+      <pattern id="floor" width="48" height="48" patternUnits="userSpaceOnUse"><rect width="48" height="48" fill="#ece2cf"/><rect width="24" height="24" fill="#2a2430"/><rect x="24" y="24" width="24" height="24" fill="#2a2430"/></pattern>
+      <pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><rect width="22" height="22" fill="#f4f1ea"/><circle cx="11" cy="11" r="3" fill="#c84a3c"/></pattern>
+      <pattern id="poleS" width="20" height="28" patternUnits="userSpaceOnUse" patternTransform="skewY(-30)"><rect width="20" height="28" fill="#fff"/><rect width="20" height="9" fill="#d8312f"/><rect y="14" width="20" height="5" fill="#2b5fc4"/></pattern>
+      <clipPath id="poleClip"><rect x="-10" y="-50" width="20" height="100" rx="10"/></clipPath>
+    </defs>
+
+    <g filter="url(#px)">
+      <rect width="360" height="640" fill="#000"/>
+      <g id="cam">
+        <!-- ======== BACKGROUNDS ======== -->
+        <g class="bgs">
+          <g id="bg-street">
+            <rect width="360" height="640" fill="url(#sky)"/>
+            <circle cx="290" cy="200" r="30" fill="#ffe066"/>
+            <g fill="#fff"><ellipse cx="80" cy="190" rx="44" ry="15"/><ellipse cx="106" cy="178" rx="26" ry="15"/></g>
+            <rect x="-10" y="260" width="110" height="260" fill="#ff8a5c" stroke="#1d1a22" stroke-width="4"/>
+            <rect x="96" y="300" width="80" height="220" fill="#f4c542" stroke="#1d1a22" stroke-width="4"/>
+            <rect x="250" y="280" width="120" height="240" fill="#8c7ae6" stroke="#1d1a22" stroke-width="4"/>
+            <g fill="#cfe9ff" stroke="#1d1a22" stroke-width="3">
+              <rect x="10" y="285" width="26" height="30"/><rect x="56" y="285" width="26" height="30"/><rect x="10" y="335" width="26" height="30"/><rect x="56" y="335" width="26" height="30"/>
+              <rect x="112" y="320" width="22" height="26"/><rect x="142" y="320" width="22" height="26"/>
+              <rect x="268" y="300" width="26" height="30"/><rect x="318" y="300" width="26" height="30"/><rect x="268" y="350" width="26" height="30"/><rect x="318" y="350" width="26" height="30"/>
+            </g>
+            <circle cx="210" cy="380" r="38" fill="#4caf50" stroke="#1d1a22" stroke-width="4"/>
+            <rect x="204" y="410" width="12" height="80" fill="#6b3d22"/>
+            <rect y="500" width="360" height="140" fill="#bfae98"/>
+          </g>
+
+          <g id="bg-front">
+            <rect width="360" height="640" fill="url(#brick)"/>
+            <rect x="24" y="210" width="312" height="74" fill="#1d1a22" stroke="#c99a3a" stroke-width="5"/>
+            <rect x="40" y="300" width="120" height="160" fill="#cfe9ff" stroke="#1d1a22" stroke-width="5"/>
+            <rect x="200" y="300" width="120" height="340" fill="#5a3a2a" stroke="#1d1a22" stroke-width="5"/>
+            <rect x="216" y="318" width="88" height="90" fill="#cfe9ff" stroke="#1d1a22" stroke-width="4"/>
+            <g transform="translate(180 380)">
+              <g clip-path="url(#poleClip)"><rect class="pole" x="-10" y="-50" width="20" height="160" fill="url(#poleS)"/></g>
+              <rect x="-10" y="-50" width="20" height="100" rx="10" fill="none" stroke="#1d1a22" stroke-width="3"/>
+            </g>
+          </g>
+
+          <g id="bg-shop">
+            <rect width="360" height="640" fill="url(#wall)"/>
+            <rect x="196" y="160" width="140" height="120" fill="#1d1a22" stroke="#c99a3a" stroke-width="5"/>
+            <g fill="#fff"><rect x="212" y="186" width="56" height="6"/><rect x="290" y="186" width="30" height="6"/><rect x="212" y="210" width="40" height="6"/><rect x="290" y="210" width="30" height="6"/><rect x="212" y="234" width="70" height="6" fill="#ff8a7a"/><rect x="290" y="234" width="30" height="6" fill="#ff8a7a"/></g>
+            <rect x="24" y="170" width="110" height="160" rx="50" fill="#9fd4e6" stroke="#c99a3a" stroke-width="8"/>
+            <g transform="translate(160 230)">
+              <g clip-path="url(#poleClip)"><rect class="pole" x="-10" y="-50" width="20" height="160" fill="url(#poleS)"/></g>
+              <rect x="-10" y="-50" width="20" height="100" rx="10" fill="none" stroke="#1d1a22" stroke-width="3"/>
+            </g>
+            <rect y="560" width="360" height="80" fill="url(#floor)"/>
+          </g>
+
+          <g id="bg-chair">
+            <rect width="360" height="640" fill="url(#wall)"/>
+            <rect x="24" y="150" width="90" height="130" rx="40" fill="#9fd4e6" stroke="#c99a3a" stroke-width="7"/>
+            <rect x="100" y="250" width="160" height="300" rx="26" fill="#8b1e2e" stroke="#1d1a22" stroke-width="6"/>
+            <rect y="560" width="360" height="80" fill="url(#floor)"/>
+          </g>
+
+          <g id="bg-mirror">
+            <rect width="360" height="640" fill="#2b2733"/>
+            <ellipse cx="180" cy="380" rx="168" ry="250" fill="#c99a3a" stroke="#1d1a22" stroke-width="6"/>
+            <ellipse cx="180" cy="380" rx="150" ry="232" fill="#a9dcea"/>
+            <path d="M70 260 l40 -40 M70 300 l70 -70" stroke="#fff" stroke-width="10" stroke-linecap="square" opacity=".6"/>
+            <g fill="#fff" class="twinkle"><rect x="300" y="170" width="8" height="8"/><rect x="50" y="470" width="8" height="8"/><rect x="290" y="520" width="6" height="6"/></g>
+          </g>
+
+          <g id="bg-night">
+            <rect width="360" height="640" fill="url(#nsky)"/>
+            <circle cx="270" cy="200" r="26" fill="#fff4c2"/><circle cx="282" cy="192" r="24" fill="#1c1850"/>
+            <g fill="#fff" class="twinkle"><rect x="40" y="190" width="4" height="4"/><rect x="120" y="230" width="4" height="4"/><rect x="200" y="180" width="4" height="4"/><rect x="330" y="260" width="4" height="4"/></g>
+            <rect x="-10" y="290" width="120" height="260" fill="#221d45" stroke="#000" stroke-width="4"/>
+            <rect x="250" y="300" width="120" height="250" fill="#2a2452" stroke="#000" stroke-width="4"/>
+            <g fill="#ffd23f"><rect x="14" y="320" width="20" height="22"/><rect x="70" y="370" width="20" height="22"/><rect x="270" y="330" width="20" height="22"/><rect x="320" y="390" width="20" height="22"/></g>
+            <rect x="140" y="250" width="8" height="300" fill="#444"/><circle cx="144" cy="246" r="14" fill="#ffd23f"/>
+            <rect y="540" width="360" height="100" fill="#3b3550"/>
+          </g>
+        </g>
+
+        <!-- ======== CAST ======== -->
+        <g class="cast">
+          <g id="ivan"><g class="bob">
+            <rect x="160" y="390" width="40" height="70" fill="#f6cfa8" stroke="#1d1a22" stroke-width="4"/>
+            <g class="body-hoodie">
+              <path d="M40 660 C44 520 90 455 180 452 C270 455 316 520 320 660 Z" fill="#3a7bd5" stroke="#1d1a22" stroke-width="5"/>
+              <path d="M120 462 Q180 500 240 462" fill="none" stroke="#1d1a22" stroke-width="5"/>
+              <path d="M160 480 V540 M200 480 V540" stroke="#f2f2f2" stroke-width="5"/>
+              <circle cx="160" cy="544" r="6" fill="#f2f2f2" stroke="#1d1a22" stroke-width="3"/><circle cx="200" cy="544" r="6" fill="#f2f2f2" stroke="#1d1a22" stroke-width="3"/>
+              <rect x="128" y="590" width="104" height="40" rx="8" fill="#2f66b8" stroke="#1d1a22" stroke-width="4"/>
+            </g>
+            <g class="body-cape">
+              <path d="M10 660 L64 480 Q180 444 296 480 L350 660 Z" fill="url(#dots)" stroke="#1d1a22" stroke-width="5"/>
+              <path d="M140 462 Q180 480 220 462" fill="none" stroke="#1d1a22" stroke-width="5"/>
+            </g>
+            <g id="ivanHead" transform="translate(180 336) scale(1.75)"></g>
+          </g></g>
+
+          <g id="german"><g class="bob">
+            <rect x="160" y="390" width="40" height="70" fill="#f0c9a0" stroke="#1d1a22" stroke-width="4"/>
+            <path d="M40 660 C44 520 90 455 180 452 C270 455 316 520 320 660 Z" fill="#fafafa" stroke="#1d1a22" stroke-width="5"/>
+            <path d="M96 660 L108 510 H252 L264 660 Z" fill="#26222b" stroke="#1d1a22" stroke-width="4"/>
+            <path d="M118 510 L140 462 M242 510 L220 462" stroke="#26222b" stroke-width="8"/>
+            <rect x="160" y="540" width="40" height="28" fill="#3b3540"/><path d="M168 546 l12 14 l12 -14" stroke="#c99a3a" stroke-width="4" fill="none"/>
+            <g>
+              <path d="M300 560 L318 440" stroke="#fafafa" stroke-width="26" stroke-linecap="round"/>
+              <path d="M300 560 L318 440" stroke="#1d1a22" stroke-width="4" fill="none" opacity="0"/>
+              <circle cx="318" cy="434" r="16" fill="#f0c9a0" stroke="#1d1a22" stroke-width="4"/>
+              <rect x="306" y="372" width="26" height="58" rx="6" fill="#3b3b44" stroke="#1d1a22" stroke-width="4"/>
+              <rect x="302" y="360" width="34" height="14" fill="#c8c8d0" stroke="#1d1a22" stroke-width="4"/>
+            </g>
+            <g transform="translate(180 325) scale(1.9)">
+              <ellipse cx="-40" cy="4" rx="9" ry="12" fill="#f0c9a0" stroke="#1d1a22" stroke-width="3"/>
+              <ellipse cx="40" cy="4" rx="9" ry="12" fill="#f0c9a0" stroke="#1d1a22" stroke-width="3"/>
+              <circle r="40" fill="#f0c9a0" stroke="#1d1a22" stroke-width="4"/>
+              <path d="M-40 -6 C-46 -46 -10 -58 10 -54 C40 -50 48 -24 40 -6 C36 -26 20 -34 -6 -32 C-24 -30 -36 -22 -40 -6Z" fill="#1d1a22"/>
+              <path d="M-22 -14 l12 -3 M10 -17 l12 3" stroke="#1d1a22" stroke-width="4" stroke-linecap="round"/>
+              <g class="g-smile"><circle cx="-14" cy="-3" r="5" fill="#1d1a22"/><circle cx="15" cy="-3" r="5" fill="#1d1a22"/></g>
+              <g class="g-wink"><circle cx="-14" cy="-3" r="5" fill="#1d1a22"/><path d="M9 -2 q6 -6 12 0" stroke="#1d1a22" stroke-width="4" fill="none" stroke-linecap="round"/></g>
+              <path d="M-3 4 q3 8 6 0" stroke="#1d1a22" stroke-width="3" fill="none"/>
+              <path d="M-12 26 q12 10 24 0" stroke="#1d1a22" stroke-width="3" fill="#b8434a"/>
+              <ellipse class="mo" cx="0" cy="28" rx="9" ry="7" fill="#5a1d24" stroke="#1d1a22" stroke-width="3"/>
+              <path d="M0 14 C-10 8 -28 10 -34 22 C-24 18 -14 22 0 18 C14 22 24 18 34 22 C28 10 10 8 0 14Z" fill="#1d1a22"/>
+            </g>
+          </g></g>
+        </g>
+
+        <!-- ======== CUT FX ======== -->
+        <g id="cloud"><g id="cloudIn" fill="#efe9f3" stroke="#1d1a22" stroke-width="5">
+          <circle cx="110" cy="250" r="44"/><circle cx="150" cy="210" r="52"/><circle cx="210" cy="206" r="50"/><circle cx="252" cy="248" r="44"/><circle cx="180" cy="252" r="46"/>
+          <g stroke="none"><circle cx="110" cy="250" r="40"/><circle cx="150" cy="210" r="48"/><circle cx="210" cy="206" r="46"/><circle cx="252" cy="248" r="40"/><circle cx="180" cy="252" r="42"/></g>
+          <path d="M140 222 l12 12 m0 -12 l-12 12 M206 234 l12 12 m0 -12 l-12 12" stroke="#1d1a22" stroke-width="5" fill="none"/>
+        </g></g>
+        <g id="clipHand">
+          <path d="M380 330 L270 250" stroke="#fafafa" stroke-width="26" stroke-linecap="round"/>
+          <circle cx="266" cy="246" r="16" fill="#f0c9a0" stroke="#1d1a22" stroke-width="4"/>
+          <g transform="rotate(-50 250 230)"><rect x="236" y="200" width="26" height="58" rx="6" fill="#3b3b44" stroke="#1d1a22" stroke-width="4"/><rect x="232" y="188" width="34" height="14" fill="#c8c8d0" stroke="#1d1a22" stroke-width="4"/></g>
+        </g>
+        <g id="hairFx"></g>
+      </g>
+    </g>
+  </svg>
+
+  <div class="hud" aria-hidden="true">
+    <div class="c" id="cBal"><div class="l">БАЛАНС</div><div class="v" id="vBal">1500 ₽</div></div>
+    <div class="c" id="cHair"><div class="l">ВОЛОСЫ</div><div class="v" id="vHair">100%</div></div>
+    <div class="c dark"><div class="l">ВРЕМЯ</div><div class="v" id="vTime">14:20</div></div>
+  </div>
+  <div class="badge" id="badge" hidden>А ЧТО ЕСЛИ… · ЧАСТЬ 1</div>
+  <div id="pops"></div>
+  <div class="later" id="later">15 МИНУТ СПУСТЯ</div>
+  <div class="subs" id="subs" aria-live="polite"></div>
+  <div id="stks"></div>
+  <div class="pill" id="pill">ПИШИ «ЦИБУДИН» В КОММЕНТЫ ↓</div>
+
+  <div class="start" id="start">
+    <h1>А что если ты — Иван Кепчик…</h1>
+    <p>пиксельный мультик · включи звук</p>
+    <button id="playBtn" type="button">▶ СМОТРЕТЬ</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const svg = $('art'), NS = 'http://www.w3.org/2000/svg';
+  const set = (k, v) => svg.dataset[k] = v;
+
+  // Ivan's head (same character as the first cartoon)
+  $('ivanHead').innerHTML = `
+    <ellipse cx="-42" cy="4" rx="9" ry="13" fill="#f6cfa8" stroke="#1d1a22" stroke-width="3"/>
+    <ellipse cx="42" cy="4" rx="9" ry="13" fill="#f6cfa8" stroke="#1d1a22" stroke-width="3"/>
+    <circle r="42" fill="#f6cfa8" stroke="#1d1a22" stroke-width="4"/>
+    <g class="h-good">
+      <path d="M-44 -6 C-52 -50 -24 -66 -2 -62 C10 -72 34 -66 40 -54 C54 -44 50 -20 44 -6 C40 -26 26 -34 10 -30 C0 -40 -14 -40 -24 -32 C-34 -30 -40 -20 -44 -6Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="4"/>
+    </g>
+    <g class="h-bad">
+      <path d="M-40 -14 C-40 -40 -20 -44 -8 -42 L-12 -26 C-22 -28 -30 -24 -40 -14Z" fill="#9b6a43" opacity=".6"/>
+      <ellipse cx="-12" cy="-34" rx="12" ry="7" fill="#ffe2c4"/><ellipse cx="22" cy="-30" rx="10" ry="6" fill="#ffe2c4"/>
+      <path d="M-34 -30 l-6 -14 l8 6 l2 -12 l6 12 Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="3"/>
+      <path d="M26 -40 l2 -12 l6 8 l6 -6 l-2 14 Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="3"/>
+      <path d="M2 -42 C-6 -60 14 -66 6 -84" stroke="#7a4a24" stroke-width="6" fill="none"/>
+      <path d="M-30 -22 l8 6 l4 -8 l6 10 l6 -12 Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="3"/>
+      <g transform="rotate(-25 32 -16)"><rect x="22" y="-20" width="22" height="9" fill="#f2d18a" stroke="#1d1a22" stroke-width="2"/></g>
+    </g>
+    <g class="f-happy">
+      <path d="M-24 -18 l12 -3 M12 -21 l12 3" stroke="#1d1a22" stroke-width="4"/>
+      <circle cx="-15" cy="-4" r="5" fill="#1d1a22"/><circle cx="15" cy="-4" r="5" fill="#1d1a22"/>
+      <path d="M-16 18 q16 16 32 0" stroke="#1d1a22" stroke-width="4" fill="#b8434a"/>
+      <circle cx="-26" cy="10" r="6" fill="#ff9a8a" opacity=".7"/><circle cx="26" cy="10" r="6" fill="#ff9a8a" opacity=".7"/>
+    </g>
+    <g class="f-shock">
+      <path d="M-26 -26 l12 -6 M14 -32 l12 6" stroke="#1d1a22" stroke-width="4"/>
+      <circle cx="-15" cy="-6" r="11" fill="#fff" stroke="#1d1a22" stroke-width="3"/><circle cx="15" cy="-6" r="11" fill="#fff" stroke="#1d1a22" stroke-width="3"/>
+      <circle cx="-15" cy="-5" r="3.5" fill="#1d1a22"/><circle cx="15" cy="-5" r="3.5" fill="#1d1a22"/>
+      <ellipse cx="0" cy="22" rx="9" ry="12" fill="#5a1d24" stroke="#1d1a22" stroke-width="3"/>
+    </g>
+    <g class="f-sad">
+      <path d="M-26 -16 l12 -6 M14 -22 l12 6" stroke="#1d1a22" stroke-width="4"/>
+      <path d="M-21 -4 q6 5 12 0 M9 -4 q6 5 12 0" stroke="#1d1a22" stroke-width="4" fill="none"/>
+      <path d="M-14 26 q14 -12 28 0" stroke="#1d1a22" stroke-width="4" fill="none"/>
+      <path d="M-20 4 q-4 6 0 9 q4 -3 0 -9Z" fill="#6cc4ff" stroke="#1d1a22" stroke-width="1.5"/>
+    </g>
+    <ellipse class="mo" cx="0" cy="22" rx="10" ry="8" fill="#5a1d24" stroke="#1d1a22" stroke-width="3"/>
+    <path d="M-3 6 q3 7 6 0" stroke="#1d1a22" stroke-width="3" fill="none"/>
+    <g class="tuft-out"><path d="M2 -52 C-6 -70 14 -78 6 -96" stroke="#7a4a24" stroke-width="6" fill="none"/></g>
+    <g class="cap">
+      <path d="M-46 -14 C-48 -60 46 -60 46 -14 Z" fill="#e23d3d" stroke="#1d1a22" stroke-width="4"/>
+      <path d="M-46 -14 H78 Q74 -2 46 -4 H-46Z" fill="#b42a2a" stroke="#1d1a22" stroke-width="4"/>
+      <circle cy="-48" r="5" fill="#b42a2a" stroke="#1d1a22" stroke-width="3"/>
+      <rect x="-7" y="-36" width="14" height="16" fill="#fff"/><rect x="-7" y="-36" width="4" height="16" fill="#e23d3d"/>
+    </g>`;
+
+  // ---------- data injected at build time ----------
+  const VOICE = /*VOICE*/{};
+  const WORDS = /*WORDS*/{};
+  const MUSIC = /*MUSIC*/"";
+
+  // ---------- audio ----------
+  const voices = {};
+  for (const k in VOICE) { try { voices[k] = new Audio(VOICE[k]); voices[k].preload = 'auto'; } catch (e) {} }
+  let music = null; try { if (MUSIC) { music = new Audio(MUSIC); music.volume = .28; } } catch (e) {}
+  let ctx = null, buzzNode = null;
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function blip(f0, f1, dur, vol, type) {
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'square'; o.frequency.setValueAtTime(f0, c.currentTime);
+      o.frequency.exponentialRampToValueAtTime(f1, c.currentTime + dur);
+      g.gain.setValueAtTime(vol, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + dur);
+      o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + dur + .02);
+    } catch (e) {}
+  }
+  function buzz(on) {
+    try {
+      if (on) {
+        const c = ac(), o = c.createOscillator(), l = c.createOscillator(), lg = c.createGain(), f = c.createBiquadFilter(), g = c.createGain();
+        o.type = 'sawtooth'; o.frequency.value = 118; l.frequency.value = 9; lg.gain.value = 14;
+        l.connect(lg).connect(o.frequency); f.type = 'lowpass'; f.frequency.value = 1400; g.gain.value = .03;
+        o.connect(f).connect(g).connect(c.destination); o.start(); l.start(); buzzNode = { o, l };
+      } else if (buzzNode) { buzzNode.o.stop(); buzzNode.l.stop(); buzzNode = null; }
+    } catch (e) {}
+  }
+  const SFX = {
+    pop: () => blip(520, 1040, .09, .05),
+    whoosh: () => blip(900, 200, .18, .04, 'triangle'),
+    ding: () => blip(220, 90, .7, .12, 'triangle'),
+    alarm: () => blip(880, 440, .25, .05),
+    buzzOn: () => buzz(true), buzzOff: () => buzz(false),
+  };
+
+  // ---------- timeline helpers ----------
+  let timers = [], intervals = [], EVENTS = [];
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const sfx = (ms, name) => { EVENTS.push({ t: ms, type: name }); at(ms, () => SFX[name] && SFX[name]()); };
+
+  function scene(name, opts = {}) {
+    set('scene', name);
+    if (opts.cast) set('cast', opts.cast);
+    if (opts.body) set('body', opts.body);
+    const cam = $('cam');
+    cam.classList.remove('zoom');
+    cam.classList.add('punch'); void cam.getBoundingClientRect(); cam.classList.remove('punch');
+  }
+  function hud(id, val, alarm) {
+    $(id).textContent = val;
+    if (alarm) { const c = $(id).parentElement; c.classList.remove('alarm'); void c.offsetWidth; c.classList.add('alarm'); }
+  }
+  function popup(html, cls, ms) {
+    const p = document.createElement('div');
+    p.className = 'pop ' + (cls || ''); p.innerHTML = html;
+    $('pops').appendChild(p);
+    requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('show')));
+    setTimeout(() => { p.classList.remove('show'); setTimeout(() => p.remove(), 300); }, ms);
+  }
+  function stk(word, x, y, r, color, size) {
+    const s = document.createElement('div');
+    s.className = 'stk'; s.textContent = word;
+    s.style.left = x + '%'; s.style.top = y + '%';
+    s.style.setProperty('--r', r + 'deg');
+    if (color) s.style.color = color;
+    if (size) s.style.fontSize = size + 'cqw';
+    $('stks').appendChild(s);
+    setTimeout(() => s.remove(), 1500);
+  }
+  function countdown(id, from, to, ms, fmt) {
+    const t0 = performance.now();
+    const iv = setInterval(() => {
+      const k = Math.min(1, (performance.now() - t0) / ms);
+      $(id).textContent = fmt(Math.round(from + (to - from) * k));
+      if (k >= 1) clearInterval(iv);
+    }, 60);
+    intervals.push(iv);
+  }
+  const hairBits = () => {
+    const p = document.createElementNS(NS, 'path');
+    const x = 110 + Math.random() * 140, y = 200 + Math.random() * 60;
+    p.setAttribute('d', `M${x} ${y} q6 -8 ${12 + Math.random() * 8} ${Math.random() * 6}`);
+    p.setAttribute('stroke', '#7a4a24'); p.setAttribute('stroke-width', 5); p.setAttribute('fill', 'none');
+    $('hairFx').appendChild(p);
+    p.animate([{ transform: 'translate(0,0)' }, { transform: `translate(${(Math.random() - .5) * 260}px, ${640 - y}px)` }],
+      { duration: 900 + Math.random() * 600, easing: 'cubic-bezier(.4,0,.9,.6)', fill: 'forwards' });
+    setTimeout(() => p.remove(), 1600);
+  };
+
+  // speak: voice + karaoke subtitles + mouth flap
+  function speak(ms, k, who) {
+    const w = WORDS[k]; if (!w) return 0;
+    EVENTS.push({ t: ms, type: 'voice', k });
+    at(ms, () => {
+      const a = voices[k]; if (a) { try { a.currentTime = 0; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {} }
+      if (who) { set('talk', who); }
+    });
+    // chunks of up to 3 words
+    const chunks = []; for (let i = 0; i < w.w.length; i += 3) chunks.push(w.w.slice(i, i + 3));
+    chunks.forEach(ch => {
+      at(ms + ch[0][1] * 1000, () => {
+        $('subs').innerHTML = ch.map(x => `<span>${x[0]}</span>`).join(' ');
+      });
+      ch.forEach((x, j) => at(ms + x[1] * 1000, () => {
+        const sp = $('subs').children; for (let q = 0; q < sp.length; q++) sp[q].classList.toggle('on', q === j);
+      }));
+    });
+    const end = w.w[w.w.length - 1][2];
+    if (who) {
+      at(ms, () => { const iv = setInterval(() => set('mo', svg.dataset.mo === '1' ? '0' : '1'), 110); intervals.push(iv); at(end * 1000, () => { clearInterval(iv); set('mo', '0'); }); });
+    }
+    at(ms + end * 1000 + 250, () => { $('subs').innerHTML = ''; });
+    return Math.round(w.d * 1000);
+  }
+
+  function reset() {
+    timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers = []; intervals = []; EVENTS = [];
+    buzz(false);
+    for (const k in voices) try { voices[k].pause(); } catch (e) {}
+    if (music) { music.pause(); music.currentTime = 0; }
+    Object.assign(svg.dataset, { scene: 'street', cast: 'ivan', body: 'hoodie', hair: 'good', face: 'happy', gface: 'smile', cap: 'on', tuft: 'off', cut: 'off', mo: '0', talk: '' });
+    $('cam').className = '';
+    $('pops').innerHTML = ''; $('stks').innerHTML = ''; $('subs').innerHTML = ''; $('hairFx').innerHTML = '';
+    $('later').classList.remove('show'); $('pill').classList.remove('show'); $('badge').hidden = true;
+    $('vBal').textContent = '1500 ₽'; $('vBal').classList.remove('red');
+    $('vHair').textContent = '100%'; $('vHair').classList.remove('red');
+    $('vTime').textContent = '14:20';
+  }
+
+  // ---------- the film ----------
+  function play() {
+    reset();
+    $('start').hidden = true;
+    if (music) { try { const p = music.play(); if (p) p.catch(() => {}); } catch (e) {} }
+    EVENTS.push({ t: 0, type: 'music' });
+    let t = 500;
+    const G = 280; // gap between lines
+
+    // 1. street — intro
+    at(t, () => { $('badge').hidden = false; });
+    t += speak(t, 'n1') + G;
+    at(t - 200, () => $('badge').hidden = true);
+
+    // 2. Ivan notices his hair; mom texts
+    at(t, () => { scene('street', { cast: 'ivan' }); popup('<div class="k"><span>МАМА · СЕЙЧАС</span><span>●</span></div><div class="t">сынок ты оброс как шмырдяк</div><div class="s">и купи цибудин</div>', 'notif', 2900); });
+    sfx(t, 'pop');
+    const d2 = speak(t, 'i1', 'ivan');
+    at(t + d2 - 300, () => stk('ШМЫРДЯК', 70, 40, -12));
+    sfx(t + d2 - 300, 'pop');
+    t += d2 + G;
+
+    // 3. barbershop front
+    at(t, () => { scene('front', { cast: 'ivan' }); hud('vTime', '14:31'); popup('<div class="k"><span>КАРТЫ · 4 МИН ПЕШКОМ</span><span>★ 4,2</span></div><div class="t">Барбершоп «У Германа»</div><div class="s">«норм, но цибудин был холодный» — Олег</div>', '', 2800); });
+    sfx(t, 'whoosh');
+    t += speak(t, 'n2') + G;
+
+    // 4. German greets
+    at(t, () => { scene('shop', { cast: 'german' }); hud('vTime', '14:32'); });
+    sfx(t, 'whoosh');
+    const d4 = speak(t, 'g1', 'german');
+    at(t + 600, () => stk('КРАКАБУЛЯ', 28, 22 + 18, 8, '#7dff6a'));
+    t += d4 + G;
+
+    // 5. Ivan in the chair, takes off cap; price list
+    at(t, () => { scene('chair', { cast: 'ivan', body: 'cape' }); });
+    sfx(t, 'whoosh');
+    at(t + 200, () => set('cap', 'off'));
+    at(t + 400, () => popup('<div class="k"><span>ПРАЙС</span><span>₽</span></div><div class="row"><span>Классика</span><span>900</span></div><div class="row"><span>Фейд</span><span>1200</span></div><div class="row hot"><span>«Кракабуля» + цибудин</span><span>1500</span></div>', '', 3000));
+    t += speak(t, 'i2', 'ivan') + G;
+
+    // 6. German winks
+    at(t, () => { scene('shop', { cast: 'german' }); set('gface', 'wink'); });
+    sfx(t, 'whoosh');
+    const d6 = speak(t, 'g2', 'german');
+    at(t + d6 - 500, () => stk('ОКАК', 72, 42, -8, '#ffd23f'));
+    sfx(t + d6 - 500, 'pop');
+    t += d6 + G;
+
+    // 7. 15 minutes later — the cut
+    at(t, () => { scene('chair', { cast: 'ivan', body: 'cape' }); set('gface', 'smile'); set('face', 'shock'); set('cut', 'on'); $('cam').classList.add('shake'); $('later').classList.add('show'); hud('vTime', '14:47');
+      const iv = setInterval(hairBits, 40); intervals.push(iv); at(5200, () => clearInterval(iv)); });
+    sfx(t, 'buzzOn');
+    at(t, () => countdown('vHair', 100, 7, 5000, v => v + '%'));
+    at(t + 1900, () => $('later').classList.remove('show'));
+    t += speak(t, 'n3') + G;
+    at(t - 100, () => { stk('БЖМЫРК', 26, 33, -14, '#ff4fd8', 7); stk('ЖМЫХ', 76, 50, 10, '#7dff6a'); });
+    sfx(t - 100, 'pop');
+
+    // 8. Ivan yells
+    at(t + 900, () => set('hair', 'bad'));
+    const d8 = speak(t, 'i3', 'ivan');
+    at(t + d8 - 200, () => { set('cut', 'off'); $('cam').classList.remove('shake'); $('vHair').classList.add('red'); hud('vHair', '7%', true); });
+    sfx(t + d8 - 200, 'buzzOff');
+    sfx(t + d8 - 150, 'alarm');
+    t += d8 + G;
+
+    // 9. German proud
+    at(t, () => { scene('shop', { cast: 'german' }); });
+    sfx(t, 'whoosh');
+    const d9 = speak(t, 'g3', 'german');
+    at(t + 500, () => stk('ПУПЫРКА', 72, 40, 12, '#ffd23f'));
+    t += d9 + G;
+
+    // 10. mirror reveal
+    at(t, () => { scene('mirror', { cast: 'ivan', body: 'hoodie' }); set('face', 'shock'); $('cam').classList.add('zoom'); });
+    sfx(t, 'ding');
+    at(t + 900, () => popup('<div class="k"><span>НОВЫЙ ПРЕДМЕТ</span><span>★★★★★</span></div><div class="t">Причёска «Жмыхарь Бурундукович»</div><div class="s legend">редкость: легендарная · −100 к харизме</div>', '', 3600));
+    sfx(t + 900, 'pop');
+    t += speak(t, 'n4') + G;
+
+    // 11. Ivan quietly
+    at(t, () => { $('cam').classList.remove('zoom'); });
+    t += speak(t, 'i4', 'ivan') + G;
+
+    // 12. German bills him
+    at(t, () => { scene('shop', { cast: 'german' }); });
+    sfx(t, 'whoosh');
+    const d12 = speak(t, 'g4', 'german');
+    at(t + d12 - 700, () => { $('vBal').classList.add('red'); countdown('vBal', 1500, 0, 500, v => v + ' ₽'); hud('vBal', '1500 ₽', true); });
+    sfx(t + d12 - 700, 'alarm');
+    t += d12 + G;
+
+    // 13. night, cap on, tuft sticking out
+    at(t, () => { scene('night', { cast: 'ivan', body: 'hoodie' }); set('face', 'sad'); set('cap', 'on'); set('tuft', 'on'); hud('vTime', '23:47'); });
+    sfx(t, 'whoosh');
+    const d13 = speak(t, 'n5');
+    t += d13 + 150;
+    at(t, () => { stk('ЦИБУДИН', 50, 30, -6, '#ff4fd8', 11); $('pill').classList.add('show'); });
+    sfx(t, 'pop');
+    t += 2300;
+    window.__timeline = { total: t, events: EVENTS };
+  }
+
+  $('playBtn').addEventListener('click', play);
+})();
+</script>
+</body>
+</html>
