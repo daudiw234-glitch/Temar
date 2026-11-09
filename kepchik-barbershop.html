@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Кепчик у Германа</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Neucha&family=Rubik:wght@500;800&display=swap">
+<style>
+  /* Layout: one cinema stage, centered, with a caption strip and controls below. Single dark look by choice. */
+  :root {
+    --bg: #17131c;
+    --panel: #221c29;
+    --fg: #f3ece0;
+    --muted: #a99db6;
+    --accent: #ffcf3f;
+    --ink: #1d1a22;
+    --bubble: #fffdf6;
+    --f-display: "Rubik", system-ui, sans-serif;
+    --f-hand: "Neucha", "Comic Sans MS", cursive;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--f-display);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    padding-block: 20px 32px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  h1 {
+    font-weight: 800;
+    font-size: clamp(18px, 3.4vw, 28px);
+    letter-spacing: .02em;
+    margin: 0;
+    text-align: center;
+    text-wrap: balance;
+  }
+  h1 span { color: var(--accent); }
+  .stage {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .stage svg { display: block; width: 100%; height: 100%; }
+
+  /* caption strip inside the stage */
+  .caption {
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    padding: 10px 16px 12px;
+    background: linear-gradient(transparent, rgba(0,0,0,.75));
+    color: #fff;
+    font-family: var(--f-hand);
+    font-size: clamp(14px, 2.6vw, 26px);
+    text-align: center;
+    text-shadow: 0 2px 4px #000;
+    opacity: 0;
+    transition: opacity .4s;
+    pointer-events: none;
+  }
+  .caption.show { opacity: 1; }
+
+  /* speech bubbles */
+  .bubble {
+    position: absolute;
+    max-width: 38%;
+    background: var(--bubble);
+    color: var(--ink);
+    font-family: var(--f-hand);
+    font-size: clamp(11px, 2.1vw, 21px);
+    line-height: 1.2;
+    padding: .45em .75em;
+    border: 3px solid var(--ink);
+    border-radius: 18px;
+    transform: translate(-50%, -100%) scale(.6);
+    opacity: 0;
+    transition: transform .25s cubic-bezier(.3,1.6,.5,1), opacity .2s;
+    pointer-events: none;
+  }
+  .bubble.show { transform: translate(-50%, -100%) scale(1); opacity: 1; }
+  .bubble::after {
+    content: "";
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    border: 8px solid transparent;
+    border-top: 10px solid var(--ink);
+  }
+  .bubble.tail-l::after { left: 22%; }
+  .bubble.tail-r::after { left: 70%; }
+  .bubble.yell { font-weight: bold; background: #fff2a8; }
+
+  /* start / end card */
+  .card {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    gap: 14px;
+    background: rgba(15, 10, 20, .72);
+    text-align: center;
+    padding: 16px;
+    transition: opacity .4s;
+  }
+  .card[hidden] { display: none !important; }
+  .card .big {
+    font-weight: 800;
+    font-size: clamp(20px, 5vw, 48px);
+    line-height: 1.05;
+    text-wrap: balance;
+    text-shadow: 0 3px 0 #000;
+  }
+  .card .small { font-family: var(--f-hand); font-size: clamp(13px, 2.4vw, 22px); color: var(--muted); }
+  button {
+    font: 800 clamp(14px, 2.2vw, 18px) var(--f-display);
+    background: var(--accent);
+    color: var(--ink);
+    border: 3px solid var(--ink);
+    border-radius: 999px;
+    padding: .55em 1.4em;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #000;
+  }
+  button:hover { filter: brightness(1.08); }
+  button:active { transform: translateY(2px); box-shadow: 0 2px 0 #000; }
+  button:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .controls button { background: var(--panel); color: var(--fg); border-color: #3b3245; box-shadow: none; font-size: 14px; }
+  .note { color: var(--muted); font-size: 13px; text-align: center; max-width: 60ch; }
+
+  /* ---------- SVG state machine ---------- */
+  #stage.no-trans * { transition: none !important; }
+
+  .h-good, .h-bad, .tuft-out,
+  .f-happy, .f-shock, .f-sad,
+  .g-smile, .g-wink { display: none; }
+  svg[data-hair="good"] .h-good { display: inline; }
+  svg[data-hair="bad"]  .h-bad  { display: inline; }
+  svg[data-tuft="on"] .tuft-out { display: inline; }
+  svg[data-face="happy"] .f-happy { display: inline; }
+  svg[data-face="shock"] .f-shock { display: inline; }
+  svg[data-face="sad"]   .f-sad   { display: inline; }
+  svg[data-gface="smile"] .g-smile { display: inline; }
+  svg[data-gface="wink"]  .g-wink  { display: inline; }
+
+  .cap { transition: transform .7s cubic-bezier(.5,-0.4,.5,1.4), opacity .5s; }
+  svg[data-cap="off"] .cap { transform: translate(40px, -110px) rotate(25deg); opacity: 0; }
+
+  #ivanWalk { transition: transform 4s linear; }
+  #german { transition: transform .8s ease-in-out; }
+  #world { transition: transform 1.2s cubic-bezier(.6,0,.3,1); transform-origin: 330px 190px; }
+  #fade { transition: opacity .7s; }
+  .scene { transition: opacity .01s; }
+
+  .walking .leg-l { animation: legL .5s ease-in-out infinite alternate; }
+  .walking .leg-r { animation: legL .5s ease-in-out infinite alternate-reverse; }
+  .walking .arm-l { animation: legL .5s ease-in-out infinite alternate-reverse; }
+  .walking .arm-r { animation: legL .5s ease-in-out infinite alternate; }
+  .walking .bob   { animation: bob .25s ease-in-out infinite alternate; }
+  .leg-l, .leg-r, .arm-l, .arm-r { transform-box: fill-box; transform-origin: 50% 0; }
+  @keyframes legL { from { transform: rotate(-18deg); } to { transform: rotate(18deg); } }
+  @keyframes bob { from { transform: translateY(0); } to { transform: translateY(-5px); } }
+
+  #cloud { transform-origin: 0 0; transform-box: view-box; transform: scale(0); transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+  svg[data-cut="on"] #cloud { transform: scale(1); }
+  svg[data-cut="on"] #cloudInner { animation: jitter .08s linear infinite; }
+  svg[data-cut="on"] #german .bob { animation: jitter .07s linear infinite; }
+  #vzh { opacity: 0; }
+  svg[data-cut="on"] #vzh { opacity: 1; animation: jitter .06s linear infinite; }
+  @keyframes jitter {
+    0% { transform: translate(0,0); } 25% { transform: translate(3px,-2px); }
+    50% { transform: translate(-2px,2px); } 75% { transform: translate(2px,3px); } 100% { transform: translate(-3px,-1px); }
+  }
+  .blink { animation: blink 4s infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  @keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 97% { transform: scaleY(.1); } }
+  .pole-stripes { animation: pole 1.2s linear infinite; }
+  @keyframes pole { to { transform: translateY(-28px); } }
+  .tear { animation: tear 1.2s ease-in infinite; }
+  @keyframes tear { from { transform: translateY(0); opacity: 1; } to { transform: translateY(40px); opacity: 0; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    svg[data-cut="on"] #cloudInner, svg[data-cut="on"] #german .bob, svg[data-cut="on"] #vzh,
+    .pole-stripes, .walking .leg-l, .walking .leg-r, .walking .arm-l, .walking .arm-r, .walking .bob { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<h1>А что если ты — <span>Иван Кепчик</span> у Германа в барбершопе</h1>
+
+<div class="stage" id="stageBox">
+  <svg id="stage" viewBox="0 0 800 450" data-hair="good" data-face="happy" data-gface="smile" data-cap="on" data-tuft="off" data-cut="off" role="img" aria-label="Мультфильм: Иван Кепчик идёт в барбершоп к Герману и уходит с ужасной стрижкой">
+    <defs>
+      <pattern id="poleStripe" width="20" height="28" patternUnits="userSpaceOnUse" patternTransform="skewY(-30)">
+        <rect width="20" height="28" fill="#fff"/>
+        <rect width="20" height="9" fill="#d8312f"/>
+        <rect y="14" width="20" height="5" fill="#2b5fc4"/>
+      </pattern>
+      <pattern id="wall" width="40" height="40" patternUnits="userSpaceOnUse">
+        <rect width="40" height="40" fill="#2f5d57"/>
+        <rect width="20" height="40" fill="#2b5550"/>
+      </pattern>
+      <pattern id="floor" width="60" height="60" patternUnits="userSpaceOnUse">
+        <rect width="60" height="60" fill="#ece2cf"/>
+        <rect width="30" height="30" fill="#2a2430"/>
+        <rect x="30" y="30" width="30" height="30" fill="#2a2430"/>
+      </pattern>
+      <pattern id="brick" width="40" height="20" patternUnits="userSpaceOnUse">
+        <rect width="40" height="20" fill="#a8473a"/>
+        <path d="M0 0H40M0 10H40M10 0V10M30 10V20" stroke="#8a3a30" stroke-width="2"/>
+      </pattern>
+      <pattern id="capeDots" width="18" height="18" patternUnits="userSpaceOnUse">
+        <rect width="18" height="18" fill="#f4f1ea"/>
+        <circle cx="9" cy="9" r="2.4" fill="#c84a3c"/>
+      </pattern>
+      <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#6cc4ff"/>
+        <stop offset="1" stop-color="#c9ecff"/>
+      </linearGradient>
+      <clipPath id="poleClip"><rect x="-9" y="-40" width="18" height="80" rx="9"/></clipPath>
+      <clipPath id="poleClip2"><rect x="-9" y="-40" width="18" height="80" rx="9"/></clipPath>
+    </defs>
+
+    <g id="world">
+      <!-- ================= SCENE 1: STREET ================= -->
+      <g id="street" class="scene">
+        <rect width="800" height="450" fill="url(#sky)"/>
+        <circle cx="90" cy="70" r="34" fill="#ffe066"/>
+        <g fill="#fff" opacity=".9">
+          <ellipse cx="260" cy="70" rx="50" ry="18"/><ellipse cx="290" cy="58" rx="30" ry="18"/>
+          <ellipse cx="620" cy="50" rx="40" ry="14"/><ellipse cx="645" cy="42" rx="24" ry="14"/>
+        </g>
+        <!-- background houses -->
+        <rect x="0" y="170" width="150" height="190" fill="#8c8aa6" stroke="#1d1a22" stroke-width="4"/>
+        <g fill="#cfe9ff" stroke="#1d1a22" stroke-width="3">
+          <rect x="22" y="200" width="36" height="40"/><rect x="92" y="200" width="36" height="40"/>
+          <rect x="22" y="270" width="36" height="40"/><rect x="92" y="270" width="36" height="40"/>
+        </g>
+        <rect x="160" y="230" width="110" height="130" fill="#d1a86b" stroke="#1d1a22" stroke-width="4"/>
+        <g fill="#cfe9ff" stroke="#1d1a22" stroke-width="3">
+          <rect x="182" y="255" width="28" height="34"/><rect x="222" y="255" width="28" height="34"/>
+        </g>
+        <!-- barbershop -->
+        <rect x="430" y="110" width="370" height="250" fill="url(#brick)" stroke="#1d1a22" stroke-width="4"/>
+        <rect x="448" y="122" width="340" height="56" rx="8" fill="#1d1a22"/>
+        <text x="618" y="146" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="17" fill="#ffcf3f" letter-spacing="2">БАРБЕРШОП</text>
+        <text x="618" y="169" text-anchor="middle" font-family="Neucha, cursive" font-size="20" fill="#fff">«У Германа» · с 2019 года</text>
+        <rect x="560" y="215" width="80" height="145" fill="#5a3a2a" stroke="#1d1a22" stroke-width="4"/>
+        <rect x="572" y="228" width="56" height="60" fill="#cfe9ff" stroke="#1d1a22" stroke-width="3"/>
+        <circle cx="626" cy="300" r="4" fill="#ffcf3f"/>
+        <rect x="662" y="210" width="118" height="100" fill="#cfe9ff" stroke="#1d1a22" stroke-width="4"/>
+        <text x="721" y="252" text-anchor="middle" font-family="Neucha, cursive" font-size="17" fill="#1d1a22">ОТКРЫТО</text>
+        <text x="721" y="276" text-anchor="middle" font-family="Neucha, cursive" font-size="14" fill="#c84a3c">без записи!</text>
+        <g transform="translate(528 255)">
+          <g clip-path="url(#poleClip)"><rect class="pole-stripes" x="-9" y="-40" width="18" height="140" fill="url(#poleStripe)"/></g>
+          <rect x="-9" y="-40" width="18" height="80" rx="9" fill="none" stroke="#1d1a22" stroke-width="3"/>
+          <circle cy="-44" r="7" fill="#ffcf3f" stroke="#1d1a22" stroke-width="3"/>
+          <circle cy="44" r="7" fill="#ffcf3f" stroke="#1d1a22" stroke-width="3"/>
+        </g>
+        <!-- ground -->
+        <rect y="360" width="800" height="90" fill="#bfae98"/>
+        <path d="M0 362H800" stroke="#1d1a22" stroke-width="4"/>
+        <g stroke="#a4927b" stroke-width="3"><path d="M100 362V450M260 362V450M420 362V450M580 362V450M740 362V450"/></g>
+
+        <!-- Ivan walking -->
+        <g id="ivanWalk" style="transform: translate(-120px, 360px)">
+          <g class="bob">
+            <g class="leg-l"><rect x="-20" y="-92" width="17" height="80" rx="6" fill="#2d3550" stroke="#1d1a22" stroke-width="3"/><ellipse cx="-10" cy="-8" rx="15" ry="8" fill="#f2f2f2" stroke="#1d1a22" stroke-width="3"/></g>
+            <g class="leg-r"><rect x="3" y="-92" width="17" height="80" rx="6" fill="#2d3550" stroke="#1d1a22" stroke-width="3"/><ellipse cx="13" cy="-8" rx="15" ry="8" fill="#f2f2f2" stroke="#1d1a22" stroke-width="3"/></g>
+            <g class="arm-l"><rect x="-50" y="-158" width="16" height="64" rx="8" fill="#3a7bd5" stroke="#1d1a22" stroke-width="3"/></g>
+            <g class="arm-r"><rect x="34" y="-158" width="16" height="64" rx="8" fill="#3a7bd5" stroke="#1d1a22" stroke-width="3"/></g>
+            <rect x="-38" y="-165" width="76" height="82" rx="20" fill="#3a7bd5" stroke="#1d1a22" stroke-width="4"/>
+            <path d="M-14 -120h28" stroke="#1d1a22" stroke-width="3"/>
+            <g class="head-slot" transform="translate(0 -198)"></g>
+          </g>
+        </g>
+      </g>
+
+      <!-- ================= SCENE 2: SHOP ================= -->
+      <g id="shop" class="scene" opacity="0">
+        <rect width="800" height="390" fill="url(#wall)"/>
+        <rect y="390" width="800" height="60" fill="url(#floor)"/>
+        <path d="M0 390H800" stroke="#1d1a22" stroke-width="4"/>
+        <!-- mirror -->
+        <rect x="60" y="70" width="150" height="200" rx="70" fill="#9fd4e6" stroke="#c99a3a" stroke-width="10"/>
+        <path d="M95 110l30-25M95 140l55-45" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity=".6"/>
+        <rect x="50" y="270" width="170" height="16" rx="4" fill="#5a3a2a" stroke="#1d1a22" stroke-width="3"/>
+        <g stroke="#1d1a22" stroke-width="3">
+          <rect x="70" y="240" width="16" height="30" rx="3" fill="#7bd389"/>
+          <rect x="95" y="232" width="14" height="38" rx="3" fill="#ffb347"/>
+          <rect x="180" y="246" width="20" height="24" rx="3" fill="#c3a6ff"/>
+        </g>
+        <!-- price list -->
+        <rect x="545" y="40" width="200" height="120" rx="6" fill="#1d1a22" stroke="#c99a3a" stroke-width="4"/>
+        <text x="645" y="68" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="14" fill="#ffcf3f" letter-spacing="1.5">ПРАЙС</text>
+        <g font-family="Neucha, cursive" font-size="15" fill="#fff">
+          <text x="560" y="94">Классика</text><text x="730" y="94" text-anchor="end">900 ₽</text>
+          <text x="560" y="116">Фейд</text><text x="730" y="116" text-anchor="end">1200 ₽</text>
+          <text x="560" y="138" fill="#ff8a7a">«Шедевр от Германа»</text><text x="730" y="138" text-anchor="end" fill="#ff8a7a">1500 ₽</text>
+        </g>
+        <g transform="translate(770 220)">
+          <g clip-path="url(#poleClip2)"><rect class="pole-stripes" x="-9" y="-40" width="18" height="140" fill="url(#poleStripe)"/></g>
+          <rect x="-9" y="-40" width="18" height="80" rx="9" fill="none" stroke="#1d1a22" stroke-width="3"/>
+          <circle cy="-44" r="7" fill="#ffcf3f" stroke="#1d1a22" stroke-width="3"/>
+          <circle cy="44" r="7" fill="#ffcf3f" stroke="#1d1a22" stroke-width="3"/>
+        </g>
+
+        <!-- barber chair -->
+        <ellipse cx="330" cy="432" rx="60" ry="10" fill="#555" stroke="#1d1a22" stroke-width="3"/>
+        <rect x="322" y="360" width="16" height="72" fill="#9a9a9a" stroke="#1d1a22" stroke-width="3"/>
+        <rect x="282" y="205" width="96" height="140" rx="14" fill="#8b1e2e" stroke="#1d1a22" stroke-width="4"/>
+        <rect x="262" y="336" width="136" height="28" rx="8" fill="#8b1e2e" stroke="#1d1a22" stroke-width="4"/>
+
+        <!-- Ivan seated -->
+        <g id="ivanSeat">
+          <rect x="296" y="372" width="18" height="30" fill="#2d3550" stroke="#1d1a22" stroke-width="3"/>
+          <rect x="346" y="372" width="18" height="30" fill="#2d3550" stroke="#1d1a22" stroke-width="3"/>
+          <ellipse cx="300" cy="404" rx="16" ry="8" fill="#f2f2f2" stroke="#1d1a22" stroke-width="3"/>
+          <ellipse cx="360" cy="404" rx="16" ry="8" fill="#f2f2f2" stroke="#1d1a22" stroke-width="3"/>
+          <path d="M306 236 Q330 248 354 236 L420 378 Q330 396 240 378 Z" fill="url(#capeDots)" stroke="#1d1a22" stroke-width="4"/>
+          <g class="head-slot" transform="translate(330 192)"></g>
+        </g>
+
+        <!-- cutting cloud -->
+        <g transform="translate(330 170)"><g id="cloud">
+          <g id="cloudInner" fill="#efe9f3" stroke="#1d1a22" stroke-width="4">
+            <circle cx="-60" cy="10" r="40"/><circle cx="-20" cy="-30" r="48"/><circle cx="35" cy="-25" r="45"/>
+            <circle cx="70" cy="15" r="38"/><circle cx="20" cy="35" r="44"/><circle cx="-35" cy="40" r="38"/>
+            <g stroke="none">
+              <circle cx="-60" cy="10" r="36"/><circle cx="-20" cy="-30" r="44"/><circle cx="35" cy="-25" r="41"/>
+              <circle cx="70" cy="15" r="34"/><circle cx="20" cy="35" r="40"/><circle cx="-35" cy="40" r="34"/>
+            </g>
+            <g stroke="#1d1a22" stroke-width="4" fill="none" stroke-linecap="round">
+              <path d="M-30 -10l10 10m0 -10l-10 10"/><path d="M25 5l10 10m0-10l-10 10"/>
+              <path d="M-50 30q8 -8 16 0"/><path d="M50 -30l14 -4"/>
+            </g>
+            <text x="-6" y="18" font-size="34" stroke="none" fill="#c84a3c" font-family="Rubik, sans-serif" font-weight="800">✂</text>
+          </g>
+        </g></g>
+        <text id="vzh" x="330" y="62" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="46" fill="#ffcf3f" stroke="#1d1a22" stroke-width="3" paint-order="stroke">ВЖЖЖЖЖ!</text>
+
+        <g id="hairFx"></g>
+
+        <!-- German -->
+        <g id="german" style="transform: translate(580px, 392px)">
+          <g class="bob">
+            <rect x="-22" y="-100" width="18" height="92" rx="5" fill="#1d1a22"/>
+            <rect x="4" y="-100" width="18" height="92" rx="5" fill="#1d1a22"/>
+            <ellipse cx="-14" cy="-6" rx="17" ry="8" fill="#6b3d22" stroke="#1d1a22" stroke-width="3"/>
+            <ellipse cx="14" cy="-6" rx="17" ry="8" fill="#6b3d22" stroke="#1d1a22" stroke-width="3"/>
+            <rect x="-42" y="-195" width="84" height="105" rx="22" fill="#fafafa" stroke="#1d1a22" stroke-width="4"/>
+            <path d="M-30 -170 H30 V-92 Q0 -84 -30 -92 Z" fill="#26222b" stroke="#1d1a22" stroke-width="3"/>
+            <rect x="-14" y="-140" width="28" height="18" rx="4" fill="#3b3540"/>
+            <path d="M-8 -136 l6 10 l6 -10" stroke="#c99a3a" stroke-width="3" fill="none"/>
+            <!-- right arm down -->
+            <rect x="40" y="-188" width="16" height="70" rx="8" fill="#fafafa" stroke="#1d1a22" stroke-width="3"/>
+            <!-- left arm with clippers raised -->
+            <g transform="rotate(-60 -40 -182)">
+              <rect x="-48" y="-188" width="16" height="70" rx="8" fill="#fafafa" stroke="#1d1a22" stroke-width="3"/>
+              <circle cx="-40" cy="-114" r="10" fill="#f0c9a0" stroke="#1d1a22" stroke-width="3"/>
+              <rect x="-50" y="-112" width="20" height="44" rx="6" fill="#3b3b44" stroke="#1d1a22" stroke-width="3"/>
+              <rect x="-52" y="-72" width="24" height="10" rx="2" fill="#c8c8d0" stroke="#1d1a22" stroke-width="3"/>
+            </g>
+            <!-- head -->
+            <g transform="translate(0 -236)">
+              <ellipse cx="-40" cy="4" rx="9" ry="12" fill="#f0c9a0" stroke="#1d1a22" stroke-width="3"/>
+              <ellipse cx="40" cy="4" rx="9" ry="12" fill="#f0c9a0" stroke="#1d1a22" stroke-width="3"/>
+              <circle r="40" fill="#f0c9a0" stroke="#1d1a22" stroke-width="4"/>
+              <path d="M-40 -6 C-46 -46 -10 -58 10 -54 C40 -50 48 -24 40 -6 C36 -26 20 -34 -6 -32 C-24 -30 -36 -22 -40 -6Z" fill="#1d1a22"/>
+              <path d="M-6 -46 q20 -10 40 4" stroke="#57505e" stroke-width="3" fill="none"/>
+              <path d="M-22 -14 l12 -3 M10 -17 l12 3" stroke="#1d1a22" stroke-width="4" stroke-linecap="round"/>
+              <g class="g-smile">
+                <circle class="blink" cx="-14" cy="-3" r="5" fill="#1d1a22"/>
+                <circle class="blink" cx="15" cy="-3" r="5" fill="#1d1a22"/>
+              </g>
+              <g class="g-wink">
+                <circle cx="-14" cy="-3" r="5" fill="#1d1a22"/>
+                <path d="M9 -2 q6 -6 12 0" stroke="#1d1a22" stroke-width="4" fill="none" stroke-linecap="round"/>
+              </g>
+              <path d="M-3 4 q3 8 6 0" stroke="#1d1a22" stroke-width="3" fill="none"/>
+              <!-- mustache -->
+              <path d="M0 14 C-10 8 -28 10 -34 22 C-24 18 -14 22 0 18 C14 22 24 18 34 22 C28 10 10 8 0 14Z" fill="#1d1a22"/>
+              <path d="M-12 26 q12 10 24 0" stroke="#1d1a22" stroke-width="3" fill="#b8434a"/>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+
+    <rect id="fade" width="800" height="450" fill="#000" opacity="0" pointer-events="none"/>
+  </svg>
+
+  <div class="caption" id="caption"></div>
+  <div id="bubbles"></div>
+
+  <div class="card" id="startCard">
+    <div class="big">А что если ты —<br>Иван Кепчик…</div>
+    <div class="small">мультик за 35 секунд · со звуком машинки</div>
+    <button id="playBtn" type="button">▶ Смотреть</button>
+  </div>
+  <div class="card" id="endCard" hidden>
+    <div class="big">КОНЕЦ</div>
+    <div class="small">Ни один Кепчик не пострадал. Ну, почти.</div>
+    <button id="againBtn" type="button">↻ Ещё раз</button>
+  </div>
+</div>
+
+<div class="controls">
+  <button id="replayBtn" type="button">↻ С начала</button>
+  <button id="soundBtn" type="button" aria-pressed="true">🔊 Звук: вкл</button>
+</div>
+<p class="note">Все персонажи нарисованы по мотивам дружеской шутки. Герман, без обид.</p>
+
+<script>
+(() => {
+  const svg = document.getElementById('stage');
+  const NS = 'http://www.w3.org/2000/svg';
+
+  // ---------- Ivan's head (inserted into both slots) ----------
+  const HEAD = `
+    <ellipse cx="-42" cy="4" rx="9" ry="13" fill="#f6cfa8" stroke="#1d1a22" stroke-width="3"/>
+    <ellipse cx="42" cy="4" rx="9" ry="13" fill="#f6cfa8" stroke="#1d1a22" stroke-width="3"/>
+    <circle r="42" fill="#f6cfa8" stroke="#1d1a22" stroke-width="4"/>
+
+    <g class="h-good">
+      <path d="M-44 -6 C-52 -50 -24 -66 -2 -62 C10 -72 34 -66 40 -54 C54 -44 50 -20 44 -6 C40 -26 26 -34 10 -30 C0 -40 -14 -40 -24 -32 C-34 -30 -40 -20 -44 -6Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="4"/>
+      <path d="M-20 -50 q14 -8 26 0 M10 -54 q12 -4 20 4" stroke="#a46a3a" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </g>
+
+    <g class="h-bad">
+      <!-- shaved patches and stubble -->
+      <path d="M-40 -14 C-40 -40 -20 -44 -8 -42 L-12 -26 C-22 -28 -30 -24 -40 -14Z" fill="#9b6a43" opacity=".55"/>
+      <ellipse cx="-12" cy="-34" rx="12" ry="7" fill="#ffe2c4"/>
+      <ellipse cx="22" cy="-30" rx="10" ry="6" fill="#ffe2c4"/>
+      <path d="M8 -40 l-4 6 l6 2 l-4 6" stroke="#c84a3c" stroke-width="2" fill="none"/>
+      <!-- lonely tufts -->
+      <path d="M-34 -30 l-6 -14 l8 6 l2 -12 l6 12 Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="3" stroke-linejoin="round"/>
+      <path d="M26 -40 l2 -12 l6 8 l6 -6 l-2 14 Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="3" stroke-linejoin="round"/>
+      <!-- the antenna -->
+      <path d="M2 -42 C-6 -60 14 -66 6 -84" stroke="#7a4a24" stroke-width="6" fill="none" stroke-linecap="round"/>
+      <!-- crooked bangs -->
+      <path d="M-30 -22 l8 6 l4 -8 l6 10 l6 -12 Z" fill="#7a4a24" stroke="#1d1a22" stroke-width="3" stroke-linejoin="round"/>
+      <!-- plaster -->
+      <g transform="rotate(-25 32 -16)"><rect x="22" y="-20" width="22" height="9" rx="3" fill="#f2d18a" stroke="#1d1a22" stroke-width="2"/><path d="M28 -16h10" stroke="#1d1a22" stroke-width="1.5" stroke-dasharray="2 2"/></g>
+    </g>
+
+    <!-- faces -->
+    <g class="f-happy">
+      <path d="M-24 -18 l12 -3 M12 -21 l12 3" stroke="#1d1a22" stroke-width="4" stroke-linecap="round"/>
+      <circle class="blink" cx="-15" cy="-4" r="5" fill="#1d1a22"/>
+      <circle class="blink" cx="15" cy="-4" r="5" fill="#1d1a22"/>
+      <path d="M-16 18 q16 16 32 0" stroke="#1d1a22" stroke-width="4" fill="#b8434a" stroke-linejoin="round"/>
+      <circle cx="-26" cy="10" r="6" fill="#ff9a8a" opacity=".6"/><circle cx="26" cy="10" r="6" fill="#ff9a8a" opacity=".6"/>
+    </g>
+    <g class="f-shock">
+      <path d="M-26 -26 l12 -6 M14 -32 l12 6" stroke="#1d1a22" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="-15" cy="-6" r="11" fill="#fff" stroke="#1d1a22" stroke-width="3"/>
+      <circle cx="15" cy="-6" r="11" fill="#fff" stroke="#1d1a22" stroke-width="3"/>
+      <circle cx="-15" cy="-5" r="3.5" fill="#1d1a22"/><circle cx="15" cy="-5" r="3.5" fill="#1d1a22"/>
+      <ellipse cx="0" cy="22" rx="9" ry="12" fill="#5a1d24" stroke="#1d1a22" stroke-width="3"/>
+    </g>
+    <g class="f-sad">
+      <path d="M-26 -16 l12 -6 M14 -22 l12 6" stroke="#1d1a22" stroke-width="4" stroke-linecap="round"/>
+      <path d="M-21 -4 q6 5 12 0 M9 -4 q6 5 12 0" stroke="#1d1a22" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path d="M-14 26 q14 -12 28 0" stroke="#1d1a22" stroke-width="4" fill="none" stroke-linecap="round"/>
+      <path class="tear" d="M-20 4 q-4 6 0 9 q4 -3 0 -9Z" fill="#6cc4ff" stroke="#1d1a22" stroke-width="1.5"/>
+    </g>
+    <path d="M-3 6 q3 7 6 0" stroke="#1d1a22" stroke-width="3" fill="none"/>
+
+    <g class="tuft-out"><path d="M2 -52 C-6 -70 14 -78 6 -96" stroke="#7a4a24" stroke-width="6" fill="none" stroke-linecap="round"/></g>
+    <g class="cap">
+      <path d="M-46 -14 C-48 -60 46 -60 46 -14 Z" fill="#e23d3d" stroke="#1d1a22" stroke-width="4"/>
+      <path d="M-46 -14 H78 Q74 -2 46 -4 H-46Z" fill="#b42a2a" stroke="#1d1a22" stroke-width="4" stroke-linejoin="round"/>
+      <circle cy="-48" r="5" fill="#b42a2a" stroke="#1d1a22" stroke-width="3"/>
+      <text x="0" y="-22" text-anchor="middle" font-family="Rubik, sans-serif" font-weight="800" font-size="15" fill="#fff">К</text>
+    </g>`;
+  document.querySelectorAll('.head-slot').forEach(s => s.innerHTML = HEAD);
+
+  // ---------- helpers ----------
+  const $ = id => document.getElementById(id);
+  const caption = $('caption'), bubbles = $('bubbles');
+  let timers = [], hairTimer = null;
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const set = (k, v) => svg.dataset[k] = v;
+
+  function say(text, xPct, yPct, ms, opts = {}) {
+    const b = document.createElement('div');
+    b.className = 'bubble ' + (opts.tail || '') + (opts.yell ? ' yell' : '');
+    b.textContent = text;
+    b.style.left = xPct + '%';
+    b.style.top = yPct + '%';
+    bubbles.appendChild(b);
+    requestAnimationFrame(() => requestAnimationFrame(() => b.classList.add('show')));
+    at(ms, () => { b.classList.remove('show'); setTimeout(() => b.remove(), 300); });
+  }
+  function cap(text) {
+    if (!text) { caption.classList.remove('show'); return; }
+    caption.textContent = text; caption.classList.add('show');
+  }
+  function scene(name) {
+    $('street').setAttribute('opacity', name === 'street' ? 1 : 0);
+    $('shop').setAttribute('opacity', name === 'shop' ? 1 : 0);
+  }
+  const fade = v => $('fade').setAttribute('opacity', v);
+
+  // ---------- falling hair ----------
+  function spawnHair() {
+    const p = document.createElementNS(NS, 'path');
+    const x = 290 + Math.random() * 80, y = 140 + Math.random() * 40;
+    p.setAttribute('d', `M${x} ${y} q${4 + Math.random()*6} ${-6} ${10 + Math.random()*6} ${Math.random()*6}`);
+    p.setAttribute('stroke', '#7a4a24');
+    p.setAttribute('stroke-width', 3 + Math.random() * 2);
+    p.setAttribute('fill', 'none');
+    p.setAttribute('stroke-linecap', 'round');
+    $('hairFx').appendChild(p);
+    const dx = (Math.random() - .5) * 220, dur = 900 + Math.random() * 700;
+    const a = p.animate([
+      { transform: 'translate(0,0) rotate(0deg)', opacity: 1 },
+      { transform: `translate(${dx}px, ${380 - y + Math.random()*20}px) rotate(${(Math.random()-.5)*540}deg)`, opacity: 1, offset: .85 },
+      { transform: `translate(${dx}px, ${385 - y + Math.random()*20}px) rotate(${(Math.random()-.5)*540}deg)`, opacity: .9 }
+    ], { duration: dur, easing: 'cubic-bezier(.4,0,.9,.6)', fill: 'forwards' });
+    p.style.transformBox = 'fill-box'; p.style.transformOrigin = 'center';
+  }
+
+  // ---------- sound: electric clipper buzz ----------
+  let soundOn = true, ctx = null, buzz = null;
+  function buzzStart() {
+    if (!soundOn) return;
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      const osc = ctx.createOscillator(), lfo = ctx.createOscillator();
+      const lfoGain = ctx.createGain(), filt = ctx.createBiquadFilter(), g = ctx.createGain();
+      osc.type = 'sawtooth'; osc.frequency.value = 118;
+      lfo.frequency.value = 9; lfoGain.gain.value = 14;
+      lfo.connect(lfoGain).connect(osc.frequency);
+      filt.type = 'lowpass'; filt.frequency.value = 1400;
+      g.gain.setValueAtTime(0, ctx.currentTime);
+      g.gain.linearRampToValueAtTime(.06, ctx.currentTime + .1);
+      osc.connect(filt).connect(g).connect(ctx.destination);
+      osc.start(); lfo.start();
+      buzz = { osc, lfo, g };
+    } catch (e) { buzz = null; }
+  }
+  function buzzStop() {
+    if (!buzz || !ctx) return;
+    const { osc, lfo, g } = buzz;
+    try {
+      g.gain.linearRampToValueAtTime(0, ctx.currentTime + .15);
+      osc.stop(ctx.currentTime + .2); lfo.stop(ctx.currentTime + .2);
+    } catch (e) {}
+    buzz = null;
+  }
+  function ding() {
+    if (!soundOn) return;
+    try {
+      ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
+      const o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'triangle'; o.frequency.value = 220;
+      o.frequency.exponentialRampToValueAtTime(90, ctx.currentTime + .6);
+      g.gain.setValueAtTime(.12, ctx.currentTime);
+      g.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .7);
+      o.connect(g).connect(ctx.destination); o.start(); o.stop(ctx.currentTime + .75);
+    } catch (e) {}
+  }
+
+  // ---------- reset ----------
+  function reset() {
+    timers.forEach(clearTimeout); timers = [];
+    clearInterval(hairTimer); buzzStop();
+    svg.classList.add('no-trans');
+    Object.assign(svg.dataset, { hair: 'good', face: 'happy', gface: 'smile', cap: 'on', tuft: 'off', cut: 'off' });
+    $('ivanWalk').style.transform = 'translate(-120px, 360px)';
+    $('ivanWalk').classList.remove('walking');
+    $('german').style.transform = 'translate(580px, 392px)';
+    $('world').style.transform = '';
+    $('hairFx').innerHTML = '';
+    bubbles.innerHTML = '';
+    cap('');
+    scene('street'); fade(0);
+    $('endCard').hidden = true;
+    svg.getBoundingClientRect();
+    svg.classList.remove('no-trans');
+  }
+
+  // ---------- the film ----------
+  function play() {
+    reset();
+    $('startCard').hidden = true;
+
+    // 1. street
+    at(100, () => { cap('А что если ты — Иван Кепчик…'); $('ivanWalk').classList.add('walking'); $('ivanWalk').style.transform = 'translate(600px, 360px)'; });
+    at(4100, () => { $('ivanWalk').classList.remove('walking'); cap(''); });
+    at(4300, () => say('Чёт оброс я. Зайду-ка к Герману.', 75, 22, 2400, { tail: 'tail-l' }));
+    at(6900, () => fade(1));
+
+    // 2. shop
+    at(7700, () => { scene('shop'); fade(0); cap('…и ты пришёл в барбершоп к Герману'); });
+    at(8300, () => say('Заходи, брат! Садись. Как стрижём?', 74, 24, 2600, { tail: 'tail-l' }));
+    at(11000, () => { cap(''); set('cap', 'off'); });
+    at(11600, () => say('Чуть-чуть по бокам. Сверху вообще не трогай.', 33, 20, 2800, { tail: 'tail-l' }));
+    at(14500, () => { set('gface', 'wink'); say('Понял. Доверься профессионалу 😉', 74, 24, 2300, { tail: 'tail-l' }); });
+    at(16900, () => set('gface', 'smile'));
+
+    // 3. cutting
+    at(17100, () => { $('german').style.transform = 'translate(470px, 392px)'; });
+    at(17800, () => { set('cut', 'on'); set('face', 'shock'); buzzStart(); hairTimer = setInterval(spawnHair, 45); cap('Через 15 минут…'); });
+    at(19500, () => say('ГЕРМАН, ТЫ ЧТО ДЕЛАЕШЬ?!', 22, 30, 1700, { yell: true, tail: 'tail-r' }));
+    at(20600, () => set('hair', 'bad'));
+    at(21600, () => { set('cut', 'off'); clearInterval(hairTimer); buzzStop(); cap(''); });
+    at(22000, () => { $('german').style.transform = 'translate(580px, 392px)'; });
+    at(22600, () => say('Готово! Красавчик!', 74, 24, 1800, { tail: 'tail-l' }));
+
+    // 4. reveal
+    at(24300, () => { $('world').style.transform = 'translate(70px, 35px) scale(2.2)'; ding(); });
+    at(25200, () => cap('…и он подстриг тебя хуже всех в этом городе'));
+    at(25600, () => say('Герман… это что вообще такое?', 50, 14, 2600, {}));
+    at(28300, () => { $('world').style.transform = ''; cap(''); });
+    at(28900, () => say('Это модно. С тебя 1500 ₽.', 74, 24, 2400, { tail: 'tail-l' }));
+    at(31400, () => { set('face', 'sad'); set('cap', 'on'); set('tuft', 'on'); });
+    at(32100, () => cap('Вот поэтому он теперь и Кепчик.'));
+    at(35500, () => { cap(''); $('endCard').hidden = false; });
+  }
+
+  $('playBtn').addEventListener('click', play);
+  $('againBtn').addEventListener('click', play);
+  $('replayBtn').addEventListener('click', play);
+  $('soundBtn').addEventListener('click', e => {
+    soundOn = !soundOn;
+    if (!soundOn) buzzStop();
+    e.currentTarget.textContent = soundOn ? '🔊 Звук: вкл' : '🔇 Звук: выкл';
+    e.currentTarget.setAttribute('aria-pressed', soundOn);
+  });
+})();
+</script>
+</body>
+</html>
