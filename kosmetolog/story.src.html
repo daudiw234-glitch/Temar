@@ -28,7 +28,7 @@
   .subs span { transition: color .08s; }
   .subs span.on { color: var(--sub-hl); }
 
-  .pill { position: absolute; left: 50%; top: 150cqw; transform: translateX(-50%) translateY(3cqw); opacity: 0;
+  .pill { position: absolute; left: 50%; top: 162cqw; transform: translateX(-50%) translateY(3cqw); opacity: 0;
           background: rgba(255,255,255,.14); border: .35cqw solid rgba(255,255,255,.45); backdrop-filter: blur(6px);
           color: #fff; font: 700 3.6cqw var(--f-ui); padding: 2.6cqw 4.6cqw; border-radius: 99cqw; white-space: nowrap;
           transition: opacity .5s, transform .5s cubic-bezier(.2,.8,.3,1); }
@@ -470,8 +470,20 @@
   }
   const wt = (k, i) => (WORDS[k] && WORDS[k].w[i] ? WORDS[k].w[i][1] * 1000 : 0);
 
+  // lines without a voice clip are shown as plain captions for a fixed time
+  const SILENT = {
+    n3: ['Масочки из огурчика. Ну-ну.', 2600],
+    f3: ['Всё. Завтра же иду за огурцами!', 2800],
+    n4: ['Огурцы не помогут. Записывайся к косметологу — запись в профиле.', 4200],
+  };
   function speak(ms, k, who) {
-    const w = WORDS[k]; if (!w) return 0;
+    const w = WORDS[k];
+    if (!w) {
+      const sl = SILENT[k]; if (!sl) return 0;
+      at(ms, () => { $('subs').innerHTML = sl[0].split(' ').map(x => `<span>${x}</span>`).join(' '); });
+      at(ms + sl[1] - 200, () => { $('subs').innerHTML = ''; });
+      return sl[1];
+    }
     EVENTS.push({ t: ms, type: 'voice', k });
     at(ms, () => {
       const a = voices[k]; if (a) { try { a.currentTime = 0; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {} }
