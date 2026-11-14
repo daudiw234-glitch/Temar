@@ -69,12 +69,38 @@
   @keyframes pop { from { transform: scale(0); } }
   .flick { animation: flick 2.6s ease-in-out infinite; transform-box: fill-box; transform-origin: bottom center; }
   @keyframes flick { 50% { transform: scaleY(.85) translateX(1px); } }
+
+  /* before / procedure / after states for Sveta */
+  .tired, .towel, .facemask, .brush, .wand { display: none; }
+  svg[data-sstate="before"] #sveta .hr { fill: url(#hairDull); }
+  svg[data-sstate="before"] #sveta .sk { fill: url(#skinDull); }
+  svg[data-sstate="before"] #sveta .dr { fill: #8b8f9c; }
+  svg[data-sstate="before"] #sveta .lp { fill: #c98a86; }
+  svg[data-sstate="before"] #sveta .shadow, svg[data-sstate="before"] #sveta .spk { display: none; }
+  svg[data-sstate="before"] #sveta .tired { display: inline; }
+  svg[data-towel="on"] #sveta .hr, svg[data-towel="on"] #sveta .ear, svg[data-towel="on"] #sveta .dr { display: none; }
+  svg[data-towel="on"] #sveta .towel { display: inline; }
+  svg[data-maskon="on"] #sveta .facemask { display: inline; animation: fadeIn 1.2s ease both; }
+  svg[data-brush="on"] #sveta .brush { display: inline; animation: brush 1.1s ease-in-out infinite alternate; }
+  svg[data-wand="on"] #sveta .wand { display: inline; animation: wand 2.4s ease-in-out infinite; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: .92; } }
+  @keyframes brush { from { transform: translate(0,0); } to { transform: translate(-40px, 18px); } }
+  @keyframes wand { 0% { transform: translate(140px, 330px); } 50% { transform: translate(222px, 318px); } 100% { transform: translate(140px, 330px); } }
+  svg[data-scene="cabinet"] #bg-cabinet, svg[data-scene="bed"] #bg-bed, svg[data-scene="clock"] #bg-clock, svg[data-scene="mirror"] #bg-mirror { display: inline; }
+  svg[data-cast="kosm"] #kosm, svg[data-cast="clock"] #clock { display: inline; }
+  #mirrorFrame { display: none; } svg[data-scene="mirror"] #mirrorFrame { display: inline; }
+  .mo-k { display: none; } svg[data-mo="1"][data-talk="kosm"] #kosm .mo-k { display: inline; } svg[data-mo="1"][data-talk="kosm"] #kosm .kmouth { display: none; }
+  #hMin, #hHour { transform-origin: 180px 320px; }
+  svg[data-cast="clock"].spin #hMin { animation: spinM 2.2s cubic-bezier(.5,0,.5,1) forwards; }
+  svg[data-cast="clock"].spin #hHour { animation: spinH 2.2s cubic-bezier(.5,0,.5,1) forwards; }
+  @keyframes spinM { from { transform: rotate(60deg); } to { transform: rotate(780deg); } }
+  @keyframes spinH { from { transform: rotate(35deg); } to { transform: rotate(95deg); } }
   @media (prefers-reduced-motion: reduce) { .bob, .tw, .dust circle, .flick { animation: none; } }
 </style>
 </head>
 <body>
 <div class="frame" id="frame">
-  <svg class="art" id="art" viewBox="0 0 360 640" data-scene="clinic" data-cast="sveta" data-sface="smile" data-lface="norm" data-cukes="off" data-mo="0" data-talk="" role="img" aria-label="Мультик: ухоженная героиня выходит от косметолога и встречает подругу в ресторане">
+  <svg class="art" id="art" viewBox="0 0 360 640" data-scene="clinic" data-cast="sveta" data-sface="smile" data-lface="norm" data-cukes="off" data-mo="0" data-talk="" data-sstate="before" data-towel="off" data-maskon="off" data-brush="off" data-wand="off" role="img" aria-label="Мультик: ухоженная героиня выходит от косметолога и встречает подругу в ресторане">
     <defs>
       <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>
       <filter id="blurS" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -86,7 +112,12 @@
       <linearGradient id="night" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#101a44"/><stop offset="1" stop-color="#2c3b7a"/></linearGradient>
       <linearGradient id="noteBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1236"/><stop offset="1" stop-color="#3c1f45"/></linearGradient>
       <linearGradient id="endBg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd2e2"/><stop offset="1" stop-color="#e86a9e"/></linearGradient>
-      <linearGradient id="hairS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c6513f"/><stop offset="1" stop-color="#7f2731"/></linearGradient>
+      <linearGradient id="hairS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fbe3a2"/><stop offset="1" stop-color="#cc9a48"/></linearGradient>
+      <linearGradient id="hairDull" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#cfc3a6"/><stop offset="1" stop-color="#8f8264"/></linearGradient>
+      <radialGradient id="skinDull" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ecd6c8"/><stop offset="1" stop-color="#cfae9c"/></radialGradient>
+      <linearGradient id="cabWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f6f2"/><stop offset="1" stop-color="#a9d8cc"/></linearGradient>
+      <linearGradient id="mintG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd6c4"/><stop offset="1" stop-color="#3fa391"/></linearGradient>
+      <mask id="faceMask"><ellipse cx="180" cy="296" rx="60" ry="68" fill="#fff"/><ellipse cx="155" cy="296" rx="17" ry="15" fill="#000"/><ellipse cx="205" cy="296" rx="17" ry="15" fill="#000"/><ellipse cx="180" cy="336" rx="18" ry="11" fill="#000"/></mask>
       <linearGradient id="dress" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#21a07f"/><stop offset="1" stop-color="#11604d"/></linearGradient>
       <radialGradient id="skinS" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe2cf"/><stop offset="1" stop-color="#f1bfa0"/></radialGradient>
       <radialGradient id="skinL" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#f7dccb"/><stop offset="1" stop-color="#e2b79e"/></radialGradient>
@@ -142,6 +173,29 @@
           <circle cx="180" cy="300" r="140" fill="#7a4cff" opacity=".35" filter="url(#blur)"/>
         </g>
 
+        <g id="bg-cabinet">
+          <rect width="360" height="640" fill="url(#cabWall)"/>
+          <circle cx="250" cy="200" r="70" fill="none" stroke="#fff" stroke-width="12" opacity=".9"/>
+          <circle cx="250" cy="200" r="90" fill="#fff" opacity=".35" filter="url(#blur)"/>
+          <rect x="20" y="230" width="110" height="8" rx="3" fill="#ffffff"/>
+          <g><rect x="30" y="196" width="18" height="34" rx="5" fill="#ffc8d9"/><rect x="56" y="204" width="14" height="26" rx="4" fill="#bfe8ff"/><rect x="78" y="190" width="22" height="40" rx="6" fill="#ffe3a3"/><rect x="106" y="206" width="14" height="24" rx="4" fill="#d3c4ff"/></g>
+          <rect x="300" y="300" width="40" height="120" rx="8" fill="#ffffff" opacity=".7"/>
+          <rect y="520" width="360" height="120" fill="#8fc9bb"/>
+        </g>
+        <g id="bg-bed">
+          <rect width="360" height="640" fill="#cfe9e2"/>
+          <ellipse cx="180" cy="250" rx="170" ry="140" fill="#ffffff" opacity=".9"/>
+          <ellipse cx="180" cy="220" rx="140" ry="100" fill="#fff" opacity=".8" filter="url(#blur)"/>
+          <rect y="430" width="360" height="210" fill="#bfe3d9"/>
+        </g>
+        <g id="bg-clock">
+          <rect width="360" height="640" fill="#2a4f4a"/>
+          <circle cx="180" cy="320" r="150" fill="#7fd6c4" opacity=".3" filter="url(#blur)"/>
+        </g>
+        <g id="bg-mirror">
+          <rect width="360" height="640" fill="#f3d9e3"/>
+          <circle cx="180" cy="320" r="170" fill="#fff" opacity=".6" filter="url(#blur)"/>
+        </g>
         <g id="bg-end">
           <rect width="360" height="640" fill="url(#endBg)"/>
           <circle cx="180" cy="300" r="140" fill="#fff" opacity=".45" filter="url(#blur)"/>
@@ -152,21 +206,21 @@
       <g class="cast">
         <!-- Sveta -->
         <g id="sveta"><g class="bob">
-          <path d="M92 300 C78 200 126 150 180 150 C238 150 286 198 270 300 C282 380 270 450 256 486 L104 486 C90 450 80 380 92 300Z" fill="url(#hairS)"/>
+          <path d="M92 300 C78 200 126 150 180 150 C238 150 286 198 270 300 C282 380 270 450 256 486 L104 486 C90 450 80 380 92 300Z" class="hr" fill="url(#hairS)"/>
           <path d="M162 340 h36 v54 q-18 12 -36 0Z" fill="#e9b394"/>
-          <path d="M64 660 C66 510 108 430 180 422 C252 430 294 510 296 660Z" fill="url(#dress)"/>
+          <path class="dr" d="M64 660 C66 510 108 430 180 422 C252 430 294 510 296 660Z" fill="url(#dress)"/>
           <path d="M148 428 Q180 422 212 428 L180 488Z" fill="#efbb9c"/>
           <g fill="#fff8ec"><circle cx="160" cy="440" r="3"/><circle cx="168" cy="447" r="3"/><circle cx="176" cy="451" r="3"/><circle cx="184" cy="451" r="3"/><circle cx="192" cy="447" r="3"/><circle cx="200" cy="440" r="3"/></g>
-          <path d="M104 420 C92 480 98 540 112 590 L136 590 C122 530 122 470 134 418Z" fill="url(#hairS)"/>
-          <path d="M256 420 C268 480 262 540 248 590 L224 590 C238 530 238 470 226 418Z" fill="url(#hairS)"/>
-          <ellipse cx="180" cy="290" rx="64" ry="72" fill="url(#skinS)"/>
+          <path d="M104 420 C92 480 98 540 112 590 L136 590 C122 530 122 470 134 418Z" class="hr" fill="url(#hairS)"/>
+          <path d="M256 420 C268 480 262 540 248 590 L224 590 C238 530 238 470 226 418Z" class="hr" fill="url(#hairS)"/>
+          <ellipse class="sk" cx="180" cy="290" rx="64" ry="72" fill="url(#skinS)"/>
           <!-- eyes -->
           <g transform="translate(155 296)">
             <ellipse rx="13" ry="14" fill="#fff"/><circle cx="1" cy="1" r="8.5" fill="#5b3220"/><circle cx="1" cy="1" r="4.2" fill="#160b08"/>
             <circle cx="-2.5" cy="-3" r="2.8" fill="#fff"/><circle cx="3.5" cy="4" r="1.2" fill="#fff"/>
             <path d="M-15 -4 Q0 -18 15 -6" stroke="#2a1212" stroke-width="3.6" fill="none" stroke-linecap="round"/>
             <path d="M-14 -6 l-6 -4 M-12 -9 l-5 -6" stroke="#2a1212" stroke-width="2.4" stroke-linecap="round"/>
-            <ellipse cy="-13" rx="14" ry="5" fill="#c86aa8" opacity=".3"/>
+            <ellipse class="shadow" cy="-13" rx="14" ry="5" fill="#c86aa8" opacity=".3"/>
           </g>
           <g transform="translate(205 296)">
             <g class="eyeR-open">
@@ -174,26 +228,44 @@
               <circle cx="-4.5" cy="-3" r="2.8" fill="#fff"/><circle cx="1.5" cy="4" r="1.2" fill="#fff"/>
               <path d="M-15 -6 Q0 -18 15 -4" stroke="#2a1212" stroke-width="3.6" fill="none" stroke-linecap="round"/>
               <path d="M14 -6 l6 -4 M12 -9 l5 -6" stroke="#2a1212" stroke-width="2.4" stroke-linecap="round"/>
-              <ellipse cy="-13" rx="14" ry="5" fill="#c86aa8" opacity=".3"/>
+              <ellipse class="shadow" cy="-13" rx="14" ry="5" fill="#c86aa8" opacity=".3"/>
             </g>
             <g class="eyeR-wink">
               <path d="M-13 0 Q0 8 13 0" stroke="#2a1212" stroke-width="3.6" fill="none" stroke-linecap="round"/>
               <path d="M13 0 l6 -3 M11 3 l5 2" stroke="#2a1212" stroke-width="2.4" stroke-linecap="round"/>
             </g>
           </g>
-          <path d="M140 270 Q155 260 170 266 M190 266 Q205 260 220 270" stroke="#8a3227" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M140 270 Q155 260 170 266 M190 266 Q205 260 220 270" stroke="#a8763c" stroke-width="3.6" fill="none" stroke-linecap="round"/>
           <path d="M178 312 q3 6 6 2" stroke="#d99b7e" stroke-width="2.6" fill="none" stroke-linecap="round"/>
           <ellipse cx="138" cy="322" rx="14" ry="8" fill="#ff8fa6" opacity=".45"/><ellipse cx="222" cy="322" rx="14" ry="8" fill="#ff8fa6" opacity=".45"/>
-          <g class="lips"><path d="M166 334 Q173 328 180 332 Q187 328 194 334 Q180 346 166 334Z" fill="#d82a46"/><path d="M172 333 q8 2 14 0" stroke="#ff8a9e" stroke-width="1.6" fill="none"/></g>
+          <g class="lips"><path class="lp" d="M166 334 Q173 328 180 332 Q187 328 194 334 Q180 346 166 334Z" fill="#d82a46"/><path d="M172 333 q8 2 14 0" stroke="#ff8a9e" stroke-width="1.6" fill="none"/></g>
           <g class="mo"><ellipse cx="180" cy="336" rx="12" ry="9" fill="#7d1430"/><path d="M170 331 h20" stroke="#fff" stroke-width="3" stroke-linecap="round"/><path d="M168 333 Q180 324 192 333" stroke="#d82a46" stroke-width="4" fill="none"/></g>
           <circle cx="206" cy="326" r="1.8" fill="#6a2a20"/>
-          <path d="M118 286 C112 222 150 194 194 198 C236 202 254 232 248 266 C232 238 206 228 180 234 C160 250 138 266 118 286Z" fill="url(#hairS)"/>
-          <path d="M170 210 q30 -6 54 14" stroke="#e57e65" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
-          <circle cx="120" cy="334" r="5" fill="none" stroke="#ffd36b" stroke-width="3"/><circle cx="240" cy="334" r="5" fill="none" stroke="#ffd36b" stroke-width="3"/>
-          <use href="#spark" class="tw" x="66" y="210" width="20" height="20"/>
-          <use href="#spark" class="tw b" x="272" y="190" width="26" height="26"/>
-          <use href="#spark" class="tw" x="286" y="350" width="16" height="16"/>
-          <use href="#spark" class="tw b" x="54" y="372" width="14" height="14"/>
+          <path d="M118 286 C112 222 150 194 194 198 C236 202 254 232 248 266 C232 238 206 228 180 234 C160 250 138 266 118 286Z" class="hr" fill="url(#hairS)"/>
+          <path d="M170 210 q30 -6 54 14" stroke="#fff4cf" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
+          <g class="ear"><circle cx="120" cy="334" r="5" fill="none" stroke="#ffd36b" stroke-width="3"/><circle cx="240" cy="334" r="5" fill="none" stroke="#ffd36b" stroke-width="3"/></g>
+          <!-- tired look (before) -->
+          <g class="tired">
+            <path d="M141 288 Q155 280 169 288 L169 292 Q155 286 141 292Z M191 288 Q205 280 219 288 L219 292 Q205 286 191 292Z" fill="#cfae9c"/>
+            <path d="M143 314 q12 6 24 0 M193 314 q12 6 24 0" stroke="#a97f8e" stroke-width="3" fill="none" opacity=".7" stroke-linecap="round"/>
+            <path d="M150 252 q30 -6 60 0 M156 260 q24 -4 48 0" stroke="#c09a86" stroke-width="2" fill="none" stroke-linecap="round"/>
+            <path d="M160 326 q-6 8 -2 16 M200 326 q6 8 2 16" stroke="#c09a86" stroke-width="2" fill="none" stroke-linecap="round"/>
+          </g>
+          <!-- towel turban + sheet (procedure) -->
+          <g class="towel">
+            <path d="M60 660 C70 520 110 450 180 444 C250 450 290 520 300 660Z" fill="#f4fbf9"/>
+            <path d="M120 470 q60 26 120 0" stroke="#d6ece6" stroke-width="4" fill="none"/>
+            <path d="M110 284 C104 196 150 166 182 166 C214 166 258 196 250 284 C232 252 208 242 180 242 C152 242 128 252 110 284Z" fill="#fbfdfc"/>
+            <path d="M128 222 q50 -26 104 0 M120 250 q60 -22 120 0" stroke="#dcefe9" stroke-width="5" fill="none" stroke-linecap="round"/>
+          </g>
+          <!-- face mask + tools (procedure) -->
+          <rect class="facemask" x="110" y="220" width="140" height="150" fill="#d6f2e2" mask="url(#faceMask)"/>
+          <g class="brush"><path d="M400 430 L232 334" stroke="#8fd3f0" stroke-width="22" stroke-linecap="round"/><circle cx="228" cy="330" r="13" fill="#a9e0f7"/><rect x="200" y="300" width="14" height="44" rx="4" transform="rotate(30 207 322)" fill="#c8a27a"/><path d="M196 296 q8 -14 16 0Z" transform="rotate(30 204 300)" fill="#6fcfa8"/></g>
+          <g class="wand"><circle cx="0" cy="0" r="22" fill="#7fe3ff" opacity=".5" filter="url(#blurS)"/><circle r="9" fill="#e9fbff"/><rect x="-6" y="8" width="12" height="80" rx="6" fill="#e6e9f2"/><rect x="-6" y="30" width="12" height="8" fill="#7fd6c4"/></g>
+          <use href="#spark" class="spk tw" x="66" y="210" width="20" height="20"/>
+          <use href="#spark" class="spk tw b" x="272" y="190" width="26" height="26"/>
+          <use href="#spark" class="spk tw" x="286" y="350" width="16" height="16"/>
+          <use href="#spark" class="spk tw b" x="54" y="372" width="14" height="14"/>
         </g></g>
 
         <!-- Luda -->
@@ -245,6 +317,41 @@
           </g>
         </g></g>
 
+        <!-- cosmetologist -->
+        <g id="kosm"><g class="bob">
+          <path d="M100 300 C90 220 130 176 180 176 C232 176 270 220 260 300 C258 340 246 360 236 366 L124 366 C114 360 102 340 100 300Z" fill="#3b2a2e"/>
+          <circle cx="180" cy="168" r="30" fill="#3b2a2e"/>
+          <path d="M164 346 h32 v50 q-16 12 -32 0Z" fill="#e8b597"/>
+          <path d="M60 660 C62 510 106 432 180 424 C254 432 298 510 300 660Z" fill="url(#mintG)"/>
+          <path d="M148 430 L180 476 L212 430 Q180 422 148 430Z" fill="#e8b597"/>
+          <path d="M148 430 L170 470 L150 486 Z M212 430 L190 470 L210 486Z" fill="#fff"/>
+          <rect x="214" y="520" width="52" height="16" rx="4" fill="#fff"/><rect x="220" y="526" width="40" height="4" rx="2" fill="#3fa391"/>
+          <ellipse cx="180" cy="290" rx="62" ry="70" fill="url(#skinS)"/>
+          <g transform="translate(156 296)"><ellipse rx="11" ry="12" fill="#fff"/><circle cx="1" cy="1" r="7" fill="#3b2a24"/><circle cx="-2" cy="-2.5" r="2.4" fill="#fff"/><path d="M-13 -4 Q0 -16 13 -5" stroke="#2a1a1a" stroke-width="3.2" fill="none" stroke-linecap="round"/></g>
+          <g transform="translate(204 296)"><ellipse rx="11" ry="12" fill="#fff"/><circle cx="-1" cy="1" r="7" fill="#3b2a24"/><circle cx="-4" cy="-2.5" r="2.4" fill="#fff"/><path d="M-13 -5 Q0 -16 13 -4" stroke="#2a1a1a" stroke-width="3.2" fill="none" stroke-linecap="round"/></g>
+          <path d="M142 272 Q156 264 170 270 M190 270 Q204 264 218 272" stroke="#3b2a2e" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <path d="M178 314 q3 6 6 2" stroke="#d99b7e" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+          <ellipse cx="140" cy="322" rx="12" ry="7" fill="#ff9fb0" opacity=".4"/><ellipse cx="220" cy="322" rx="12" ry="7" fill="#ff9fb0" opacity=".4"/>
+          <path class="kmouth" d="M166 334 Q180 346 194 334" stroke="#b5485a" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+          <ellipse class="mo-k" cx="180" cy="338" rx="10" ry="8" fill="#7d2238"/>
+          <path d="M118 278 C116 226 150 206 184 208 C220 210 242 232 242 262 C222 240 196 236 176 240 C154 246 134 260 118 278Z" fill="#3b2a2e"/>
+          <g><path d="M300 640 L286 470" stroke="url(#mintG)" stroke-width="34" stroke-linecap="round"/><circle cx="286" cy="456" r="16" fill="#9fd8ff"/><rect x="280" y="400" width="12" height="46" rx="4" fill="#c8a27a"/><path d="M280 400 q6 -16 12 0Z" fill="#6fcfa8"/></g>
+        </g></g>
+
+        <!-- wall clock close-up -->
+        <g id="clock">
+          <circle cx="180" cy="320" r="118" fill="#5a3b2a"/>
+          <circle cx="180" cy="320" r="104" fill="#fbf6ee"/>
+          <g stroke="#2a2a2a" stroke-width="5" stroke-linecap="round">
+            <path d="M180 226 v14 M180 400 v14 M86 320 h14 M260 320 h14"/>
+          </g>
+          <g stroke="#2a2a2a" stroke-width="3" stroke-linecap="round" opacity=".6">
+            <path d="M227 239 l-5 9 M260 273 l-9 5 M260 367 l-9 -5 M227 401 l-5 -9 M133 401 l5 -9 M100 367 l9 -5 M100 273 l9 5 M133 239 l5 9"/>
+          </g>
+          <rect id="hHour" x="176" y="262" width="8" height="62" rx="4" fill="#2a2a2a"/>
+          <rect id="hMin" x="177.5" y="238" width="5" height="86" rx="2.5" fill="#2a2a2a"/>
+          <circle cx="180" cy="320" r="7" fill="#e0564f"/>
+        </g>
         <!-- phone close-up -->
         <g id="phone">
           <path d="M120 640 C120 560 140 520 168 500 L232 500 C252 520 262 560 262 640Z" fill="#f1bfa0"/>
@@ -267,6 +374,12 @@
         </g>
       </g>
 
+      <g id="mirrorFrame">
+        <path fill-rule="evenodd" d="M0 0 H360 V640 H0Z M180 120 C290 120 330 230 330 330 C330 470 270 560 180 560 C90 560 30 470 30 330 C30 230 70 120 180 120Z" fill="#f3d9e3"/>
+        <ellipse cx="180" cy="340" rx="150" ry="220" fill="none" stroke="#d9a54b" stroke-width="16"/>
+        <ellipse cx="180" cy="340" rx="150" ry="220" fill="none" stroke="#ffe39a" stroke-width="4"/>
+        <path d="M70 230 q20 -40 60 -60" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".7" fill="none"/>
+      </g>
       <!-- table with glasses and a candle (restaurant only) -->
       <g id="table">
         <rect y="566" width="360" height="74" fill="#f6efe6"/>
@@ -381,7 +494,9 @@
     timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers = []; intervals = []; EVENTS = [];
     for (const k in voices) try { voices[k].pause(); } catch (e) {}
     if (music) { music.pause(); music.currentTime = 0; }
-    Object.assign(svg.dataset, { scene: 'clinic', cast: 'sveta', sface: 'smile', lface: 'norm', cukes: 'off', mo: '0', talk: '' });
+    Object.assign(svg.dataset, { scene: 'clinic', cast: 'sveta', sface: 'smile', lface: 'norm', cukes: 'off', mo: '0', talk: '',
+      sstate: 'before', towel: 'off', maskon: 'off', brush: 'off', wand: 'off' });
+    svg.classList.remove('spin');
     document.querySelectorAll('.chk').forEach(c => c.classList.remove('on'));
     $('subs').innerHTML = ''; $('pill').classList.remove('show');
   }
@@ -393,58 +508,85 @@
     EVENTS.push({ t: 0, type: 'music' });
     let t = 400; const G = 350;
 
-    // 1. leaving the cosmetologist's office
+    // 1. before: tired Sveta at the cosmetologist's door
     at(0, () => scene('clinic', 'sveta', 1.05));
-    t += speak(t, 'n1') + G;
+    t += speak(t, 'n0') + G;
 
-    // 2. glow-up close-up
-    at(t, () => scene('glow', 'sveta', 1.14));
+    // 2. the cosmetologist
+    at(t, () => scene('cabinet', 'kosm'));
+    sfx(t, 'whoosh');
+    t += speak(t, 'k1', 'kosm') + G;
+
+    // 3. the procedure: towel, mask, brush, device
+    at(t, () => { scene('bed', 'sveta', 1.1); Object.assign(svg.dataset, { towel: 'on', brush: 'on' }); });
+    sfx(t, 'whoosh');
+    at(t + 900, () => set('maskon', 'on'));
+    at(t + 2600, () => { set('brush', 'off'); set('wand', 'on'); });
+    sfx(t + 2600, 'ding');
+    const d3 = speak(t, 'n5');
+    t += Math.max(d3, 5200) + G;
+
+    // 4. time flies
+    at(t, () => { scene('clock', 'clock', 1.04); svg.classList.remove('spin'); void svg.getBoundingClientRect(); svg.classList.add('spin'); });
+    sfx(t, 'whoosh');
+    t += 2500;
+
+    // 5. done
+    at(t, () => { scene('cabinet', 'kosm'); svg.classList.remove('spin'); });
+    const d5 = speak(t, 'k2', 'kosm');
+    t += (d5 || 1200) + G;
+
+    // 6. the reveal in the mirror
+    at(t, () => { scene('mirror', 'sveta', 1.12); Object.assign(svg.dataset, { sstate: 'after', towel: 'off', maskon: 'off', wand: 'off', sface: 'smile' }); });
     sfx(t, 'ding');
     t += speak(t, 'p1', 'sveta') + G;
 
-    // 3. evening, restaurant
+    // 7. walking out glowing
+    at(t, () => scene('clinic', 'sveta', 1.05));
+    sfx(t, 'whoosh');
+    t += speak(t, 'n1') + G;
+
+    // 8. evening, restaurant
     at(t, () => scene('resto', 'sveta'));
     sfx(t, 'whoosh');
     t += speak(t, 'n2') + G;
 
-    // 4. the friend
+    // 9. the friend
     at(t, () => { scene('resto', 'luda'); set('lface', 'shock'); });
     sfx(t, 'pop');
     t += speak(t, 'f1', 'luda') + G;
-
-    // 5. the question
     at(t, () => set('lface', 'norm'));
     t += speak(t, 'f2', 'luda') + G;
 
-    // 6. the answer: Sveta, then her notes app, then a wink
+    // 10. the answer: Sveta, her notes app, a wink
     at(t, () => { scene('resto', 'sveta'); set('sface', 'smile'); });
     sfx(t, 'whoosh');
-    const d6 = speak(t, 'p2', 'sveta');
+    const d10 = speak(t, 'p2', 'sveta');
     at(t + wt('p2', 4) - 150, () => scene('note', 'phone', 1.08));
     at(t + wt('p2', 4), () => $('c1').classList.add('on'));
     at(t + wt('p2', 6), () => $('c2').classList.add('on'));
     at(t + wt('p2', 8), () => $('c3').classList.add('on'));
     sfx(t + wt('p2', 4), 'pop'); sfx(t + wt('p2', 6), 'pop'); sfx(t + wt('p2', 8), 'pop');
-    at(t + d6 - 200, () => { scene('resto', 'sveta'); set('sface', 'wink'); });
-    t += d6 + G;
+    at(t + d10 - 200, () => { scene('resto', 'sveta'); set('sface', 'wink'); });
+    t += d10 + G;
 
-    // 7. narrator's aside, Sveta keeps winking
+    // 11. narrator's aside
     t += speak(t, 'n3') + G;
 
-    // 8. the friend's cucumber plan
+    // 12. the friend's cucumber plan
     at(t, () => { scene('resto', 'luda'); set('lface', 'det'); });
     sfx(t, 'whoosh');
-    const d8 = speak(t, 'f3', 'luda');
-    at(t + d8 - 500, () => set('cukes', 'on'));
-    sfx(t + d8 - 500, 'pop');
-    t += d8 + G + 300;
+    const d12 = speak(t, 'f3', 'luda');
+    at(t + Math.max(0, d12 - 500), () => set('cukes', 'on'));
+    sfx(t + Math.max(0, d12 - 500), 'pop');
+    t += d12 + G + 300;
 
-    // 9. outro
+    // 13. outro
     at(t, () => { scene('end', 'sveta', 1.08); set('sface', 'wink'); set('cukes', 'off'); });
     sfx(t, 'ding');
-    const d9 = speak(t, 'n4');
+    const d13 = speak(t, 'n4');
     at(t + Math.max(600, wt('n4', 3)), () => $('pill').classList.add('show'));
-    t += d9 + 2200;
+    t += d13 + 2400;
     window.__timeline = { total: t, events: EVENTS };
   }
 
