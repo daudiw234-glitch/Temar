@@ -249,35 +249,35 @@
             <path d="M120 474 L180 560 L240 474" fill="none" stroke="#5e3a6e" stroke-width="10"/>
             <circle cx="180" cy="560" r="12" fill="#ffd166" stroke="#1d1420" stroke-width="4"/>
             <g transform="translate(180 334) scale(1.75)">
-              <circle cx="0" cy="-58" r="20" fill="#cfcfd4" stroke="#1d1420" stroke-width="3"/>
+              <circle cx="0" cy="-56" r="15" fill="#9a8a80" stroke="#1d1420" stroke-width="3"/>
               <ellipse cx="-41" cy="6" rx="8" ry="12" fill="#ecc9ad" stroke="#1d1420" stroke-width="3"/>
               <ellipse cx="41" cy="6" rx="8" ry="12" fill="#ecc9ad" stroke="#1d1420" stroke-width="3"/>
               <ellipse rx="40" ry="44" fill="#ecc9ad" stroke="#1d1420" stroke-width="4"/>
-              <path d="M-42 -2 C-46 -46 -10 -54 0 -50 C10 -54 46 -46 42 -2 C36 -22 20 -32 0 -34 C-20 -32 -36 -22 -42 -2Z" fill="#cfcfd4" stroke="#1d1420" stroke-width="3"/>
-              <path d="M-16 -26 q16 -4 32 0 M-12 -21 q12 -3 24 0" stroke="#b08a70" stroke-width="2" fill="none"/>
+              <path d="M-42 -2 C-46 -46 -10 -54 0 -50 C10 -54 46 -46 42 -2 C36 -22 20 -32 0 -34 C-20 -32 -36 -22 -42 -2Z" fill="#9a8a80" stroke="#1d1420" stroke-width="3"/><path d="M-20 -44 q10 -6 22 -2 M8 -46 q10 0 18 8" stroke="#c9beb6" stroke-width="2.5" fill="none"/>
+              
               <g class="l-norm">
                 <circle cx="-15" cy="-2" r="3.5" fill="#1d1420"/><circle cx="15" cy="-2" r="3.5" fill="#1d1420"/>
-                <path d="M-24 -11 l14 1 M10 -10 l14 -1" stroke="#8d8d93" stroke-width="3"/>
+                <path d="M-24 -11 l14 1 M10 -10 l14 -1" stroke="#6b5a50" stroke-width="3"/>
                 <path d="M-10 24 q10 -3 20 0" stroke="#1d1420" stroke-width="3" fill="none"/>
               </g>
               <g class="l-shock">
                 <circle cx="-15" cy="-2" r="6" fill="#fff" stroke="#1d1420" stroke-width="2"/><circle cx="15" cy="-2" r="6" fill="#fff" stroke="#1d1420" stroke-width="2"/>
                 <circle cx="-15" cy="-2" r="2.5" fill="#1d1420"/><circle cx="15" cy="-2" r="2.5" fill="#1d1420"/>
-                <path d="M-24 -16 l12 -3 M12 -19 l12 3" stroke="#8d8d93" stroke-width="3"/>
+                <path d="M-24 -16 l12 -3 M12 -19 l12 3" stroke="#6b5a50" stroke-width="3"/>
                 <ellipse cx="0" cy="25" rx="7" ry="9" fill="#5a1d24" stroke="#1d1420" stroke-width="2.5"/>
               </g>
               <g class="l-det">
                 <circle cx="-15" cy="-2" r="3.5" fill="#1d1420"/><circle cx="15" cy="-2" r="3.5" fill="#1d1420"/>
-                <path d="M-24 -13 l14 6 M10 -7 l14 -6" stroke="#8d8d93" stroke-width="3.5"/>
+                <path d="M-24 -13 l14 6 M10 -7 l14 -6" stroke="#6b5a50" stroke-width="3.5"/>
                 <path d="M-10 26 l20 -2" stroke="#1d1420" stroke-width="3.5"/>
               </g>
-              <path d="M-22 6 q6 4 12 0 M10 6 q6 4 12 0" stroke="#b08a70" stroke-width="2" fill="none"/>
-              <path d="M-30 -4 l-6 -2 M-30 0 l-6 2 M30 -4 l6 -2 M30 0 l6 2" stroke="#b08a70" stroke-width="2"/>
-              <path d="M-14 12 q-4 10 2 16 M14 12 q4 10 -2 16" stroke="#b08a70" stroke-width="2" fill="none"/>
+              
+              <path d="M-29 -3 l-5 -1 M29 -3 l5 -1" stroke="#d2ae94" stroke-width="1.5"/>
+              <path d="M-14 14 q-3 7 1 11 M14 14 q3 7 -1 11" stroke="#d2ae94" stroke-width="1.5" fill="none"/>
               <path d="M-2 4 q2 7 5 2" stroke="#b08a70" stroke-width="2.5" fill="none"/>
               <ellipse class="mo" cx="0" cy="25" rx="7" ry="6" fill="#5a1d24" stroke="#1d1420" stroke-width="2.5"/>
               <g fill="none" stroke="#6b4a2a" stroke-width="3"><circle cx="-15" cy="-2" r="11"/><circle cx="15" cy="-2" r="11"/><path d="M-4 -2 h8"/></g>
-              <path d="M-26 -2 C-34 30 -30 50 -20 64" stroke="#c9a227" stroke-width="1.5" fill="none" stroke-dasharray="2 2"/>
+              
               <circle cx="22" cy="14" r="1.8" fill="#6b4a2a"/>
               <g class="cukes">
                 <circle cx="-15" cy="-2" r="13" fill="#5bbf4f" stroke="#1d1420" stroke-width="2.5"/><circle cx="-15" cy="-2" r="9" fill="#c8f0a8"/>
@@ -445,7 +445,7 @@
     t += d3 + G;
 
     // 4. the friend
-    at(t, () => { scene('resto', 'luda'); set('lface', 'shock'); hud('vLuda', '85', 'red', true); });
+    at(t, () => { scene('resto', 'luda'); set('lface', 'shock'); hud('vLuda', '62', 'red', true); });
     sfx(t, 'alarm');
     const d4 = speak(t, 'f1', 'luda');
     at(t + 500, () => stk('ВАУ', 72, 34, 10, '#ffd166'));
@@ -472,13 +472,8 @@
     sfx(t + wt('p2', pIdx.pit), 'pop'); sfx(t + wt('p2', pIdx.gen), 'pop'); sfx(t + wt('p2', pIdx.cuke), 'pop');
     t += d6 + G;
 
-    // 7. lie detector + receipt
-    at(t, () => {
-      popup('<div class="k"><span>ДЕТЕКТОР ЛЖИ</span><span>●REC</span></div><div class="t">ЛОЖЬ 100%</div><div class="meter"><i></i></div><div class="meter-l"><span>ПРАВДА</span><span>ЛОЖЬ</span></div>', 'lie', 3200);
-    });
-    sfx(t, 'alarm');
-    at(t + 900, () => popup('<div class="t">ЧЕК № 0050<br>КАБИНЕТ КОСМЕТОЛОГА<br>13:10</div><div class="s">ОПЛАЧЕНО ✓<br>ОГУРЦЫ: 0 ШТ</div>', 'receipt', 2600));
-    sfx(t + 900, 'pop');
+    // 7. narrator's aside, Sveta just winks
+    at(t, () => set('sface', 'wink'));
     t += speak(t, 'n3') + G + 300;
 
     // 8. friend's cucumber plan
