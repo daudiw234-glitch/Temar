@@ -95,12 +95,29 @@
   svg[data-cast="clock"].spin #hHour { animation: spinH 2.2s cubic-bezier(.5,0,.5,1) forwards; }
   @keyframes spinM { from { transform: rotate(60deg); } to { transform: rotate(780deg); } }
   @keyframes spinH { from { transform: rotate(35deg); } to { transform: rotate(95deg); } }
+
+  .marks-bio, .marks-btx, #syr { display: none; }
+  svg[data-proc="bio"] #syr, svg[data-proc="btx"] #syr, svg[data-proc="lips"] #syr { display: inline; }
+  svg[data-proc="bio"] #syr { transform: translate(150px, 324px); }
+  svg[data-proc="btx"] #syr { transform: translate(176px, 262px); }
+  svg[data-proc="lips"] #syr { transform: translate(190px, 336px); }
+  #syr { transition: transform .45s cubic-bezier(.3,.8,.3,1); }
+  #syr .poke { animation: poke .7s ease-in-out infinite; }
+  @keyframes poke { 50% { transform: translate(7px, 7px); } }
+  svg[data-bio="on"] .marks-bio, svg[data-btx="on"] .marks-btx { display: inline; animation: fadeIn .6s both; }
+  #sveta .lips { transform-box: fill-box; transform-origin: center; transition: transform 1.4s ease; }
+  svg[data-plump="on"] #sveta .lips { transform: scale(1.28, 1.42); }
+  .proc { position: absolute; left: 50%; top: 22cqw; transform: translateX(-50%) translateY(-2cqw); opacity: 0; white-space: nowrap;
+          background: rgba(255,255,255,.88); color: #24443e; font: 800 4.4cqw var(--f-ui); padding: 2.4cqw 4.6cqw; border-radius: 99cqw;
+          box-shadow: 0 1cqw 3cqw rgba(0,0,0,.18); transition: opacity .3s, transform .3s; }
+  .proc.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .proc b { color: #e0567f; font-weight: 900; margin-right: 1.6cqw; }
   @media (prefers-reduced-motion: reduce) { .bob, .tw, .dust circle, .flick { animation: none; } }
 </style>
 </head>
 <body>
 <div class="frame" id="frame">
-  <svg class="art" id="art" viewBox="0 0 360 640" data-scene="clinic" data-cast="sveta" data-sface="smile" data-lface="norm" data-cukes="off" data-mo="0" data-talk="" data-sstate="before" data-towel="off" data-maskon="off" data-brush="off" data-wand="off" role="img" aria-label="Мультик: ухоженная героиня выходит от косметолога и встречает подругу в ресторане">
+  <svg class="art" id="art" viewBox="0 0 360 640" data-scene="clinic" data-cast="sveta" data-sface="smile" data-lface="norm" data-cukes="off" data-mo="0" data-talk="" data-sstate="before" data-towel="off" data-proc="" data-bio="off" data-btx="off" data-plump="off" role="img" aria-label="Мультик: ухоженная героиня выходит от косметолога и встречает подругу в ресторане">
     <defs>
       <filter id="blur" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="18"/></filter>
       <filter id="blurS" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>
@@ -259,9 +276,20 @@
             <path d="M128 222 q50 -26 104 0 M120 250 q60 -22 120 0" stroke="#dcefe9" stroke-width="5" fill="none" stroke-linecap="round"/>
           </g>
           <!-- face mask + tools (procedure) -->
-          <rect class="facemask" x="110" y="220" width="140" height="150" fill="#d6f2e2" mask="url(#faceMask)"/>
-          <g class="brush"><path d="M400 430 L232 334" stroke="#8fd3f0" stroke-width="22" stroke-linecap="round"/><circle cx="228" cy="330" r="13" fill="#a9e0f7"/><rect x="200" y="300" width="14" height="44" rx="4" transform="rotate(30 207 322)" fill="#c8a27a"/><path d="M196 296 q8 -14 16 0Z" transform="rotate(30 204 300)" fill="#6fcfa8"/></g>
-          <g class="wand"><circle cx="0" cy="0" r="22" fill="#7fe3ff" opacity=".5" filter="url(#blurS)"/><circle r="9" fill="#e9fbff"/><rect x="-6" y="8" width="12" height="80" rx="6" fill="#e6e9f2"/><rect x="-6" y="30" width="12" height="8" fill="#7fd6c4"/></g>
+          <!-- injection marks + syringe (procedure) -->
+          <g class="marks-bio" fill="#ffb9c6"><circle cx="140" cy="318" r="2.6"/><circle cx="150" cy="328" r="2.6"/><circle cx="136" cy="332" r="2.6"/><circle cx="218" cy="318" r="2.6"/><circle cx="210" cy="328" r="2.6"/><circle cx="224" cy="332" r="2.6"/></g>
+          <g class="marks-btx" fill="#ffb9c6"><circle cx="180" cy="270" r="2.4"/><circle cx="166" cy="258" r="2.4"/><circle cx="194" cy="258" r="2.4"/><circle cx="180" cy="248" r="2.4"/></g
+          ><g id="syr"><g class="poke">
+            <path d="M58 58 L190 190" stroke="#8fd3f0" stroke-width="26" stroke-linecap="round"/>
+            <g transform="rotate(-45)">
+              <rect x="-1.2" y="0" width="2.4" height="20" fill="#9aa3ad"/>
+              <rect x="-7" y="20" width="14" height="46" rx="3" fill="#ffffff" opacity=".85"/>
+              <rect x="-6" y="34" width="12" height="30" rx="2" fill="#bfe8ff" class="liq"/>
+              <rect x="-10" y="64" width="20" height="4" rx="2" fill="#dfe6ee"/>
+              <rect x="-2" y="68" width="4" height="22" fill="#dfe6ee"/><rect x="-8" y="88" width="16" height="4" rx="2" fill="#dfe6ee"/>
+            </g>
+            <circle cx="48" cy="48" r="13" fill="#a9e0f7"/>
+          </g></g>
           <use href="#spark" class="spk tw" x="66" y="210" width="20" height="20"/>
           <use href="#spark" class="spk tw b" x="272" y="190" width="26" height="26"/>
           <use href="#spark" class="spk tw" x="286" y="350" width="16" height="16"/>
@@ -408,6 +436,7 @@
   </svg>
 
   <div class="subs" id="subs" aria-live="polite"></div>
+  <div class="proc" id="proc"></div>
   <div class="pill" id="pill">Запись к косметологу — в профиле ↓</div>
 
   <div class="start" id="start">
@@ -472,6 +501,7 @@
 
   // lines without a voice clip are shown as plain captions for a fixed time
   const SILENT = {
+    n6: ['Пара часов уколов — и готово.', 6800],
     n3: ['Масочки из огурчика. Ну-ну.', 2600],
     f3: ['Всё. Завтра же иду за огурцами!', 2800],
     n4: ['Огурцы не помогут. Записывайся к косметологу — запись в профиле.', 4200],
@@ -507,7 +537,8 @@
     for (const k in voices) try { voices[k].pause(); } catch (e) {}
     if (music) { music.pause(); music.currentTime = 0; }
     Object.assign(svg.dataset, { scene: 'clinic', cast: 'sveta', sface: 'smile', lface: 'norm', cukes: 'off', mo: '0', talk: '',
-      sstate: 'before', towel: 'off', maskon: 'off', brush: 'off', wand: 'off' });
+      sstate: 'before', towel: 'off', proc: '', bio: 'off', btx: 'off', plump: 'off' });
+    $('proc').classList.remove('show');
     svg.classList.remove('spin');
     document.querySelectorAll('.chk').forEach(c => c.classList.remove('on'));
     $('subs').innerHTML = ''; $('pill').classList.remove('show');
@@ -529,14 +560,21 @@
     sfx(t, 'whoosh');
     t += speak(t, 'k1', 'kosm') + G;
 
-    // 3. the procedure: towel, mask, brush, device
-    at(t, () => { scene('bed', 'sveta', 1.1); Object.assign(svg.dataset, { towel: 'on', brush: 'on' }); });
+    // 3. the procedure: injections, step by step
+    const proc = (ms, key, num, label) => at(ms, () => { set('proc', key); $('proc').innerHTML = `<b>${num}</b>${label}`; $('proc').classList.add('show'); });
+    at(t, () => { scene('bed', 'sveta', 1.32); set('towel', 'on'); });
     sfx(t, 'whoosh');
-    at(t + 900, () => set('maskon', 'on'));
-    at(t + 2600, () => { set('brush', 'off'); set('wand', 'on'); });
-    sfx(t + 2600, 'ding');
-    const d3 = speak(t, 'n5');
-    t += Math.max(d3, 5200) + G;
+    proc(t + 500, 'bio', '01', 'Биоревитализация'); sfx(t + 500, 'pop');
+    at(t + 1500, () => set('bio', 'on'));
+    proc(t + 2900, 'btx', '02', 'Ботокс'); sfx(t + 2900, 'pop');
+    at(t + 3800, () => set('btx', 'on'));
+    proc(t + 5300, 'lips', '03', 'Контурная пластика губ'); sfx(t + 5300, 'pop');
+    at(t + 6000, () => set('plump', 'on'));
+    sfx(t + 6000, 'ding');
+    const d3 = speak(t, 'n6');
+    t += Math.max(d3, 7600);
+    at(t - 200, () => { set('proc', ''); $('proc').classList.remove('show'); });
+    t += G;
 
     // 4. time flies
     at(t, () => { scene('clock', 'clock', 1.04); svg.classList.remove('spin'); void svg.getBoundingClientRect(); svg.classList.add('spin'); });
@@ -549,7 +587,7 @@
     t += (d5 || 1200) + G;
 
     // 6. the reveal in the mirror
-    at(t, () => { scene('mirror', 'sveta', 1.12); Object.assign(svg.dataset, { sstate: 'after', towel: 'off', maskon: 'off', wand: 'off', sface: 'smile' }); });
+    at(t, () => { scene('mirror', 'sveta', 1.12); Object.assign(svg.dataset, { sstate: 'after', towel: 'off', bio: 'off', btx: 'off', sface: 'smile' }); });
     sfx(t, 'ding');
     t += speak(t, 'p1', 'sveta') + G;
 
