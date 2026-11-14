@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Масочки из огурчика</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Press+Start+2P&display=swap">
+<style>
+  /* Layout: one 9:16 frame; pixelated SVG art under crisp UI. Single pink-night look by choice. */
+  :root {
+    --bg: #1a0f1a;
+    --ink: #1d1420;
+    --card: #fff8fb;
+    --pink: #ff5fa2;
+    --hot: #ff2d55;
+    --mint: #6dffb3;
+    --gold: #ffd166;
+    --f-pix: "Press Start 2P", ui-monospace, monospace;
+    --f-sub: "Pixelify Sans", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: #fff; display: grid; place-items: center; overflow: hidden; }
+  .frame {
+    position: relative; height: min(100vh, calc(100vw * 16 / 9)); aspect-ratio: 9 / 16;
+    overflow: hidden; container-type: inline-size; background: #000;
+  }
+  .frame svg.art { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+
+  /* HUD */
+  .hud { position: absolute; left: 3cqw; right: 3cqw; top: 3.2cqw; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2cqw; }
+  .hud .c { background: var(--card); color: var(--ink); border: .7cqw solid var(--ink); padding: 1.4cqw 2cqw 1.6cqw; display: grid; gap: 1.2cqw; box-shadow: 0 .9cqw 0 rgba(0,0,0,.45); }
+  .hud .c.dark { background: var(--ink); color: #fff; border-color: #000; }
+  .hud .l { font: 1.6cqw var(--f-pix); letter-spacing: .08em; opacity: .65; white-space: nowrap; }
+  .hud .v { font: 3.6cqw var(--f-pix); white-space: nowrap; }
+  .hud .v.good { color: #0f9d58; }
+  .hud .v.red { color: var(--hot); }
+  .hud .c.alarm { animation: alarm .25s steps(2) 6; }
+  @keyframes alarm { 50% { transform: translateY(-.8cqw) rotate(-2deg); background: #ffe0ec; } }
+
+  /* POV chip */
+  .pov { position: absolute; left: 6cqw; top: 17cqw; font: 5cqw var(--f-pix); color: #fff; text-shadow: .6cqw .6cqw 0 #000;
+         transform: scale(0); transform-origin: left center; transition: transform .3s cubic-bezier(.3,1.7,.5,1); }
+  .pov.show { transform: scale(1); }
+  .pov small { display: block; font: 700 4.4cqw var(--f-sub); margin-top: 2cqw; }
+
+  /* door sign (crisp) */
+  .sign { position: absolute; left: 50%; top: 36.6cqw; transform: translateX(-50%); background: #fff; color: var(--ink);
+          font: 3.4cqw var(--f-pix); padding: 1.8cqw 2.8cqw; border: .7cqw solid #c9a227; letter-spacing: .08em; white-space: nowrap; }
+  .sign[hidden] { display: none !important; }
+
+  /* popups */
+  .pop { position: absolute; left: 7cqw; right: 7cqw; top: 26cqw; background: var(--card); color: var(--ink);
+         border: .8cqw solid var(--ink); padding: 3cqw 3.4cqw; box-shadow: 0 1.4cqw 0 rgba(0,0,0,.5);
+         transform: scale(.4) rotate(-3deg); opacity: 0; transition: transform .28s cubic-bezier(.3,1.7,.5,1), opacity .15s; }
+  .pop.show { transform: scale(1) rotate(-1deg); opacity: 1; }
+  .pop .k { font: 1.8cqw var(--f-pix); letter-spacing: .08em; opacity: .6; margin-bottom: 1.6cqw; display: flex; justify-content: space-between; gap: 2cqw; }
+  .pop .t { font: 700 5cqw/1.15 var(--f-sub); }
+  .pop .s { font: 400 3.8cqw/1.25 var(--f-sub); margin-top: 1.2cqw; }
+  .pop.notif { background: var(--ink); color: #fff; border-color: #000; }
+  .pop .row { display: flex; align-items: center; gap: 2.4cqw; font: 700 4.6cqw/1.5 var(--f-sub); opacity: .25; transition: opacity .2s; }
+  .pop .row.on { opacity: 1; }
+  .pop .row .box { width: 4.4cqw; height: 4.4cqw; border: .6cqw solid var(--ink); display: grid; place-items: center; font: 2.6cqw var(--f-pix); color: #0f9d58; flex: none; }
+  .pop .row.on .box::after { content: "V"; }
+  .pop.lie { background: #1d1420; color: #fff; border-color: #000; top: 30cqw; }
+  .pop.lie .t { color: var(--hot); font: 4.4cqw var(--f-pix); }
+  .meter { margin-top: 2.4cqw; height: 5cqw; border: .6cqw solid #fff; position: relative; background: #2d2233; }
+  .meter i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: repeating-linear-gradient(90deg, var(--hot) 0 2cqw, #ff6b81 2cqw 4cqw); transition: width 1.4s steps(12); }
+  .pop.lie.show .meter i { width: 100%; }
+  .meter-l { display: flex; justify-content: space-between; font: 1.8cqw var(--f-pix); margin-top: 1.4cqw; opacity: .8; }
+  .pop.receipt { left: auto; right: 6cqw; width: 52cqw; top: 76cqw; background: #fffef2; font-family: var(--f-pix);
+                 transform: scale(.4) rotate(6deg); }
+  .pop.receipt.show { transform: scale(1) rotate(4deg); }
+  .pop.receipt .t { font: 2.4cqw/1.6 var(--f-pix); }
+  .pop.receipt .s { font: 2cqw/1.7 var(--f-pix); }
+
+  /* chrome Y2K sticker */
+  .chrome { position: absolute; font: 9cqw var(--f-pix); white-space: nowrap;
+            background: linear-gradient(180deg, #ffffff 0%, #ffd1ea 35%, #ff5fa2 50%, #ffe3f2 65%, #ffffff 100%);
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            filter: drop-shadow(.7cqw .7cqw 0 #3a0d2a);
+            animation: stk 1.8s cubic-bezier(.3,1.7,.5,1) forwards; pointer-events: none; }
+
+  /* subtitles */
+  .subs { position: absolute; left: 4cqw; right: 4cqw; top: 136cqw; text-align: center; font: 700 8.6cqw/1.1 var(--f-sub); color: #fff;
+          text-shadow: .6cqw 0 0 #000, -.6cqw 0 0 #000, 0 .6cqw 0 #000, 0 -.6cqw 0 #000, .6cqw .6cqw 0 #000, -.6cqw -.6cqw 0 #000, .6cqw -.6cqw 0 #000, -.6cqw .6cqw 0 #000, 0 1.4cqw 0 #000;
+          text-wrap: balance; }
+  .subs span { display: inline-block; margin: 0 .9cqw; }
+  .subs span.on { color: var(--pink); transform: scale(1.08); }
+
+  /* stickers */
+  .stk { position: absolute; font: 6cqw var(--f-pix); white-space: nowrap; color: var(--pink);
+         text-shadow: .7cqw .7cqw 0 #000, -.4cqw -.4cqw 0 #000, .4cqw -.4cqw 0 #000, -.4cqw .4cqw 0 #000;
+         animation: stk 1.4s cubic-bezier(.3,1.7,.5,1) forwards; pointer-events: none; }
+  @keyframes stk {
+    0% { transform: translate(-50%,-50%) rotate(var(--r)) scale(0); }
+    20% { transform: translate(-50%,-50%) rotate(var(--r)) scale(1.2); }
+    30%, 85% { transform: translate(-50%,-50%) rotate(var(--r)) scale(1); opacity: 1; }
+    100% { transform: translate(-50%,-50%) rotate(var(--r)) scale(1); opacity: 0; }
+  }
+
+  /* glow sweep transition (beauty-filter style) */
+  .sweep { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(105deg, transparent 35%, rgba(255,255,255,.75) 50%, transparent 65%);
+           transform: translateX(-120%); }
+  .sweep.go { animation: sweep .55s ease-out; }
+  @keyframes sweep { to { transform: translateX(120%); } }
+
+  /* end pill */
+  .pill { position: absolute; left: 50%; top: 152cqw; transform: translateX(-50%) scale(0); background: var(--pink); color: #fff;
+          border: .7cqw solid var(--ink); font: 2.7cqw var(--f-pix); padding: 2.4cqw 3cqw; white-space: nowrap; text-shadow: .3cqw .3cqw 0 var(--ink);
+          transition: transform .3s cubic-bezier(.3,1.7,.5,1); }
+  .pill.show { transform: translateX(-50%) scale(1); }
+
+  /* start overlay */
+  .start { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5cqw; background: rgba(26,15,26,.8); text-align: center; padding: 6cqw; }
+  .start[hidden] { display: none !important; }
+  .start h1 { font: 5.6cqw/1.5 var(--f-pix); margin: 0; text-wrap: balance; }
+  .start p { font: 4.4cqw var(--f-sub); margin: 0; color: #f3c6dc; }
+  .start button { font: 4cqw var(--f-pix); background: var(--pink); color: #fff; border: .8cqw solid var(--ink); padding: 3cqw 5cqw; cursor: pointer; box-shadow: 0 1.2cqw 0 #000; }
+  .start button:focus-visible { outline: .8cqw solid #fff; outline-offset: 1cqw; }
+
+  /* SVG states */
+  .bgs > g, .cast > g { display: none; }
+  svg[data-scene="clinic"] #bg-clinic, svg[data-scene="glow"] #bg-glow, svg[data-scene="resto"] #bg-resto, svg[data-scene="end"] #bg-end { display: inline; }
+  svg[data-cast="sveta"] #sveta, svg[data-cast="luda"] #luda { display: inline; }
+  .s-smile, .s-wink, .l-norm, .l-shock, .l-det, .cukes, .mo { display: none; }
+  svg[data-sface="smile"] .s-smile, svg[data-sface="wink"] .s-wink { display: inline; }
+  svg[data-lface="norm"] .l-norm, svg[data-lface="shock"] .l-shock, svg[data-lface="det"] .l-det { display: inline; }
+  svg[data-cukes="on"] .cukes { display: inline; }
+  svg[data-mo="1"][data-talk="sveta"] #sveta .mo, svg[data-mo="1"][data-talk="luda"] #luda .mo { display: inline; }
+
+  #cam { transform-origin: 180px 330px; transition: transform .35s cubic-bezier(.2,.8,.3,1); }
+  #cam.punch { transform: scale(1.07); transition: none; }
+  #cam.zoom { transform: scale(1.3) translateY(14px); transition: transform 1s cubic-bezier(.6,0,.3,1); }
+  .bob { animation: bob 1.8s ease-in-out infinite; }
+  @keyframes bob { 50% { transform: translateY(4px); } }
+  .tw { animation: tw 1s steps(2) infinite; }
+  .tw.b { animation-delay: .5s; }
+  @keyframes tw { 50% { opacity: .15; } }
+  .float { animation: fl 3s ease-in-out infinite; }
+  @keyframes fl { 50% { transform: translateY(-10px); } }
+  .bulbs { animation: tw 1.4s steps(2) infinite; }
+  @media (prefers-reduced-motion: reduce) { .bob, .tw, .float, .bulbs { animation: none; } }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <svg class="art" id="art" viewBox="0 0 360 640" data-scene="clinic" data-cast="sveta" data-sface="smile" data-lface="norm" data-cukes="off" data-mo="0" data-talk="" role="img" aria-label="Пиксельный мультик: ухоженная героиня выходит от косметолога и встречает подругу в ресторане">
+    <defs>
+      <filter id="px" x="0" y="0" width="360" height="640" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+        <feFlood x="2" y="2" width="1" height="1"/><feComposite width="4" height="4"/><feTile result="grid"/>
+        <feComposite in="SourceGraphic" in2="grid" operator="in"/><feMorphology operator="dilate" radius="2"/>
+      </filter>
+      <linearGradient id="glowg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff9cc8"/><stop offset=".55" stop-color="#c77dff"/><stop offset="1" stop-color="#5a2a8a"/></linearGradient>
+      <linearGradient id="endg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd6e8"/><stop offset="1" stop-color="#ff7eb6"/></linearGradient>
+      <linearGradient id="hairS" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c2463f"/><stop offset="1" stop-color="#7d2230"/></linearGradient>
+      <pattern id="knit" width="16" height="16" patternUnits="userSpaceOnUse"><rect width="16" height="16" fill="#8a5a9e"/><path d="M0 8 L8 0 L16 8 L8 16Z" fill="#a273b5"/></pattern>
+      <pattern id="tiles" width="40" height="40" patternUnits="userSpaceOnUse"><rect width="40" height="40" fill="#f7d6e2"/><rect width="40" height="4" fill="#efc2d3"/></pattern>
+      <symbol id="spark" viewBox="-10 -10 20 20"><path d="M0 -10 L2 -2 L10 0 L2 2 L0 10 L-2 2 L-10 0 L-2 -2Z" fill="#fff"/></symbol>
+    </defs>
+
+    <g filter="url(#px)">
+      <rect width="360" height="640" fill="#000"/>
+      <g id="cam">
+        <g class="bgs">
+          <g id="bg-clinic">
+            <rect width="360" height="640" fill="url(#tiles)"/>
+            <rect y="420" width="360" height="220" fill="#e7a9c1"/>
+            <rect y="416" width="360" height="8" fill="#c9a227"/>
+            <rect x="96" y="190" width="168" height="450" fill="#fff" stroke="#c9a227" stroke-width="6"/>
+            <rect x="110" y="204" width="140" height="436" fill="#f3eef2"/>
+            <circle cx="236" cy="420" r="7" fill="#c9a227"/>
+            <rect x="20" y="430" width="50" height="60" fill="#c96f53" stroke="#1d1420" stroke-width="4"/>
+            <circle cx="45" cy="400" r="34" fill="#3fa66b" stroke="#1d1420" stroke-width="4"/>
+            <circle cx="30" cy="380" r="18" fill="#57c785"/>
+          </g>
+          <g id="bg-glow">
+            <rect width="360" height="640" fill="url(#glowg)"/>
+            <circle cx="180" cy="330" r="160" fill="#ffd1ea" opacity=".45"/>
+            <circle cx="180" cy="330" r="110" fill="#fff0f7" opacity=".4"/>
+          </g>
+          <g id="bg-resto">
+            <rect width="360" height="640" fill="#4a1a2c"/>
+            <rect x="0" y="150" width="360" height="12" fill="#2e0f1b"/>
+            <rect x="200" y="170" width="140" height="190" fill="#1b1440" stroke="#c9a227" stroke-width="6"/>
+            <g fill="#ffd166"><rect x="220" y="300" width="10" height="10"/><rect x="250" y="270" width="10" height="10"/><rect x="290" y="310" width="10" height="10"/><rect x="310" y="250" width="10" height="10"/></g>
+            <path d="M0 120 Q90 160 180 120 T360 120" stroke="#2e0f1b" stroke-width="3" fill="none"/>
+            <g class="bulbs" fill="#ffd166"><circle cx="30" cy="132" r="6"/><circle cx="90" cy="142" r="6"/><circle cx="150" cy="128" r="6"/><circle cx="210" cy="118" r="6"/><circle cx="270" cy="132" r="6"/><circle cx="330" cy="128" r="6"/></g>
+            <g class="bulbs" style="animation-delay:.7s" fill="#ff9f43"><circle cx="60" cy="139" r="5"/><circle cx="120" cy="136" r="5"/><circle cx="180" cy="120" r="5"/><circle cx="240" cy="124" r="5"/><circle cx="300" cy="134" r="5"/></g>
+            <rect x="20" y="200" width="60" height="110" fill="#6b2a3d" stroke="#c9a227" stroke-width="4"/>
+          </g>
+          <g id="bg-end">
+            <rect width="360" height="640" fill="url(#endg)"/>
+            <g fill="#fff" opacity=".6"><circle cx="60" cy="200" r="30"/><circle cx="300" cy="520" r="40"/></g>
+          </g>
+        </g>
+
+        <!-- ===== CAST ===== -->
+        <g class="cast">
+          <!-- Sveta: the glowing patient -->
+          <g id="sveta"><g class="bob">
+            <path d="M84 300 C70 420 70 500 96 560 L264 560 C290 500 290 420 276 300 Z" fill="url(#hairS)"/>
+            <rect x="160" y="392" width="40" height="70" fill="#f7d2b8" stroke="#1d1420" stroke-width="4"/>
+            <path d="M40 660 C46 530 96 470 180 466 C264 470 314 530 320 660 Z" fill="#1f8a70" stroke="#1d1420" stroke-width="5"/>
+            <path d="M146 470 L180 530 L214 470 Z" fill="#f7d2b8" stroke="#1d1420" stroke-width="4"/>
+            <path d="M150 484 Q180 512 210 484" fill="none" stroke="#fff" stroke-width="5" stroke-dasharray="2 6" stroke-linecap="round"/>
+            <path d="M96 470 C110 520 120 600 118 660 M264 470 C250 520 240 600 242 660" stroke="#7d2230" stroke-width="22" fill="none" stroke-linecap="round"/>
+            <g transform="translate(180 334) scale(1.75)">
+              <ellipse cx="-41" cy="6" rx="8" ry="12" fill="#f7d2b8" stroke="#1d1420" stroke-width="3"/>
+              <ellipse cx="41" cy="6" rx="8" ry="12" fill="#f7d2b8" stroke="#1d1420" stroke-width="3"/>
+              <circle cx="-42" cy="22" r="6" fill="none" stroke="#ffd166" stroke-width="3"/><circle cx="42" cy="22" r="6" fill="none" stroke="#ffd166" stroke-width="3"/>
+              <ellipse rx="40" ry="44" fill="#f7d2b8" stroke="#1d1420" stroke-width="4"/>
+              <path d="M-42 -4 C-46 -52 -6 -62 16 -56 C44 -48 50 -24 42 -2 C34 -24 18 -30 -2 -36 C-8 -20 -26 -12 -42 -4Z" fill="url(#hairS)" stroke="#1d1420" stroke-width="3"/>
+              <path d="M-10 -46 q16 -6 30 2" stroke="#e8776a" stroke-width="3" fill="none"/>
+              <path d="M-24 -14 q8 -6 16 -1 M8 -15 q8 -5 16 1" stroke="#5a1f1f" stroke-width="3" fill="none"/>
+              <g class="s-smile">
+                <path d="M-24 -2 q8 -8 16 0 q-8 6 -16 0Z" fill="#1d1420"/><path d="M8 -2 q8 -8 16 0 q-8 6 -16 0Z" fill="#1d1420"/>
+                <path d="M-26 -6 l-4 -3 M26 -6 l4 -3" stroke="#1d1420" stroke-width="2.5"/>
+              </g>
+              <g class="s-wink">
+                <path d="M-24 -2 q8 -8 16 0 q-8 6 -16 0Z" fill="#1d1420"/>
+                <path d="M8 -1 q8 5 16 0" stroke="#1d1420" stroke-width="3.5" fill="none"/>
+              </g>
+              <path d="M-26 -9 q8 -5 18 -1 M8 -10 q10 -4 18 1" stroke="#b05a8a" stroke-width="2" fill="none" opacity=".8"/>
+              <path d="M-2 4 q2 6 5 2" stroke="#c48d76" stroke-width="2.5" fill="none"/>
+              <circle cx="-24" cy="12" r="7" fill="#ff8fab" opacity=".55"/><circle cx="24" cy="12" r="7" fill="#ff8fab" opacity=".55"/>
+              <path d="M-11 22 q11 -6 22 0 q-11 9 -22 0Z" fill="#d7263d" stroke="#1d1420" stroke-width="2"/>
+              <ellipse class="mo" cx="0" cy="24" rx="8" ry="6" fill="#7a1022" stroke="#1d1420" stroke-width="2.5"/>
+              <circle cx="16" cy="18" r="1.6" fill="#5a1f1f"/>
+            </g>
+            <g fill="#fff">
+              <use href="#spark" class="tw" x="70" y="250" width="22" height="22"/>
+              <use href="#spark" class="tw b" x="270" y="230" width="28" height="28"/>
+              <use href="#spark" class="tw" x="290" y="380" width="18" height="18"/>
+              <use href="#spark" class="tw b" x="56" y="400" width="16" height="16"/>
+            </g>
+          </g></g>
+
+          <!-- Luda: the friend -->
+          <g id="luda"><g class="bob">
+            <rect x="160" y="392" width="40" height="70" fill="#ecc9ad" stroke="#1d1420" stroke-width="4"/>
+            <path d="M34 660 C40 530 96 470 180 466 C264 470 320 530 326 660 Z" fill="url(#knit)" stroke="#1d1420" stroke-width="5"/>
+            <path d="M120 474 L180 560 L240 474" fill="none" stroke="#5e3a6e" stroke-width="10"/>
+            <circle cx="180" cy="560" r="12" fill="#ffd166" stroke="#1d1420" stroke-width="4"/>
+            <g transform="translate(180 334) scale(1.75)">
+              <circle cx="0" cy="-58" r="20" fill="#cfcfd4" stroke="#1d1420" stroke-width="3"/>
+              <ellipse cx="-41" cy="6" rx="8" ry="12" fill="#ecc9ad" stroke="#1d1420" stroke-width="3"/>
+              <ellipse cx="41" cy="6" rx="8" ry="12" fill="#ecc9ad" stroke="#1d1420" stroke-width="3"/>
+              <ellipse rx="40" ry="44" fill="#ecc9ad" stroke="#1d1420" stroke-width="4"/>
+              <path d="M-42 -2 C-46 -46 -10 -54 0 -50 C10 -54 46 -46 42 -2 C36 -22 20 -32 0 -34 C-20 -32 -36 -22 -42 -2Z" fill="#cfcfd4" stroke="#1d1420" stroke-width="3"/>
+              <path d="M-16 -26 q16 -4 32 0 M-12 -21 q12 -3 24 0" stroke="#b08a70" stroke-width="2" fill="none"/>
+              <g class="l-norm">
+                <circle cx="-15" cy="-2" r="3.5" fill="#1d1420"/><circle cx="15" cy="-2" r="3.5" fill="#1d1420"/>
+                <path d="M-24 -11 l14 1 M10 -10 l14 -1" stroke="#8d8d93" stroke-width="3"/>
+                <path d="M-10 24 q10 -3 20 0" stroke="#1d1420" stroke-width="3" fill="none"/>
+              </g>
+              <g class="l-shock">
+                <circle cx="-15" cy="-2" r="6" fill="#fff" stroke="#1d1420" stroke-width="2"/><circle cx="15" cy="-2" r="6" fill="#fff" stroke="#1d1420" stroke-width="2"/>
+                <circle cx="-15" cy="-2" r="2.5" fill="#1d1420"/><circle cx="15" cy="-2" r="2.5" fill="#1d1420"/>
+                <path d="M-24 -16 l12 -3 M12 -19 l12 3" stroke="#8d8d93" stroke-width="3"/>
+                <ellipse cx="0" cy="25" rx="7" ry="9" fill="#5a1d24" stroke="#1d1420" stroke-width="2.5"/>
+              </g>
+              <g class="l-det">
+                <circle cx="-15" cy="-2" r="3.5" fill="#1d1420"/><circle cx="15" cy="-2" r="3.5" fill="#1d1420"/>
+                <path d="M-24 -13 l14 6 M10 -7 l14 -6" stroke="#8d8d93" stroke-width="3.5"/>
+                <path d="M-10 26 l20 -2" stroke="#1d1420" stroke-width="3.5"/>
+              </g>
+              <path d="M-22 6 q6 4 12 0 M10 6 q6 4 12 0" stroke="#b08a70" stroke-width="2" fill="none"/>
+              <path d="M-30 -4 l-6 -2 M-30 0 l-6 2 M30 -4 l6 -2 M30 0 l6 2" stroke="#b08a70" stroke-width="2"/>
+              <path d="M-14 12 q-4 10 2 16 M14 12 q4 10 -2 16" stroke="#b08a70" stroke-width="2" fill="none"/>
+              <path d="M-2 4 q2 7 5 2" stroke="#b08a70" stroke-width="2.5" fill="none"/>
+              <ellipse class="mo" cx="0" cy="25" rx="7" ry="6" fill="#5a1d24" stroke="#1d1420" stroke-width="2.5"/>
+              <g fill="none" stroke="#6b4a2a" stroke-width="3"><circle cx="-15" cy="-2" r="11"/><circle cx="15" cy="-2" r="11"/><path d="M-4 -2 h8"/></g>
+              <path d="M-26 -2 C-34 30 -30 50 -20 64" stroke="#c9a227" stroke-width="1.5" fill="none" stroke-dasharray="2 2"/>
+              <circle cx="22" cy="14" r="1.8" fill="#6b4a2a"/>
+              <g class="cukes">
+                <circle cx="-15" cy="-2" r="13" fill="#5bbf4f" stroke="#1d1420" stroke-width="2.5"/><circle cx="-15" cy="-2" r="9" fill="#c8f0a8"/>
+                <circle cx="15" cy="-2" r="13" fill="#5bbf4f" stroke="#1d1420" stroke-width="2.5"/><circle cx="15" cy="-2" r="9" fill="#c8f0a8"/>
+                <g fill="#7fc76a"><circle cx="-18" cy="-4" r="1.5"/><circle cx="-12" cy="1" r="1.5"/><circle cx="12" cy="-4" r="1.5"/><circle cx="18" cy="1" r="1.5"/></g>
+              </g>
+            </g>
+          </g></g>
+        </g>
+
+        <!-- table in the restaurant (in front of the cast) -->
+        <g id="table" style="display:none">
+          <rect y="590" width="360" height="50" fill="#fff8f0" stroke="#1d1420" stroke-width="4"/>
+          <path d="M40 520 q-14 0 -14 24 q0 20 14 22 q14 -2 14 -22 q0 -24 -14 -24Z" fill="#7a0f2c" fill-opacity=".85" stroke="#1d1420" stroke-width="3"/>
+          <rect x="38" y="566" width="4" height="22" fill="#1d1420"/><rect x="28" y="586" width="24" height="4" fill="#1d1420"/>
+          <path d="M320 520 q-14 0 -14 24 q0 20 14 22 q14 -2 14 -22 q0 -24 -14 -24Z" fill="#7a0f2c" fill-opacity=".85" stroke="#1d1420" stroke-width="3"/>
+          <rect x="318" y="566" width="4" height="22" fill="#1d1420"/><rect x="308" y="586" width="24" height="4" fill="#1d1420"/>
+        </g>
+      </g>
+    </g>
+  </svg>
+
+  <div class="hud" aria-hidden="true">
+    <div class="c"><div class="l">СВЕТА · НА ВИД</div><div class="v good" id="vSveta">30</div></div>
+    <div class="c"><div class="l">ЛЮДА · НА ВИД</div><div class="v" id="vLuda">??</div></div>
+    <div class="c dark"><div class="l">ВРЕМЯ</div><div class="v" id="vTime">13:10</div></div>
+  </div>
+  <div class="sign" id="sign">КОСМЕТОЛОГ</div>
+  <div class="pov" id="pov">POV:<small>ты вышла от косметолога</small></div>
+  <div id="pops"></div>
+  <div class="subs" id="subs" aria-live="polite"></div>
+  <div id="stks"></div>
+  <div class="sweep" id="sweep"></div>
+  <div class="pill" id="pill">ЗАПИСЬ К КОСМЕТОЛОГУ — В ПРОФИЛЕ ↓</div>
+
+  <div class="start" id="start">
+    <h1>Масочки из огурчика</h1>
+    <p>пиксельный мультик · включи звук</p>
+    <button id="playBtn" type="button">▶ СМОТРЕТЬ</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const svg = $('art');
+  const set = (k, v) => svg.dataset[k] = v;
+
+  const VOICE = /*VOICE*/{};
+  const WORDS = /*WORDS*/{};
+  const MUSIC = /*MUSIC*/"";
+
+  const voices = {};
+  for (const k in VOICE) { try { voices[k] = new Audio(VOICE[k]); voices[k].preload = 'auto'; } catch (e) {} }
+  let music = null; try { if (MUSIC) { music = new Audio(MUSIC); music.volume = .25; } } catch (e) {}
+  let ctx = null;
+  const ac = () => (ctx = ctx || new (window.AudioContext || window.webkitAudioContext)());
+  function blip(f0, f1, dur, vol, type) {
+    try {
+      const c = ac(), o = c.createOscillator(), g = c.createGain();
+      o.type = type || 'square'; o.frequency.setValueAtTime(f0, c.currentTime);
+      o.frequency.exponentialRampToValueAtTime(f1, c.currentTime + dur);
+      g.gain.setValueAtTime(vol, c.currentTime); g.gain.exponentialRampToValueAtTime(.001, c.currentTime + dur);
+      o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime + dur + .02);
+    } catch (e) {}
+  }
+  const SFX = {
+    pop: () => blip(520, 1040, .09, .05),
+    whoosh: () => blip(900, 200, .18, .04, 'triangle'),
+    ding: () => blip(1200, 1800, .35, .05, 'triangle'),
+    alarm: () => blip(880, 440, .25, .05),
+  };
+
+  let timers = [], intervals = [], EVENTS = [];
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const sfx = (ms, name) => { EVENTS.push({ t: ms, type: name }); at(ms, () => SFX[name] && SFX[name]()); };
+
+  function scene(name, cast) {
+    set('scene', name); if (cast) set('cast', cast);
+    $('table').style.display = name === 'resto' ? 'inline' : 'none';
+    $('sign').hidden = name !== 'clinic';
+    const cam = $('cam'); cam.classList.remove('zoom');
+    cam.classList.add('punch'); void cam.getBoundingClientRect(); cam.classList.remove('punch');
+    const sw = $('sweep'); sw.classList.remove('go'); void sw.offsetWidth; sw.classList.add('go');
+  }
+  function hud(id, val, cls, alarm) {
+    const v = $(id); v.textContent = val; v.className = 'v' + (cls ? ' ' + cls : '');
+    if (alarm) { const c = v.parentElement; c.classList.remove('alarm'); void c.offsetWidth; c.classList.add('alarm'); }
+  }
+  function popup(html, cls, ms) {
+    const p = document.createElement('div');
+    p.className = 'pop ' + (cls || ''); p.innerHTML = html;
+    $('pops').appendChild(p);
+    requestAnimationFrame(() => requestAnimationFrame(() => p.classList.add('show')));
+    setTimeout(() => { p.classList.remove('show'); setTimeout(() => p.remove(), 300); }, ms);
+    return p;
+  }
+  function stk(word, x, y, r, color, size, chrome) {
+    const s = document.createElement('div');
+    s.className = chrome ? 'chrome' : 'stk'; s.textContent = word;
+    s.style.left = x + '%'; s.style.top = y + '%'; s.style.setProperty('--r', r + 'deg');
+    if (color && !chrome) s.style.color = color;
+    if (size) s.style.fontSize = size + 'cqw';
+    $('stks').appendChild(s);
+    setTimeout(() => s.remove(), chrome ? 1900 : 1500);
+  }
+  // time of the n-th word of clip k, in ms from the clip start
+  const wt = (k, i) => (WORDS[k] && WORDS[k].w[i] ? WORDS[k].w[i][1] * 1000 : 0);
+
+  function speak(ms, k, who) {
+    const w = WORDS[k]; if (!w) return 0;
+    EVENTS.push({ t: ms, type: 'voice', k });
+    at(ms, () => {
+      const a = voices[k]; if (a) { try { a.currentTime = 0; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {} }
+      if (who) set('talk', who);
+    });
+    const chunks = []; for (let i = 0; i < w.w.length; i += 3) chunks.push(w.w.slice(i, i + 3));
+    chunks.forEach(ch => {
+      at(ms + ch[0][1] * 1000, () => { $('subs').innerHTML = ch.map(x => `<span>${x[0]}</span>`).join(' '); });
+      ch.forEach((x, j) => at(ms + x[1] * 1000, () => {
+        const sp = $('subs').children; for (let q = 0; q < sp.length; q++) sp[q].classList.toggle('on', q === j);
+      }));
+    });
+    const end = w.w[w.w.length - 1][2];
+    if (who) at(ms, () => { const iv = setInterval(() => set('mo', svg.dataset.mo === '1' ? '0' : '1'), 110); intervals.push(iv); at(end * 1000, () => { clearInterval(iv); set('mo', '0'); }); });
+    at(ms + end * 1000 + 250, () => { $('subs').innerHTML = ''; });
+    return Math.round(w.d * 1000);
+  }
+
+  function reset() {
+    timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers = []; intervals = []; EVENTS = [];
+    for (const k in voices) try { voices[k].pause(); } catch (e) {}
+    if (music) { music.pause(); music.currentTime = 0; }
+    Object.assign(svg.dataset, { scene: 'clinic', cast: 'sveta', sface: 'smile', lface: 'norm', cukes: 'off', mo: '0', talk: '' });
+    $('cam').className = ''; $('table').style.display = 'none'; $('sign').hidden = false;
+    $('pops').innerHTML = ''; $('stks').innerHTML = ''; $('subs').innerHTML = '';
+    $('pov').classList.remove('show'); $('pill').classList.remove('show');
+    hud('vSveta', '30', 'good'); hud('vLuda', '??'); hud('vTime', '13:10');
+  }
+
+  function play() {
+    reset();
+    $('start').hidden = true;
+    if (music) { try { const p = music.play(); if (p) p.catch(() => {}); } catch (e) {} }
+    EVENTS.push({ t: 0, type: 'music' });
+    let t = 500; const G = 300;
+
+    // 1. POV: leaving the cosmetologist
+    at(t, () => $('pov').classList.add('show'));
+    t += speak(t, 'n1') + G;
+    at(t - 150, () => $('pov').classList.remove('show'));
+
+    // 2. glow-up close-up
+    at(t, () => { scene('glow', 'sveta'); $('cam').classList.add('zoom'); hud('vSveta', '30', 'good', true); });
+    sfx(t, 'ding');
+    at(t + 300, () => stk('GLOW UP', 50, 30, -6, null, 10, true));
+    t += speak(t, 'p1', 'sveta') + G;
+
+    // 3. evening, restaurant
+    at(t, () => { scene('resto', 'sveta'); hud('vTime', '19:30'); });
+    sfx(t, 'whoosh');
+    const d3 = speak(t, 'n2');
+    at(t + wt('n2', 5), () => popup('<div class="k"><span>ПО ПАСПОРТУ</span><span>★</span></div><div class="t">Свете — 50<br>Люде — 50</div>', '', 2400));
+    sfx(t + wt('n2', 5), 'pop');
+    t += d3 + G;
+
+    // 4. the friend
+    at(t, () => { scene('resto', 'luda'); set('lface', 'shock'); hud('vLuda', '85', 'red', true); });
+    sfx(t, 'alarm');
+    const d4 = speak(t, 'f1', 'luda');
+    at(t + 500, () => stk('ВАУ', 72, 34, 10, '#ffd166'));
+    t += d4 + G;
+
+    // 5. the question
+    at(t, () => set('lface', 'norm'));
+    t += speak(t, 'f2', 'luda') + G;
+
+    // 6. the answer + checklist
+    at(t, () => { scene('resto', 'sveta'); set('sface', 'smile'); });
+    sfx(t, 'whoosh');
+    const d6 = speak(t, 'p2', 'sveta');
+    const pIdx = { pit: 4, gen: 6, cuke: 8 };
+    at(t + wt('p2', 3), () => {
+      popup('<div class="k"><span>СЕКРЕТ МОЛОДОСТИ</span><span>3/3</span></div>' +
+        '<div class="row" id="r1"><span class="box"></span>Правильное питание</div>' +
+        '<div class="row" id="r2"><span class="box"></span>Генетика</div>' +
+        '<div class="row" id="r3"><span class="box"></span>Масочки из огурчика</div>', '', d6 - wt('p2', 3) + 400);
+    });
+    at(t + wt('p2', pIdx.pit), () => { const r = $('r1'); if (r) r.classList.add('on'); });
+    at(t + wt('p2', pIdx.gen), () => { const r = $('r2'); if (r) r.classList.add('on'); });
+    at(t + wt('p2', pIdx.cuke), () => { const r = $('r3'); if (r) r.classList.add('on'); set('sface', 'wink'); });
+    sfx(t + wt('p2', pIdx.pit), 'pop'); sfx(t + wt('p2', pIdx.gen), 'pop'); sfx(t + wt('p2', pIdx.cuke), 'pop');
+    t += d6 + G;
+
+    // 7. lie detector + receipt
+    at(t, () => {
+      popup('<div class="k"><span>ДЕТЕКТОР ЛЖИ</span><span>●REC</span></div><div class="t">ЛОЖЬ 100%</div><div class="meter"><i></i></div><div class="meter-l"><span>ПРАВДА</span><span>ЛОЖЬ</span></div>', 'lie', 3200);
+    });
+    sfx(t, 'alarm');
+    at(t + 900, () => popup('<div class="t">ЧЕК № 0050<br>КАБИНЕТ КОСМЕТОЛОГА<br>13:10</div><div class="s">ОПЛАЧЕНО ✓<br>ОГУРЦЫ: 0 ШТ</div>', 'receipt', 2600));
+    sfx(t + 900, 'pop');
+    t += speak(t, 'n3') + G + 300;
+
+    // 8. friend's cucumber plan
+    at(t, () => { scene('resto', 'luda'); set('lface', 'det'); });
+    sfx(t, 'whoosh');
+    const d8 = speak(t, 'f3', 'luda');
+    at(t + d8 - 400, () => { set('cukes', 'on'); stk('ОГУРЕЧНЫЙ ПЛАН', 50, 30, -5, '#6dffb3', 6.4); });
+    sfx(t + d8 - 400, 'pop');
+    t += d8 + G + 400;
+
+    // 9. outro CTA
+    at(t, () => { scene('end', 'sveta'); set('sface', 'wink'); set('cukes', 'off'); });
+    sfx(t, 'ding');
+    const d9 = speak(t, 'n4');
+    at(t + 200, () => stk('ОГУРЦЫ НЕ ПОМОГУТ', 50, 27, -4, '#ff2d55', 5.6));
+    at(t + wt('n4', 3), () => $('pill').classList.add('show'));
+    sfx(t + wt('n4', 3), 'pop');
+    t += d9 + 2200;
+    window.__timeline = { total: t, events: EVENTS };
+  }
+
+  $('playBtn').addEventListener('click', play);
+})();
+</script>
+</body>
+</html>
