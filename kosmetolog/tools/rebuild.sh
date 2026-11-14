@@ -27,4 +27,6 @@ python3 mix2.py
 DUR=$(python3 -c "import json;print(json.load(open('timeline.json'))['total']/1000+0.2)")
 ffmpeg -v error -y -ss "$START" -t "$DUR" -i "$V" -i mix_story.wav -map 0:v -map 1:a -c:v libx264 -preset slow -crf 20 \
   -pix_fmt yuv420p -r 30 -c:a aac -b:a 160k -af loudnorm=I=-14:TP=-1.5 -shortest -movflags +faststart ../kosmetolog-9x16.mp4
+# speed the whole cut up a little for a punchier feel
+ffmpeg -v error -y -i ../kosmetolog-9x16.mp4 -filter:v "setpts=PTS/1.08" -filter:a "atempo=1.08" -c:v libx264 -preset slow -crf 20 -pix_fmt yuv420p -r 30 -c:a aac -b:a 160k -movflags +faststart ../kosmetolog-fast.mp4 && mv ../kosmetolog-fast.mp4 ../kosmetolog-9x16.mp4
 echo "start=$START dur=$DUR"

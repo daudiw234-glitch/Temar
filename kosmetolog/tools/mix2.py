@@ -18,13 +18,14 @@ def whoosh():
     y2=np.zeros(m); acc=0; a=.85
     for i in range(m): acc=(1-a)*x[i]+a*acc; y2[i]=acc
     return .25*(x-y2)*np.sin(np.pi*np.arange(m)/m)
-music=rd('music.wav'); add(music,0,0.13)
+music=rd('music.wav'); add(music,0,0.16)
 buzz_on=None
 for e in tl['events']:
     t=e['t']/1000
     if e['type']=='voice': add(rd(f"voice/{e['k']}.mp3"),t,1.0)
     elif e['type']=='pop': add(soft(620,900,.12,.10),t)
     elif e['type']=='whoosh': add(whoosh(),t)
+    elif e['type']=='snap': add(whoosh()*0.8,t); add(soft(2400,1800,.05,.12),t)
     elif e['type']=='ding': add(soft(1320,1310,1.1,.09)+np.pad(soft(1980,1970,.8,.05),(0,int(.3*sr)))[:int(1.1*sr)],t)
     elif e['type']=='buzzOn': buzz_on=t
     elif e['type']=='buzzOff' and buzz_on is not None:

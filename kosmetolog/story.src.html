@@ -112,6 +112,17 @@
           box-shadow: 0 1cqw 3cqw rgba(0,0,0,.18); transition: opacity .3s, transform .3s; }
   .proc.show { opacity: 1; transform: translateX(-50%) translateY(0); }
   .proc b { color: #e0567f; font-weight: 900; margin-right: 1.6cqw; }
+
+  .glam { display: none; }
+  svg[data-sstate="after"]:not([data-towel="on"]) #sveta .glam { display: inline; }
+  svg[data-sstate="after"] #sveta .pearls { display: none; }
+  /* energetic cuts */
+  .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; }
+  .flash.go { animation: flash .28s ease-out; }
+  @keyframes flash { from { opacity: .9; } to { opacity: 0; } }
+  .subs span.in { display: inline-block; animation: subIn .22s cubic-bezier(.3,1.8,.5,1) both; }
+  @keyframes subIn { from { transform: translateY(2cqw) scale(.6); opacity: 0; } }
+  #syr .poke { animation-duration: .38s !important; }
   @media (prefers-reduced-motion: reduce) { .bob, .tw, .dust circle, .flick { animation: none; } }
 </style>
 </head>
@@ -135,7 +146,8 @@
       <linearGradient id="cabWall" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#e8f6f2"/><stop offset="1" stop-color="#a9d8cc"/></linearGradient>
       <linearGradient id="mintG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fd6c4"/><stop offset="1" stop-color="#3fa391"/></linearGradient>
       <mask id="faceMask"><ellipse cx="180" cy="296" rx="60" ry="68" fill="#fff"/><ellipse cx="155" cy="296" rx="17" ry="15" fill="#000"/><ellipse cx="205" cy="296" rx="17" ry="15" fill="#000"/><ellipse cx="180" cy="336" rx="18" ry="11" fill="#000"/></mask>
-      <linearGradient id="dress" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#21a07f"/><stop offset="1" stop-color="#11604d"/></linearGradient>
+      <linearGradient id="dress" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#3a3a46"/><stop offset=".45" stop-color="#16161c"/><stop offset=".6" stop-color="#2c2c36"/><stop offset="1" stop-color="#0c0c10"/></linearGradient>
+      <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff1b0"/><stop offset=".5" stop-color="#e2b24a"/><stop offset="1" stop-color="#a8781c"/></linearGradient>
       <radialGradient id="skinS" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#ffe2cf"/><stop offset="1" stop-color="#f1bfa0"/></radialGradient>
       <radialGradient id="skinL" cx="40%" cy="35%" r="70%"><stop offset="0" stop-color="#f7dccb"/><stop offset="1" stop-color="#e2b79e"/></radialGradient>
       <linearGradient id="hairL" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8c766a"/><stop offset="1" stop-color="#5e4c44"/></linearGradient>
@@ -226,8 +238,14 @@
           <path d="M92 300 C78 200 126 150 180 150 C238 150 286 198 270 300 C282 380 270 450 256 486 L104 486 C90 450 80 380 92 300Z" class="hr" fill="url(#hairS)"/>
           <path d="M162 340 h36 v54 q-18 12 -36 0Z" fill="#e9b394"/>
           <path class="dr" d="M64 660 C66 510 108 430 180 422 C252 430 294 510 296 660Z" fill="url(#dress)"/>
+          <g class="glam fur">
+            <path d="M40 660 C44 540 70 470 120 452 L150 520 C130 560 124 610 128 660Z M320 660 C316 540 290 470 240 452 L210 520 C230 560 236 610 232 660Z" fill="#f4eee6"/>
+            <g fill="#fffaf4"><circle cx="110" cy="458" r="22"/><circle cx="88" cy="482" r="22"/><circle cx="74" cy="514" r="20"/><circle cx="64" cy="552" r="20"/><circle cx="58" cy="592" r="20"/><circle cx="132" cy="476" r="18"/><circle cx="140" cy="510" r="16"/>
+              <circle cx="250" cy="458" r="22"/><circle cx="272" cy="482" r="22"/><circle cx="286" cy="514" r="20"/><circle cx="296" cy="552" r="20"/><circle cx="302" cy="592" r="20"/><circle cx="228" cy="476" r="18"/><circle cx="220" cy="510" r="16"/></g>
+            <g stroke="#e3d7c8" stroke-width="2" fill="none" stroke-linecap="round"><path d="M96 470 q6 -6 12 0 M80 520 q6 -6 12 0 M70 570 q6 -6 12 0 M264 470 q6 -6 12 0 M280 520 q6 -6 12 0 M290 570 q6 -6 12 0"/></g>
+          </g>
           <path d="M148 428 Q180 422 212 428 L180 488Z" fill="#efbb9c"/>
-          <g fill="#fff8ec"><circle cx="160" cy="440" r="3"/><circle cx="168" cy="447" r="3"/><circle cx="176" cy="451" r="3"/><circle cx="184" cy="451" r="3"/><circle cx="192" cy="447" r="3"/><circle cx="200" cy="440" r="3"/></g>
+          <g class="pearls" fill="#fff8ec"><circle cx="160" cy="440" r="3"/><circle cx="168" cy="447" r="3"/><circle cx="176" cy="451" r="3"/><circle cx="184" cy="451" r="3"/><circle cx="192" cy="447" r="3"/><circle cx="200" cy="440" r="3"/></g>
           <path d="M104 420 C92 480 98 540 112 590 L136 590 C122 530 122 470 134 418Z" class="hr" fill="url(#hairS)"/>
           <path d="M256 420 C268 480 262 540 248 590 L224 590 C238 530 238 470 226 418Z" class="hr" fill="url(#hairS)"/>
           <ellipse class="sk" cx="180" cy="290" rx="64" ry="72" fill="url(#skinS)"/>
@@ -261,6 +279,20 @@
           <path d="M118 286 C112 222 150 194 194 198 C236 202 254 232 248 266 C232 238 206 228 180 234 C160 250 138 266 118 286Z" class="hr" fill="url(#hairS)"/>
           <path d="M170 210 q30 -6 54 14" stroke="#fff4cf" stroke-width="3" fill="none" stroke-linecap="round" opacity=".7"/>
           <g class="ear"><circle cx="120" cy="334" r="5" fill="none" stroke="#ffd36b" stroke-width="3"/><circle cx="240" cy="334" r="5" fill="none" stroke="#ffd36b" stroke-width="3"/></g>
+          <g class="glam">
+            <path d="M138 448 Q180 486 222 448" stroke="url(#gold)" stroke-width="3" fill="none"/>
+            <path d="M180 470 l7 9 l-7 10 l-7 -10Z" fill="#eaf8ff" stroke="#bfe6ff" stroke-width="1.5"/><circle cx="180" cy="478" r="14" fill="#fff" opacity=".35" filter="url(#blurS)"/>
+            <path d="M141 293 L127 282 M219 293 L233 282" stroke="#120808" stroke-width="3.4" stroke-linecap="round"/>
+            <path d="M126 306 l4 -3 M128 314 l5 -2 M234 306 l-4 -3 M232 314 l-5 -2" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".9"/>
+            <circle cx="132" cy="312" r="5" fill="#fff" opacity=".55" filter="url(#blurS)"/><circle cx="228" cy="312" r="5" fill="#fff" opacity=".55" filter="url(#blurS)"/>
+            <path d="M172 334 q8 -3 14 0" stroke="#fff" stroke-width="2.2" stroke-linecap="round" opacity=".85" fill="none"/>
+            <circle cx="118" cy="342" r="11" fill="none" stroke="url(#gold)" stroke-width="3.6"/><circle cx="242" cy="342" r="11" fill="none" stroke="url(#gold)" stroke-width="3.6"/>
+            <g transform="rotate(-6 180 196)">
+              <path d="M124 196 q14 -18 46 -10 q2 18 -18 22 q-22 2 -28 -12Z" fill="#111"/><path d="M236 196 q-14 -18 -46 -10 q-2 18 18 22 q22 2 28 -12Z" fill="#111"/>
+              <path d="M170 190 q10 -6 20 0" stroke="#111" stroke-width="4" fill="none"/>
+              <path d="M134 194 q10 -8 22 -6" stroke="#fff" stroke-width="2.4" opacity=".55" fill="none" stroke-linecap="round"/><path d="M200 190 q12 -4 22 2" stroke="#fff" stroke-width="2.4" opacity=".55" fill="none" stroke-linecap="round"/>
+            </g>
+          </g>
           <!-- tired look (before) -->
           <g class="tired">
             <path d="M141 288 Q155 280 169 288 L169 292 Q155 286 141 292Z M191 288 Q205 280 219 288 L219 292 Q205 286 191 292Z" fill="#cfae9c"/>
@@ -436,6 +468,7 @@
   </svg>
 
   <div class="subs" id="subs" aria-live="polite"></div>
+  <div class="flash" id="flash"></div>
   <div class="proc" id="proc"></div>
   <div class="pill" id="pill">Запись к косметологу — в профиле ↓</div>
 
@@ -482,6 +515,7 @@
     pop: () => tone(620, 900, .12, .05),
     whoosh,
     ding: () => { tone(1320, 1310, 1.1, .04); tone(1980, 1970, .8, .02); },
+    snap: () => { whoosh(); tone(2400, 1800, .05, .04); },
   };
 
   let timers = [], intervals = [], EVENTS = [];
@@ -489,21 +523,24 @@
   const sfx = (ms, name) => { EVENTS.push({ t: ms, type: name }); at(ms, () => SFX[name] && SFX[name]()); };
 
   // cut to a scene with a slow push-in, like a camera move
-  function scene(name, cast, push) {
+  function scene(name, cast, push, flash) {
     set('scene', name); if (cast) set('cast', cast);
     const cam = $('cam');
-    cam.style.transition = 'none'; cam.style.transform = 'scale(1)';
+    cam.style.transition = 'none'; cam.style.transform = `scale(${(push || 1.06) + 0.14}) rotate(${Math.random() < .5 ? -1.5 : 1.5}deg)`;
     void cam.getBoundingClientRect();
-    cam.style.transition = 'transform 6s cubic-bezier(.2,.6,.3,1)';
-    cam.style.transform = `scale(${push || 1.06})`;
+    cam.style.transition = 'transform .32s cubic-bezier(.2,.9,.3,1)';
+    cam.style.transform = 'scale(1) rotate(0deg)';
+    setTimeout(() => { cam.style.transition = 'transform 4s cubic-bezier(.3,.5,.3,1)'; cam.style.transform = `scale(${push || 1.06})`; }, 340);
+    if (flash) { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
   }
+  function paparazzi(ms, n) { for (let i = 0; i < n; i++) { at(ms + i * 230, () => { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }); sfx(ms + i * 230, 'snap'); } }
   const wt = (k, i) => (WORDS[k] && WORDS[k].w[i] ? WORDS[k].w[i][1] * 1000 : 0);
 
   // lines without a voice clip are shown as plain captions for a fixed time
   const SILENT = {
-    n6: ['Пара часов уколов — и готово.', 6800],
-    n3: ['Масочки из огурчика. Ну-ну.', 2600],
-    f3: ['Всё. Завтра же иду за огурцами!', 2800],
+    n6: ['Пара часов уколов — и готово.', 5200],
+    n3: ['Масочки из огурчика. Ну-ну.', 2100],
+    f3: ['Всё. Завтра же иду за огурцами!', 2300],
     n4: ['Огурцы не помогут. Записывайся к косметологу — запись в профиле.', 4200],
   };
   function speak(ms, k, who) {
@@ -519,9 +556,9 @@
       const a = voices[k]; if (a) { try { a.currentTime = 0; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {} }
       if (who) set('talk', who);
     });
-    const chunks = []; for (let i = 0; i < w.w.length; i += 6) chunks.push(w.w.slice(i, i + 6));
+    const chunks = []; for (let i = 0; i < w.w.length; i += 4) chunks.push(w.w.slice(i, i + 4));
     chunks.forEach(ch => {
-      at(ms + ch[0][1] * 1000, () => { $('subs').innerHTML = ch.map(x => `<span>${x[0]}</span>`).join(' '); });
+      at(ms + ch[0][1] * 1000, () => { $('subs').innerHTML = ch.map((x, i) => `<span class="in" style="animation-delay:${i * 40}ms">${x[0]}</span>`).join(' '); });
       ch.forEach((x, j) => at(ms + x[1] * 1000, () => {
         const sp = $('subs').children; for (let q = 0; q < sp.length; q++) sp[q].classList.toggle('on', q === j);
       }));
@@ -549,7 +586,7 @@
     $('start').hidden = true;
     if (music) { try { const p = music.play(); if (p) p.catch(() => {}); } catch (e) {} }
     EVENTS.push({ t: 0, type: 'music' });
-    let t = 400; const G = 350;
+    let t = 300; const G = 120;
 
     // 1. before: tired Sveta at the cosmetologist's door
     at(0, () => scene('clinic', 'sveta', 1.05));
@@ -564,22 +601,22 @@
     const proc = (ms, key, num, label) => at(ms, () => { set('proc', key); $('proc').innerHTML = `<b>${num}</b>${label}`; $('proc').classList.add('show'); });
     at(t, () => { scene('bed', 'sveta', 1.32); set('towel', 'on'); });
     sfx(t, 'whoosh');
-    proc(t + 500, 'bio', '01', 'Биоревитализация'); sfx(t + 500, 'pop');
-    at(t + 1500, () => set('bio', 'on'));
-    proc(t + 2900, 'btx', '02', 'Ботокс'); sfx(t + 2900, 'pop');
-    at(t + 3800, () => set('btx', 'on'));
-    proc(t + 5300, 'lips', '03', 'Контурная пластика губ'); sfx(t + 5300, 'pop');
-    at(t + 6000, () => set('plump', 'on'));
-    sfx(t + 6000, 'ding');
+    proc(t + 300, 'bio', '01', 'Биоревитализация'); sfx(t + 500, 'pop');
+    at(t + 1000, () => set('bio', 'on'));
+    proc(t + 2200, 'btx', '02', 'Ботокс'); sfx(t + 2900, 'pop');
+    at(t + 2900, () => set('btx', 'on'));
+    proc(t + 3900, 'lips', '03', 'Контурная пластика губ'); sfx(t + 5300, 'pop');
+    at(t + 4500, () => set('plump', 'on'));
+    sfx(t + 4500, 'ding');
     const d3 = speak(t, 'n6');
-    t += Math.max(d3, 7600);
+    t += Math.max(d3, 5800);
     at(t - 200, () => { set('proc', ''); $('proc').classList.remove('show'); });
     t += G;
 
     // 4. time flies
     at(t, () => { scene('clock', 'clock', 1.04); svg.classList.remove('spin'); void svg.getBoundingClientRect(); svg.classList.add('spin'); });
     sfx(t, 'whoosh');
-    t += 2500;
+    t += 1700;
 
     // 5. done
     at(t, () => { scene('cabinet', 'kosm'); svg.classList.remove('spin'); });
@@ -587,17 +624,18 @@
     t += (d5 || 1200) + G;
 
     // 6. the reveal in the mirror
-    at(t, () => { scene('mirror', 'sveta', 1.12); Object.assign(svg.dataset, { sstate: 'after', towel: 'off', bio: 'off', btx: 'off', sface: 'smile' }); });
+    paparazzi(t, 4);
+    at(t, () => { scene('mirror', 'sveta', 1.12, true); Object.assign(svg.dataset, { sstate: 'after', towel: 'off', bio: 'off', btx: 'off', sface: 'smile' }); });
     sfx(t, 'ding');
     t += speak(t, 'p1', 'sveta') + G;
 
     // 7. walking out glowing
-    at(t, () => scene('clinic', 'sveta', 1.05));
-    sfx(t, 'whoosh');
+    at(t, () => scene('clinic', 'sveta', 1.05, true));
+    paparazzi(t + 200, 3);
     t += speak(t, 'n1') + G;
 
     // 8. evening, restaurant
-    at(t, () => scene('resto', 'sveta'));
+    at(t, () => scene('resto', 'sveta', 1.06, true));
     sfx(t, 'whoosh');
     t += speak(t, 'n2') + G;
 
