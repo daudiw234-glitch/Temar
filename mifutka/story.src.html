@@ -66,6 +66,74 @@
   .nick { opacity: 0; } svg[data-nick="on"] .nick { opacity: 1; animation: pop .35s cubic-bezier(.3,1.7,.5,1); transform-box: fill-box; transform-origin: center; }
   .laugh { display: none; } svg[data-laugh="on"] .laugh { display: inline; } svg[data-laugh="on"] .calm { display: none; }
   .mo { display: none; } svg[data-mo="1"][data-talk="mike"] #mike .mo { display: inline; }
+
+  /* tease extras */
+  .palm, .shy { display: none; }
+  svg[data-palm="on"] #mike .palm { display: inline; }
+  svg[data-shy="on"] #mike .shy { display: inline; }
+  svg[data-pclaugh="on"] #duoPcs .calm { display: none; } #duoPcs .laugh { display: none; } svg[data-pclaugh="on"] #duoPcs .laugh { display: inline; }
+  /* dance scene */
+  svg[data-scene="dance"] #sc-dance { display: inline; }
+  #guyA, #guyB { display: none; }
+  svg[data-dvis="A"] #guyA, svg[data-dvis="B"] #guyB, svg[data-dvis="AB"] #guyA, svg[data-dvis="AB"] #guyB { display: inline; }
+  #guyA, #guyB { transition: transform .4s cubic-bezier(.3,.8,.3,1); }
+  svg[data-dvis="A"] #guyA, svg[data-dvis="B"] #guyB { transform: translate(180px, 612px) scale(.88); }
+  svg[data-dvis="AB"] #guyA { transform: translate(102px, 612px) scale(.72); }
+  svg[data-dvis="AB"] #guyB { transform: translate(258px, 612px) scale(.72); }
+  .rig, .torso, .head { transform-box: fill-box; transform-origin: 50% 100%; }
+  .armL, .armR, .legL, .legR { transform-box: fill-box; transform-origin: 50% 6%; }
+  /* moves */
+  .mv-step .rig { animation: bobY .25s ease-in-out infinite alternate; }
+  .mv-step .legL { animation: sw14 .5s ease-in-out infinite alternate; } .mv-step .legR { animation: sw14 .5s ease-in-out infinite alternate-reverse; }
+  .mv-step .armL { animation: sw35 .5s ease-in-out infinite alternate-reverse; } .mv-step .armR { animation: sw35 .5s ease-in-out infinite alternate; }
+  .mv-wide .armL { animation: wideL .5s ease-in-out infinite alternate; } .mv-wide .armR { animation: wideR .5s ease-in-out infinite alternate; }
+  .mv-wide .torso { animation: tilt8 .5s ease-in-out infinite alternate; } .mv-wide .rig { animation: bobY .25s ease-in-out infinite alternate; }
+  .mv-crouch .rig { animation: crouch .5s ease-in-out infinite alternate; }
+  .mv-crouch .legL { transform: rotate(22deg); } .mv-crouch .legR { transform: rotate(-22deg); }
+  .mv-crouch .armL { animation: fwdL .5s ease-in-out infinite alternate; } .mv-crouch .armR { animation: fwdR .5s ease-in-out infinite alternate-reverse; }
+  .mv-cap .armR { transform: rotate(-158deg); } .mv-cap .armL { animation: sw35 .5s ease-in-out infinite alternate; }
+  .mv-cap .torso { animation: tilt8 1s ease-in-out infinite alternate; } .mv-cap .head { animation: nod .5s ease-in-out infinite alternate; } .mv-cap .rig { animation: bobY .25s ease-in-out infinite alternate; }
+  .mv-flail .armL { animation: flailL .35s ease-in-out infinite alternate; } .mv-flail .armR { animation: flailR .42s ease-in-out infinite alternate; }
+  .mv-flail .head { animation: shake .3s ease-in-out infinite alternate; } .mv-flail .rig { animation: bobY .2s ease-in-out infinite alternate; }
+  .mv-flail .legL { animation: sw14 .4s ease-in-out infinite alternate; } .mv-flail .legR { animation: sw14 .4s ease-in-out infinite alternate-reverse; }
+  .mv-jump .rig { animation: jump .5s cubic-bezier(.3,.6,.4,1) infinite; } .mv-jump .armL { transform: rotate(150deg); } .mv-jump .armR { transform: rotate(-150deg); }
+  .mv-jump .legL { animation: tuckL .5s ease-in-out infinite; } .mv-jump .legR { animation: tuckR .5s ease-in-out infinite; }
+  .mv-kick .legR { animation: kick .5s ease-in-out infinite alternate; } .mv-kick .armL { transform: rotate(70deg); } .mv-kick .armR { transform: rotate(-70deg); }
+  .mv-kick .rig { animation: bobY .25s ease-in-out infinite alternate; }
+  @keyframes bobY { to { transform: translateY(-8px); } }
+  @keyframes sw14 { from { transform: rotate(-14deg); } to { transform: rotate(14deg); } }
+  @keyframes sw35 { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
+  @keyframes wideL { from { transform: rotate(70deg); } to { transform: rotate(95deg); } }
+  @keyframes wideR { from { transform: rotate(-70deg); } to { transform: rotate(-95deg); } }
+  @keyframes tilt8 { from { transform: rotate(-8deg); } to { transform: rotate(8deg); } }
+  @keyframes crouch { from { transform: translateY(40px) scaleY(.88); } to { transform: translateY(56px) scaleY(.84); } }
+  @keyframes fwdL { from { transform: rotate(-40deg); } to { transform: rotate(-70deg); } }
+  @keyframes fwdR { from { transform: rotate(40deg); } to { transform: rotate(70deg); } }
+  @keyframes nod { from { transform: rotate(-6deg); } to { transform: rotate(6deg); } }
+  @keyframes flailL { from { transform: rotate(150deg); } to { transform: rotate(10deg); } }
+  @keyframes flailR { from { transform: rotate(-20deg); } to { transform: rotate(-160deg); } }
+  @keyframes shake { from { transform: rotate(-10deg); } to { transform: rotate(10deg); } }
+  @keyframes jump { 0%, 100% { transform: translateY(0); } 45% { transform: translateY(-70px); } }
+  @keyframes tuckL { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(30deg); } }
+  @keyframes tuckR { 0%, 100% { transform: rotate(0); } 45% { transform: rotate(-30deg); } }
+  @keyframes kick { from { transform: rotate(0deg); } to { transform: rotate(-60deg); } }
+  /* footage-style overlays, now over the cartoon */
+  .player { position: absolute; left: 6cqw; right: 6cqw; top: 13cqw; display: flex; align-items: center; gap: 2.6cqw; padding: 2.6cqw 3.4cqw;
+            background: rgba(14,10,24,.84); border: .3cqw solid rgba(255,255,255,.18); border-radius: 4cqw; opacity: 0; transition: opacity .3s; }
+  .player.show { opacity: 1; }
+  .player .cv { width: 10cqw; height: 10cqw; border-radius: 2.2cqw; background: linear-gradient(135deg,#ff3bd4,#6a4bb0); display: grid; place-items: center; font: 900 5cqw var(--f-big); flex: none; }
+  .player .k { font: 600 2.4cqw var(--f-ui); color: #c8bfe6; letter-spacing: .2cqw; } .player .t { font: 900 4cqw var(--f-ui); margin-top: .4cqw; }
+  .player .pb { position: absolute; left: 16cqw; right: 6cqw; bottom: 2cqw; height: .8cqw; border-radius: 1cqw; background: rgba(255,255,255,.18); overflow: hidden; }
+  .player .pb i { display: block; height: 100%; width: 0; background: #ff3b6b; }
+  .tag { position: absolute; left: 50%; top: 31cqw; transform: translateX(-50%) rotate(-2deg) scale(.5); opacity: 0; white-space: nowrap; text-align: center;
+         font: 900 5cqw var(--f-big); background: #ff3b6b; padding: 1.8cqw 3.6cqw; border-radius: 2.6cqw; box-shadow: 0 1cqw 0 #8f1239; transition: transform .25s cubic-bezier(.3,1.7,.5,1), opacity .2s; }
+  .tag.show { opacity: 1; transform: translateX(-50%) rotate(-2deg) scale(1); }
+  .tag small { display: block; font: 800 3.2cqw var(--f-ui); margin-top: .6cqw; }
+  .endc { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5cqw; text-align: center; padding: 0 8cqw;
+          background: rgba(11,9,18,.72); opacity: 0; transition: opacity .4s; }
+  .endc.show { opacity: 1; }
+  .endc .h { font: 900 10cqw/1.05 var(--f-big); text-shadow: 0 0 3cqw #ff3bd4, 0 0 6cqw #ff3bd4, .8cqw .8cqw 0 #3a0b4a; }
+  .endc .s { font: 800 5.2cqw var(--f-ui); } .endc .c { font: 800 3.8cqw var(--f-ui); background: rgba(255,255,255,.15); border: .3cqw solid rgba(255,255,255,.4); padding: 2.2cqw 3.8cqw; border-radius: 99cqw; }
   @media (prefers-reduced-motion: reduce) { .neon, .bob, .rain line, .wave, .note, .big.shake { animation: none; } }
 </style>
 </head>
@@ -188,6 +256,18 @@
           <text class="note" x="120" y="300">♪</text><text class="note b" x="220" y="290">♫</text>
         </g>
       </g>
+      <!-- 9. the dance, redrawn -->
+      <g id="sc-dance" class="scene">
+        <rect width="360" height="640" fill="url(#stairWall)"/>
+        <rect y="560" width="360" height="80" fill="#8c8a84"/>
+        <rect x="262" y="250" width="86" height="310" rx="4" fill="#8a4a26"/><rect x="270" y="258" width="70" height="294" fill="#a35a30"/><circle cx="330" cy="410" r="5" fill="#ffd36b"/>
+        <g fill="#f7f7f2"><rect x="20" y="300" width="11" height="80" rx="4"/><rect x="34" y="300" width="11" height="80" rx="4"/><rect x="48" y="300" width="11" height="80" rx="4"/><rect x="62" y="300" width="11" height="80" rx="4"/><rect x="76" y="300" width="11" height="80" rx="4"/></g>
+        <rect y="552" width="360" height="10" fill="#5a3a2a"/>
+        <circle cx="180" cy="330" r="150" fill="#fff6d0" opacity=".45" filter="url(#blur)"/>
+        <g transform="translate(300 600)"><circle class="wave" r="30" fill="none" stroke="#ff3b6b" stroke-width="3"/><rect x="-12" y="-22" width="24" height="44" rx="5" fill="#111"/><circle r="6" fill="#ff3b6b"/></g>
+        <g id="guyA"></g>
+        <g id="guyB"></g>
+      </g>
     </g>
     <rect width="360" height="640" fill="url(#vig)" pointer-events="none"/>
   </svg>
@@ -195,7 +275,10 @@
   <div class="chip day" id="day">ПН</div>
   <div class="chip mini" id="mini"><i>▶</i>Мифутка — трек</div>
   <div class="chip big" id="big">ЛЮТЫЙ<br>ФЛЕКС</div>
+  <div class="player" id="player"><div class="cv">M</div><div><div class="k">СЕЙЧАС ИГРАЕТ · ПОДЪЕЗД</div><div class="t">Мифутка — трек</div></div><div class="pb"><i id="pbar"></i></div></div>
+  <div class="tag" id="tag"></div>
   <div class="subs" id="subs" aria-live="polite"></div>
+  <div class="endc" id="endc"><div class="h">МИФУТКА,<br>ТЫ ЛЕГЕНДА</div><div class="s">ждём новый трек</div><div class="c">пиши в комменты, кто флексит лучше ↓</div></div>
   <div class="flash" id="flash"></div>
 
   <div class="start" id="start">
@@ -271,11 +354,43 @@
         <path d="M-56 24 C-60 -30 -20 -44 6 -42 C40 -40 60 -22 56 24 C48 -4 30 -12 4 -10 C-20 -10 -44 0 -56 24Z" fill="#2a1d18"/>
         <g transform="translate(0 30)">${face('calm')}</g>
         <ellipse class="mo" cx="0" cy="72" rx="9" ry="7" fill="#7d1f2c"/>
+        <g class="shy"><ellipse cx="-30" cy="56" rx="13" ry="8" fill="#ff7a8a" opacity=".55"/><ellipse cx="30" cy="56" rx="13" ry="8" fill="#ff7a8a" opacity=".55"/>
+          <path d="M-14 66 Q0 80 14 66" stroke="#8a3a3a" stroke-width="3.6" fill="#fff" stroke-linecap="round"/></g>
+      </g>
+      <g class="palm"><path d="M-110 240 C-90 160 -60 100 -24 52" stroke="url(#hoodie)" stroke-width="34" stroke-linecap="round" fill="none"/>
+        <ellipse cx="-10" cy="44" rx="30" ry="24" fill="#eab896"/><path d="M-30 30 h40 M-32 42 h44 M-30 54 h40" stroke="#d29a78" stroke-width="2.4" stroke-linecap="round"/></g>
+    </g></g>`;
+  }
+
+  function fullGuy(kind) {
+    const A = kind === 'A';
+    const jacket = A ? 'url(#puffer)' : 'url(#jacket)';
+    const jeans = A ? '#8c939e' : '#5d7fae';
+    const head = A
+      ? `<ellipse cx="0" cy="-400" rx="50" ry="56" fill="url(#skin)"/><g transform="translate(0 -404)">${face('laugh')}</g>
+         <path d="M-52 -420 C-52 -466 -18 -480 0 -480 C24 -480 54 -466 52 -420Z" fill="#111"/><path d="M-52 -422 H68 Q64 -408 40 -410 H-52Z" fill="#000"/><rect x="-22" y="-458" width="44" height="11" rx="3" fill="#fff"/>`
+      : `${[[-44,-430,20],[-28,-456,22],[-2,-466,24],[24,-460,22],[46,-438,20],[52,-410,16],[-52,-408,16],[-12,-444,18],[14,-442,18]].map(c => `<circle cx="${c[0]}" cy="${c[1]}" r="${c[2]}" fill="#4a2e1c"/>`).join('')}
+         <ellipse cx="0" cy="-396" rx="48" ry="54" fill="url(#skin)"/><g transform="translate(0 -398)">${face('laugh')}</g>
+         <circle cx="-28" cy="-436" r="14" fill="#4a2e1c"/><circle cx="2" cy="-444" r="15" fill="#4a2e1c"/><circle cx="28" cy="-436" r="13" fill="#4a2e1c"/>`;
+    const quilt = A ? '<g stroke="#3a2416" stroke-width="3" fill="none" opacity=".7"><path d="M-64 -280 Q0 -292 64 -280"/><path d="M-66 -236 Q0 -248 66 -236"/><path d="M-64 -192 Q0 -204 64 -192"/></g>' : '<path d="M-24 -330 L0 -290 L24 -330Z" fill="#1d2a4a"/><path d="M0 -290 V-160" stroke="#3a3a42" stroke-width="3"/>';
+    return `<g class="mv-step"><g class="rig">
+      <g class="legL"><rect x="-34" y="-176" width="30" height="168" rx="13" fill="${jeans}"/><ellipse cx="-22" cy="-8" rx="26" ry="12" fill="#f4f4f4"/><path d="M-46 -6 h48" stroke="#222" stroke-width="3"/></g>
+      <g class="legR"><rect x="4" y="-176" width="30" height="168" rx="13" fill="${jeans}"/><ellipse cx="22" cy="-8" rx="26" ry="12" fill="#f4f4f4"/><path d="M-2 -6 h48" stroke="#222" stroke-width="3"/></g>
+      <g class="torso">
+        <g class="armL"><rect x="-86" y="-332" width="30" height="156" rx="15" fill="${jacket}"/><circle cx="-71" cy="-172" r="14" fill="#eab896"/></g>
+        <g class="armR"><rect x="56" y="-332" width="30" height="156" rx="15" fill="${jacket}"/><circle cx="71" cy="-172" r="14" fill="#eab896"/></g>
+        <path d="M-66 -330 Q-76 -250 -62 -158 H62 Q76 -250 66 -330 Q0 -352 -66 -330Z" fill="${jacket}"/>
+        ${quilt}
+        <rect x="-16" y="-352" width="32" height="26" fill="#e6ad8a"/>
+        <g class="head">${head}</g>
       </g>
     </g></g>`;
   }
+  $('guyA').innerHTML = fullGuy('A');
+  $('guyB').innerHTML = fullGuy('B');
+  const move = (who, mv) => { const g = $('guy' + who).firstElementChild; g.setAttribute('class', 'mv-' + mv); };
   $('mike').innerHTML = mike();
-  $('duoPcs').innerHTML = `<g transform="translate(100 300) scale(.82)">${guyA('calm')}</g><g transform="translate(262 300) scale(.82)">${guyB('calm')}</g>`;
+  $('duoPcs').innerHTML = `<g class="calm"><g transform="translate(100 300) scale(.82)">${guyA('calm')}</g><g transform="translate(262 300) scale(.82)">${guyB('calm')}</g></g><g class="laugh"><g transform="translate(100 300) scale(.82)">${guyA('laugh')}</g><g transform="translate(262 300) scale(.82)">${guyB('laugh')}</g></g>`;
   $('duoListen').innerHTML = `<g class="calm"><g transform="translate(100 250) scale(.85)">${guyA('shock', true)}</g><g transform="translate(262 250) scale(.85)">${guyB('shock', true)}</g></g>
     <g class="laugh"><g transform="translate(100 250) scale(.85)">${guyA('laugh', true)}</g><g transform="translate(262 250) scale(.85)">${guyB('laugh', true)}</g></g>`;
 
@@ -317,10 +432,25 @@
     setTimeout(() => { cam.style.transition = 'transform 4s cubic-bezier(.3,.5,.3,1)'; cam.style.transform = `scale(${push || 1.06})`; }, 320);
     if (flash) { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }
   }
+  function paparazziAt(ms, n) { for (let i = 0; i < n; i++) { at(ms + i * 230, () => { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }); sfx(ms + i * 230, 'snap'); } }
   function chip(id, on, text) { const c = $(id); if (text != null) c.innerHTML = text; c.classList.toggle('show', on); }
 
+  const SILENT = {
+    b1: ['Короче, мы начали по-дружески его подстёбывать.', 3200],
+    b2: ['Заходим в клуб — включаем его трек. Уходим — включаем его трек.', 4400],
+    b3: ['Мифутка делал вид, что бесится. Но мы-то знаем — он кайфует.', 4200],
+  };
   function speak(ms, k, who) {
-    const w = WORDS[k]; if (!w) return 0;
+    const w = WORDS[k];
+    if (!w) {
+      const sl = SILENT[k]; if (!sl) return 0;
+      const words = sl[0].split(' '), chunks = [];
+      for (let i = 0; i < words.length; i += 4) chunks.push(words.slice(i, i + 4));
+      const per = (sl[1] - 300) / chunks.length;
+      chunks.forEach((ch, i) => at(ms + i * per, () => { $('subs').innerHTML = ch.map((x, j) => `<span class="in" style="animation-delay:${j * 40}ms">${x}</span>`).join(' '); }));
+      at(ms + sl[1] - 150, () => { $('subs').innerHTML = ''; });
+      return sl[1];
+    }
     EVENTS.push({ t: ms, type: 'voice', k });
     at(ms, () => { const a = voices[k]; if (a) { try { a.currentTime = 0; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {} } if (who) set('talk', who); });
     const chunks = []; for (let i = 0; i < w.w.length; i += 4) chunks.push(w.w.slice(i, i + 4));
@@ -337,7 +467,8 @@
     timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers = []; intervals = []; EVENTS = [];
     for (const k in voices) try { voices[k].pause(); } catch (e) {}
     if (music) { music.pause(); music.currentTime = 0; }
-    Object.assign(svg.dataset, { scene: 'street', huh: 'off', nick: 'off', laugh: 'off', mo: '0', talk: '' });
+    Object.assign(svg.dataset, { scene: 'street', huh: 'off', nick: 'off', laugh: 'off', mo: '0', talk: '', palm: 'off', shy: 'off', pclaugh: 'off', dvis: '' });
+    ['player', 'tag', 'endc'].forEach(id => $(id).classList.remove('show')); $('pbar').style.transition = 'none'; $('pbar').style.width = '0';
     ['day', 'mini', 'big'].forEach(id => chip(id, false)); $('big').classList.remove('shake');
     $('subs').innerHTML = '';
   }
@@ -378,8 +509,13 @@
     at(t + wt('a5', 2), () => set('laugh', 'on'));
     t += d5 + 1400;
 
-    // 6. every day, while he isn't looking
-    at(t, () => { scene('desk', 1.06); set('laugh', 'off'); });
+    // 6. friendly teasing begins
+    at(t, () => { scene('pcs', 1.08); set('laugh', 'off'); set('pclaugh', 'on'); });
+    sfx(t, 'whoosh');
+    t += speak(t, 'b1') + G;
+
+    // 7. every day, while he isn't looking
+    at(t, () => { scene('desk', 1.06); set('pclaugh', 'off'); });
     sfx(t, 'whoosh');
     const d6 = speak(t, 'a6');
     ['ПН', 'ВТ', 'СР', 'ЧТ', 'ПТ'].forEach((d, i) => {
@@ -389,15 +525,73 @@
     t += Math.max(d6, 4500) + G;
     at(t - 100, () => { chip('day', false); chip('mini', false); set('huh', 'off'); });
 
-    // 7. today: the stairwell
+    // 8. in and out of the club — the track every time; he facepalms
+    at(t, () => { scene('desk', 1.1); chip('day', true, 'ЗАХОДИМ'); chip('mini', true); set('palm', 'on'); });
+    sfx(t, 'pop');
+    const d8 = speak(t, 'b2');
+    at(t + d8 / 2, () => { chip('day', true, 'УХОДИМ'); });
+    sfx(t + d8 / 2, 'pop');
+    t += d8 + G;
+    at(t - 100, () => { chip('day', false); chip('mini', false); });
+
+    // 9. he pretends to be annoyed... but he loves it
+    at(t, () => scene('desk', 1.12));
+    const d9 = speak(t, 'b3');
+    at(t + d9 * .5, () => { set('palm', 'off'); set('shy', 'on'); });
+    sfx(t + d9 * .5, 'ding');
+    t += d9 + G;
+    at(t, () => set('shy', 'off'));
+
+    // 10. today: the stairwell
     at(t, () => scene('stairs', 1.06, true));
     sfx(t, 'whoosh');
     t += speak(t, 'a7') + G;
 
-    // 8. LUTYI FLEKS
+    // 11. LUTYI FLEKS
     at(t, () => { chip('big', true); $('big').classList.add('shake'); const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); });
     sfx(t, 'snap'); sfx(t + 250, 'snap');
-    t += speak(t, 'a8') + 500;
+    t += speak(t, 'a8') + 400;
+    at(t, () => { chip('big', false); $('big').classList.remove('shake'); });
+
+    // 12. the dance, redrawn from the round videos; the real track plays underneath
+    const segs = [['c1', 0, 9.0], ['c2', 0, 11.0], ['c3', 0, 13.0], ['c4', 0, 12.0]];
+    const danceTotal = segs.reduce((a, x) => a + x[2], 0) * 1000;
+    EVENTS.push({ t, type: 'musicstop' });
+    let ct = t; segs.forEach(x => { EVENTS.push({ t: ct, type: 'clip', src: x[0], from: x[1], dur: x[2] + .25 }); ct += x[2] * 1000; });
+    at(t, () => {
+      scene('dance', 1.04, true); $('player').classList.add('show');
+      const pb = $('pbar'); pb.style.transition = 'none'; pb.style.width = '0'; void pb.offsetWidth;
+      pb.style.transition = `width ${danceTotal}ms linear`; pb.style.width = '100%';
+    });
+    const tag = (ms, n, sub) => { at(ms, () => { $('tag').innerHTML = `ФЛЕКС №${n}<small>${sub}</small>`; $('tag').classList.add('show'); }); at(ms + 2600, () => $('tag').classList.remove('show')); sfx(ms, 'pop'); };
+    const seq = (ms, who, steps) => { let k = ms; steps.forEach(([mv, dur]) => { at(k, () => move(who, mv)); k += dur; }); };
+    // #1 — puffer & cap: steps, hand on the cap, low crouch
+    let d = t;
+    at(d, () => set('dvis', 'A')); tag(d + 300, 1, 'разминка. соседи ещё спят');
+    seq(d, 'A', [['step', 3000], ['cap', 3000], ['crouch', 3000]]);
+    d += 9000;
+    // #2 — curly: arms everywhere, steps, jumps, a grin into the camera
+    at(d, () => { set('dvis', 'B'); scene('dance', 1.04, true); }); tag(d + 300, 2, 'вторая волна пошла');
+    seq(d, 'B', [['flail', 4000], ['step', 3000], ['jump', 2000], ['step', 2000]]);
+    at(d + 9000, () => { const cam = $('cam'); cam.style.transition = 'transform .5s cubic-bezier(.3,.8,.3,1)'; cam.style.transformOrigin = '180px 200px'; cam.style.transform = 'scale(2.1)'; });
+    at(d + 11000, () => { $('cam').style.transformOrigin = '180px 320px'; });
+    d += 11000;
+    // #3 — puffer & cap: arms wide, kicks, crouch, cap
+    at(d, () => { set('dvis', 'A'); scene('dance', 1.04, true); }); tag(d + 300, 3, 'трек Мифутки на репите');
+    seq(d, 'A', [['wide', 4000], ['kick', 3000], ['crouch', 3000], ['cap', 3000]]);
+    d += 13000;
+    // #4 — curly, then both together for the finale
+    at(d, () => { set('dvis', 'B'); scene('dance', 1.04, true); }); tag(d + 300, 4, 'финал. подъезд в шоке');
+    seq(d, 'B', [['jump', 3000], ['flail', 3000]]);
+    at(d + 6000, () => { set('dvis', 'AB'); scene('dance', 1.02, true); move('A', 'step'); move('B', 'step'); });
+    at(d + 9000, () => { move('A', 'wide'); move('B', 'jump'); });
+    paparazziAt(d + 9000, 4);
+    d += 12000;
+    t = d;
+    // end card with the track fading out
+    EVENTS.push({ t, type: 'clip', src: 'c3', from: 13.0, dur: 4.0, fadeout: 1.6 });
+    at(t, () => { $('player').classList.remove('show'); $('endc').classList.add('show'); move('A', 'step'); move('B', 'step'); });
+    t += 4000;
     window.__timeline = { total: t, events: EVENTS };
   }
 

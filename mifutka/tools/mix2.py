@@ -18,7 +18,13 @@ def whoosh():
     y2=np.zeros(m); acc=0; a=.85
     for i in range(m): acc=(1-a)*x[i]+a*acc; y2[i]=acc
     return .25*(x-y2)*np.sin(np.pi*np.arange(m)/m)
-music=rd('music.wav'); add(music,0,0.18)
+music=rd('music.wav')
+for e in tl['events']:
+    if e['type']=='musicstop':
+        i=int(e['t']/1000*sr); fl=int(.5*sr)
+        if i<len(music):
+            seg=music[i:i+fl]; music[i:i+len(seg)]*=np.linspace(1,0,len(seg)); music[i+fl:]=0
+add(music,0,0.18)
 buzz_on=None
 for e in tl['events']:
     t=e['t']/1000
@@ -28,7 +34,9 @@ for e in tl['events']:
     elif e['type']=='clip':
         raw=subprocess.check_output(['ffmpeg','-v','error','-ss',str(e['from']),'-t',str(e['dur']),'-i',f"../clips/{e['src']}.mp4",'-f','s16le','-ac','1','-ar',str(sr),'-'])
         c=np.frombuffer(raw,np.int16).astype(float)/32768; fl=int(.4*sr)
-        c[:fl]*=np.linspace(0,1,fl); c[-fl:]*=np.linspace(1,0,fl); add(c/max(1e-6,np.max(np.abs(c)))*0.75,t)
+        fl=int(.15*sr) if e.get('src') and e.get('dur',0)>6 else fl
+        c[:fl]*=np.linspace(0,1,fl); fo=int(e.get('fadeout',.15 if e.get('dur',0)>6 else .4)*sr); fo=min(fo,len(c)); c[-fo:]*=np.linspace(1,0,fo)
+        rms=max(1e-6,np.sqrt(np.mean(c**2))); c=np.tanh(c/rms*0.2*1.6)/1.6; add(c,t)
     elif e['type']=='snap': add(whoosh()*0.8,t); add(soft(2400,1800,.05,.12),t)
     elif e['type']=='ding': add(soft(1320,1310,1.1,.09)+np.pad(soft(1980,1970,.8,.05),(0,int(.3*sr)))[:int(1.1*sr)],t)
     elif e['type']=='buzzOn': buzz_on=t
