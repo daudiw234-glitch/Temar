@@ -29,6 +29,7 @@ ffmpeg -v error -y -ss "$START" -t "$DUR" -i "$V" -i mix_story.wav -map 0:v -map
 ./partb.sh
 node chaos_words.js && python3 chaos.py
 for f in c1 c2 c3 c4 chaos end; do ffmpeg -v error -y -i seg/$f.mp4 -af "loudnorm=I=-14:TP=-1.5,volume=2dB,alimiter=limit=0.95" -c:v copy -c:a aac -b:a 160k -ar 44100 -ac 1 seg/n_$f.mp4; done
-printf "file 'partA.mp4'\nfile 'n_c1.mp4'\nfile 'n_c2.mp4'\nfile 'n_c3.mp4'\nfile 'n_c4.mp4'\nfile 'n_chaos.mp4'\nfile 'n_end.mp4'\n" > seg/list.txt
+node end_sub.js && ./voice_end.sh
+printf "file 'partA.mp4'\nfile 'n_c1.mp4'\nfile 'n_c2.mp4'\nfile 'n_c3.mp4'\nfile 'n_c4.mp4'\nfile 'v_chaos.mp4'\nfile 'v_end.mp4'\n" > seg/list.txt
 ffmpeg -v error -y -f concat -safe 0 -i seg/list.txt -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 30 -c:a aac -b:a 160k -ar 44100 -movflags +faststart ../mifutka-9x16.mp4
 echo "start=$START partA=$DUR"
