@@ -4,8 +4,8 @@ set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p seg
 # trimmed to the best moments of each round video
-FROM=(0.5 2.0 3.0 0.0)
-D=(6.0 7.0 7.0 7.0)
+FROM=(1.0 3.0 4.0 1.0)
+D=(4.5 5.0 5.0 5.0)
 END=4.0
 TB=$(python3 -c "print(${D[0]}+${D[1]}+${D[2]}+${D[3]}+$END)")
 O=0
