@@ -26,5 +26,8 @@ python3 mix2.py
 DUR=$(python3 -c "import json;print(json.load(open('timeline.json'))['total']/1000)")
 ffmpeg -v error -y -ss "$START" -t "$DUR" -i "$V" -i mix_story.wav -map 0:v -map 1:a -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 30 \
   -c:a aac -b:a 160k -ar 44100 -ac 1 -af "loudnorm=I=-14:TP=-1.5" -shortest -movflags +faststart seg/partA.mp4
-cp seg/partA.mp4 ../mifutka-9x16.mp4
+./partb.sh
+for f in c1 c2 c3 c4 end; do ffmpeg -v error -y -i seg/$f.mp4 -af "loudnorm=I=-14:TP=-1.5,volume=2dB,alimiter=limit=0.95" -c:v copy -c:a aac -b:a 160k -ar 44100 -ac 1 seg/n_$f.mp4; done
+printf "file 'partA.mp4'\nfile 'n_c1.mp4'\nfile 'n_c2.mp4'\nfile 'n_c3.mp4'\nfile 'n_c4.mp4'\nfile 'n_end.mp4'\n" > seg/list.txt
+ffmpeg -v error -y -f concat -safe 0 -i seg/list.txt -c:v libx264 -preset medium -crf 20 -pix_fmt yuv420p -r 30 -c:a aac -b:a 160k -ar 44100 -movflags +faststart ../mifutka-9x16.mp4
 echo "start=$START partA=$DUR"

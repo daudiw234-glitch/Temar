@@ -134,6 +134,18 @@
   .endc.show { opacity: 1; }
   .endc .h { font: 900 10cqw/1.05 var(--f-big); text-shadow: 0 0 3cqw #ff3bd4, 0 0 6cqw #ff3bd4, .8cqw .8cqw 0 #3a0b4a; }
   .endc .s { font: 800 5.2cqw var(--f-ui); } .endc .c { font: 800 3.8cqw var(--f-ui); background: rgba(255,255,255,.15); border: .3cqw solid rgba(255,255,255,.4); padding: 2.2cqw 3.8cqw; border-radius: 99cqw; }
+
+  svg[data-scene="sneak"] #sc-sneak { display: inline; }
+  .snnotes { display: none; } svg[data-snplay="on"] .snnotes { display: inline; }
+  .phoneInHand { display: none; } .mv-phone .phoneInHand { display: inline; }
+  .mv-sneak .rig, .mv-sneakstop .rig { animation: bobY .3s ease-in-out infinite alternate; }
+  .mv-sneak .torso, .mv-sneakstop .torso, .mv-phone .torso { transform: rotate(10deg); }
+  .mv-sneak .legL { animation: sw14 .6s ease-in-out infinite alternate; } .mv-sneak .legR { animation: sw14 .6s ease-in-out infinite alternate-reverse; }
+  .mv-sneak .armL, .mv-sneakstop .armL { transform: rotate(-60deg); } .mv-sneak .armR, .mv-sneakstop .armR { transform: rotate(-35deg); }
+  .mv-phone .armR { transform: rotate(-130deg); } .mv-phone .armL { transform: rotate(-30deg); }
+  .mv-run .rig { animation: bobY .15s ease-in-out infinite alternate; } .mv-run .torso { transform: rotate(14deg); }
+  .mv-run .legL { animation: sw35 .3s ease-in-out infinite alternate; } .mv-run .legR { animation: sw35 .3s ease-in-out infinite alternate-reverse; }
+  .mv-run .armL { animation: sw35 .3s ease-in-out infinite alternate-reverse; } .mv-run .armR { animation: sw35 .3s ease-in-out infinite alternate; }
   @media (prefers-reduced-motion: reduce) { .neon, .bob, .rain line, .wave, .note, .big.shake { animation: none; } }
 </style>
 </head>
@@ -255,6 +267,25 @@
         <g fill="#ff3b6b" font-family="Unbounded, sans-serif" font-weight="900" font-size="34">
           <text class="note" x="120" y="300">♪</text><text class="note b" x="220" y="290">♫</text>
         </g>
+      </g>
+      <!-- 8. sneaking past the admin desk -->
+      <g id="sc-sneak" class="scene">
+        <rect width="360" height="640" fill="url(#room)"/>
+        <circle cx="280" cy="230" r="110" fill="#22d3ee" opacity=".28" filter="url(#blur)"/>
+        <circle cx="60" cy="200" r="90" fill="#7a3cff" opacity=".3" filter="url(#blur)"/>
+        <rect x="200" y="200" width="120" height="76" rx="5" fill="#0e0b1c" stroke="#3b2f66" stroke-width="3"/><rect x="207" y="207" width="106" height="62" fill="#3fd7ff" opacity=".3"/>
+        <g id="mikeSmall" transform="translate(150 258) scale(.62)"></g>
+        <g class="huh" fill="#ffd84d" filter="url(#glow)"><text x="96" y="230" font-family="Unbounded, sans-serif" font-weight="900" font-size="46">?</text></g>
+        <rect x="0" y="380" width="360" height="120" fill="#1a1230"/>
+        <rect x="0" y="376" width="360" height="7" fill="#ff3bd4" opacity=".85" filter="url(#glow)"/>
+        <rect x="100" y="404" width="110" height="30" rx="8" fill="#0e0b1c" stroke="#7ff3ff" stroke-width="2"/>
+        <text x="155" y="424" text-anchor="middle" font-family="Montserrat, sans-serif" font-weight="800" font-size="12" letter-spacing="3" fill="#7ff3ff">АДМИН</text>
+        <rect y="500" width="360" height="140" fill="#140f24"/>
+        <g class="snnotes" fill="#ffd84d" filter="url(#glow)" font-family="Unbounded, sans-serif" font-weight="900" font-size="28">
+          <text class="note" x="210" y="420">♪</text><text class="note b" x="250" y="400">♫</text><text class="note" x="180" y="390" style="animation-delay:.3s">♪</text>
+        </g>
+        <g id="snB"></g>
+        <g id="snA"></g>
       </g>
       <!-- 9. the dance, redrawn -->
       <g id="sc-dance" class="scene">
@@ -378,7 +409,7 @@
       <g class="legR"><rect x="4" y="-176" width="30" height="168" rx="13" fill="${jeans}"/><ellipse cx="22" cy="-8" rx="26" ry="12" fill="#f4f4f4"/><path d="M-2 -6 h48" stroke="#222" stroke-width="3"/></g>
       <g class="torso">
         <g class="armL"><rect x="-86" y="-332" width="30" height="156" rx="15" fill="${jacket}"/><circle cx="-71" cy="-172" r="14" fill="#eab896"/></g>
-        <g class="armR"><rect x="56" y="-332" width="30" height="156" rx="15" fill="${jacket}"/><circle cx="71" cy="-172" r="14" fill="#eab896"/></g>
+        <g class="armR"><rect x="56" y="-332" width="30" height="156" rx="15" fill="${jacket}"/><circle cx="71" cy="-172" r="14" fill="#eab896"/><g class="phoneInHand"><rect x="58" y="-176" width="26" height="46" rx="5" fill="#111"/><rect x="62" y="-170" width="18" height="32" rx="2" fill="#ff3b6b"/></g></g>
         <path d="M-66 -330 Q-76 -250 -62 -158 H62 Q76 -250 66 -330 Q0 -352 -66 -330Z" fill="${jacket}"/>
         ${quilt}
         <rect x="-16" y="-352" width="32" height="26" fill="#e6ad8a"/>
@@ -388,8 +419,12 @@
   }
   $('guyA').innerHTML = fullGuy('A');
   $('guyB').innerHTML = fullGuy('B');
+  $('snA').innerHTML = fullGuy('A');
+  $('snB').innerHTML = fullGuy('B');
+  const sneakMove = (who, mv) => { $('sn' + who).firstElementChild.setAttribute('class', 'mv-' + mv); };
   const move = (who, mv) => { const g = $('guy' + who).firstElementChild; g.setAttribute('class', 'mv-' + mv); };
   $('mike').innerHTML = mike();
+  $('mikeSmall').innerHTML = mike().replace('id="mikeHead"', 'class="mhead"').replace('translate(180 300)', 'translate(0 0)');
   $('duoPcs').innerHTML = `<g class="calm"><g transform="translate(100 300) scale(.82)">${guyA('calm')}</g><g transform="translate(262 300) scale(.82)">${guyB('calm')}</g></g><g class="laugh"><g transform="translate(100 300) scale(.82)">${guyA('laugh')}</g><g transform="translate(262 300) scale(.82)">${guyB('laugh')}</g></g>`;
   $('duoListen').innerHTML = `<g class="calm"><g transform="translate(100 250) scale(.85)">${guyA('shock', true)}</g><g transform="translate(262 250) scale(.85)">${guyB('shock', true)}</g></g>
     <g class="laugh"><g transform="translate(100 250) scale(.85)">${guyA('laugh', true)}</g><g transform="translate(262 250) scale(.85)">${guyB('laugh', true)}</g></g>`;
@@ -467,7 +502,7 @@
     timers.forEach(clearTimeout); intervals.forEach(clearInterval); timers = []; intervals = []; EVENTS = [];
     for (const k in voices) try { voices[k].pause(); } catch (e) {}
     if (music) { music.pause(); music.currentTime = 0; }
-    Object.assign(svg.dataset, { scene: 'street', huh: 'off', nick: 'off', laugh: 'off', mo: '0', talk: '', palm: 'off', shy: 'off', pclaugh: 'off', dvis: '' });
+    Object.assign(svg.dataset, { scene: 'street', huh: 'off', nick: 'off', laugh: 'off', mo: '0', talk: '', palm: 'off', shy: 'off', pclaugh: 'off', dvis: '', snplay: 'off' });
     ['player', 'tag', 'endc'].forEach(id => $(id).classList.remove('show')); $('pbar').style.transition = 'none'; $('pbar').style.width = '0';
     ['day', 'mini', 'big'].forEach(id => chip(id, false)); $('big').classList.remove('shake');
     $('subs').innerHTML = '';
@@ -525,17 +560,27 @@
     t += Math.max(d6, 4500) + G;
     at(t - 100, () => { chip('day', false); chip('mini', false); set('huh', 'off'); });
 
-    // 8. in and out of the club — the track every time; he facepalms
-    at(t, () => { scene('desk', 1.1); chip('day', true, 'ЗАХОДИМ'); chip('mini', true); set('palm', 'on'); });
-    sfx(t, 'pop');
+    // 8. tiptoeing past the admin desk and secretly switching the track on
+    at(t, () => {
+      scene('sneak', 1.04); set('huh', 'off');
+      ['A', 'B'].forEach(w => { const g = $('sn' + w); g.style.transition = 'none'; g.style.transform = `translate(${w === 'A' ? -60 : -150}px, 600px) scale(.62)`; sneakMove(w, 'sneak'); });
+      void svg.getBoundingClientRect();
+      ['A', 'B'].forEach(w => { const g = $('sn' + w); g.style.transition = 'transform 2.2s linear'; g.style.transform = `translate(${w === 'A' ? 150 : 70}px, 600px) scale(.62)`; });
+    });
     const d8 = speak(t, 'b2');
-    at(t + d8 / 2, () => { chip('day', true, 'УХОДИМ'); });
-    sfx(t + d8 / 2, 'pop');
-    t += d8 + G;
-    at(t - 100, () => { chip('day', false); chip('mini', false); });
+    at(t + 2200, () => { sneakMove('A', 'phone'); sneakMove('B', 'sneakstop'); });
+    at(t + 2700, () => { chip('mini', true); set('snplay', 'on'); });
+    sfx(t + 2700, 'pop');
+    EVENTS.push({ t: t + 2700, type: 'clip', src: 'c3', from: 3.0, dur: 3.2 });
+    at(t + 3300, () => set('huh', 'on'));
+    at(t + 3500, () => {
+      ['A', 'B'].forEach(w => { const g = $('sn' + w); g.style.transition = 'transform 1.4s cubic-bezier(.5,0,.8,.6)'; g.style.transform = `translate(${w === 'A' ? 460 : 400}px, 600px) scale(.62)`; sneakMove(w, 'run'); });
+    });
+    t += Math.max(d8, 5200) + G;
+    at(t - 100, () => { chip('mini', false); set('snplay', 'off'); });
 
     // 9. he pretends to be annoyed... but he loves it
-    at(t, () => scene('desk', 1.12));
+    at(t, () => { scene('desk', 1.12); set('huh', 'off'); set('palm', 'on'); });
     const d9 = speak(t, 'b3');
     at(t + d9 * .5, () => { set('palm', 'off'); set('shy', 'on'); });
     sfx(t + d9 * .5, 'ding');
@@ -553,45 +598,6 @@
     t += speak(t, 'a8') + 400;
     at(t, () => { chip('big', false); $('big').classList.remove('shake'); });
 
-    // 12. the dance, redrawn from the round videos; the real track plays underneath
-    const segs = [['c1', 0, 9.0], ['c2', 0, 11.0], ['c3', 0, 13.0], ['c4', 0, 12.0]];
-    const danceTotal = segs.reduce((a, x) => a + x[2], 0) * 1000;
-    EVENTS.push({ t, type: 'musicstop' });
-    let ct = t; segs.forEach(x => { EVENTS.push({ t: ct, type: 'clip', src: x[0], from: x[1], dur: x[2] + .25 }); ct += x[2] * 1000; });
-    at(t, () => {
-      scene('dance', 1.04, true); $('player').classList.add('show');
-      const pb = $('pbar'); pb.style.transition = 'none'; pb.style.width = '0'; void pb.offsetWidth;
-      pb.style.transition = `width ${danceTotal}ms linear`; pb.style.width = '100%';
-    });
-    const tag = (ms, n, sub) => { at(ms, () => { $('tag').innerHTML = `ФЛЕКС №${n}<small>${sub}</small>`; $('tag').classList.add('show'); }); at(ms + 2600, () => $('tag').classList.remove('show')); sfx(ms, 'pop'); };
-    const seq = (ms, who, steps) => { let k = ms; steps.forEach(([mv, dur]) => { at(k, () => move(who, mv)); k += dur; }); };
-    // #1 — puffer & cap: steps, hand on the cap, low crouch
-    let d = t;
-    at(d, () => set('dvis', 'A')); tag(d + 300, 1, 'разминка. соседи ещё спят');
-    seq(d, 'A', [['step', 3000], ['cap', 3000], ['crouch', 3000]]);
-    d += 9000;
-    // #2 — curly: arms everywhere, steps, jumps, a grin into the camera
-    at(d, () => { set('dvis', 'B'); scene('dance', 1.04, true); }); tag(d + 300, 2, 'вторая волна пошла');
-    seq(d, 'B', [['flail', 4000], ['step', 3000], ['jump', 2000], ['step', 2000]]);
-    at(d + 9000, () => { const cam = $('cam'); cam.style.transition = 'transform .5s cubic-bezier(.3,.8,.3,1)'; cam.style.transformOrigin = '180px 200px'; cam.style.transform = 'scale(2.1)'; });
-    at(d + 11000, () => { $('cam').style.transformOrigin = '180px 320px'; });
-    d += 11000;
-    // #3 — puffer & cap: arms wide, kicks, crouch, cap
-    at(d, () => { set('dvis', 'A'); scene('dance', 1.04, true); }); tag(d + 300, 3, 'трек Мифутки на репите');
-    seq(d, 'A', [['wide', 4000], ['kick', 3000], ['crouch', 3000], ['cap', 3000]]);
-    d += 13000;
-    // #4 — curly, then both together for the finale
-    at(d, () => { set('dvis', 'B'); scene('dance', 1.04, true); }); tag(d + 300, 4, 'финал. подъезд в шоке');
-    seq(d, 'B', [['jump', 3000], ['flail', 3000]]);
-    at(d + 6000, () => { set('dvis', 'AB'); scene('dance', 1.02, true); move('A', 'step'); move('B', 'step'); });
-    at(d + 9000, () => { move('A', 'wide'); move('B', 'jump'); });
-    paparazziAt(d + 9000, 4);
-    d += 12000;
-    t = d;
-    // end card with the track fading out
-    EVENTS.push({ t, type: 'clip', src: 'c3', from: 13.0, dur: 4.0, fadeout: 1.6 });
-    at(t, () => { $('player').classList.remove('show'); $('endc').classList.add('show'); move('A', 'step'); move('B', 'step'); });
-    t += 4000;
     window.__timeline = { total: t, events: EVENTS };
   }
 

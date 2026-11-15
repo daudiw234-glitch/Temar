@@ -5,7 +5,7 @@ const { chromium } = require('playwright');
   await p.goto('file://' + require('path').resolve(__dirname, '../mifutka-story.html') + ''); await p.evaluate(() => document.fonts.ready);
   await p.screenshot({ path: 's0.png' });
   await p.click('#playBtn'); const t0 = Date.now();
-  const ts=[25000,30000,34500,48000,51000,57500,66000,77000,87500,93500];
+  const ts=[29500,31500,33200,34500,36500];
   for (const t of ts) { await p.waitForTimeout(t-(Date.now()-t0)); await p.screenshot({ path: `s${t}.png` }); }
   console.log('errors', errs); await b.close();
 })();
