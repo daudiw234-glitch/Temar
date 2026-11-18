@@ -100,7 +100,7 @@
   #scn.show { opacity: 1; transform: scale(1); }
   #scn .sc { display: none; }
   #scn[data-sc="temar"] #sc-temar, #scn[data-sc="robot"] #sc-robot, #scn[data-sc="kate"] #sc-kate, #scn[data-sc="fel"] #sc-fel,
-  #scn[data-sc="colonel"] #sc-colonel, #scn[data-sc="james"] #sc-james, #scn[data-sc="thai"] #sc-thai { display: inline; }
+  #scn[data-sc="colonel"] #sc-colonel, #scn[data-sc="james"] #sc-james, #scn[data-sc="thai"] #sc-thai, #scn[data-sc="bribe"] #sc-bribe, #scn[data-sc="beach"] #sc-beach, #scn[data-sc="walk"] #sc-walk { display: inline; }
   .bobs { animation: bobs 2s ease-in-out infinite; } @keyframes bobs { 50% { transform: translateY(4px); } }
   .typeL { animation: typ .14s ease-in-out infinite alternate; } .typeR { animation: typ .14s ease-in-out infinite alternate-reverse; }
   @keyframes typ { to { transform: translateY(-6px); } }
@@ -118,6 +118,12 @@
   .salute { animation: salute .9s cubic-bezier(.3,1.6,.5,1) both; transform-box: fill-box; transform-origin: 10% 90%; } @keyframes salute { from { transform: rotate(60deg); } }
   .plane { animation: plane 6s linear infinite; } @keyframes plane { from { transform: translate(-120px, 40px); } to { transform: translate(480px, -60px); } }
   .sway { animation: sway 3s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: 50% 100%; } @keyframes sway { to { transform: rotate(4deg); } }
+
+  .walkers { animation: walkoff 9s linear forwards; } @keyframes walkoff { from { transform: translate(0,0) scale(1); } to { transform: translate(0,-150px) scale(.35); } }
+  .step { animation: stp .5s ease-in-out infinite alternate; } .step.b { animation-delay: -.25s; } @keyframes stp { to { transform: translateY(-5px); } }
+  .cash { animation: cash 1.6s ease-in-out infinite; } .cash.b { animation-delay: .5s; } .cash.c { animation-delay: 1s; }
+  @keyframes cash { 0% { transform: translate(0,0) rotate(0); opacity: 0; } 20% { opacity: 1; } 100% { transform: translate(-30px, 120px) rotate(25deg); opacity: 0; } }
+  .heart { animation: heart 2.2s ease-out infinite; } .heart.b { animation-delay: 1.1s; } @keyframes heart { from { transform: translateY(0) scale(.6); opacity: 0; } 25% { opacity: 1; } to { transform: translateY(-80px) scale(1.2); opacity: 0; } }
   @media (prefers-reduced-motion: reduce) { .b.rev, .wave i, .typing i { animation: none; } }
 </style>
 </head>
@@ -152,6 +158,9 @@
     <g id="sc-fel" class="sc"></g>
     <g id="sc-colonel" class="sc"></g>
     <g id="sc-james" class="sc"></g>
+    <g id="sc-bribe" class="sc"></g>
+    <g id="sc-beach" class="sc"></g>
+    <g id="sc-walk" class="sc"></g>
     <g id="sc-thai" class="sc"></g>
     <rect width="360" height="640" fill="url(#vg)"/>
   </svg>
@@ -427,7 +436,75 @@
     <g transform="translate(318 330) rotate(-30)"><rect x="-4" y="-50" width="8" height="60" rx="3" fill="#e0567f"/><path d="M-4 10 l4 10 l4 -10Z" fill="#222"/></g>
     <text x="180" y="610" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="22" fill="#ffc46b" textLength="300" lengthAdjust="spacingAndGlyphs">ТЕМАР + ДЖАМЕС</text>`;
   // the beach finale gets James too
-  $('sc-thai').insertAdjacentHTML('beforeend', jamesBody(290, 430, .62));
+
+  // Philipp (FEL) and Katya as reusable busts
+  const felBody = (x, y, sc, mood) => `<g transform="translate(${x} ${y}) scale(${sc})"><g class="bobs">
+      <path d="M-120 330 C-118 190 -70 146 0 142 C70 146 118 190 120 330Z" fill="${mood === 'beach' ? '#f2f2f2' : '#5d6470'}"/>
+      ${mood === 'beach' ? '' : '<path d="M-74 40 C-80 -60 -40 -96 0 -96 C40 -96 80 -60 74 40 L60 140 H-60Z" fill="#4f5560"/>'}
+      <rect x="-16" y="86" width="32" height="44" fill="#e6ad8a"/>
+      <ellipse cx="0" cy="22" rx="52" ry="60" fill="url(#sk)"/>
+      ${eyes(-21, 21, 18, mood === 'sly' ? 'evil' : 'calm')}
+      ${mood === 'sly' ? '<path d="M-16 50 Q0 62 18 46" stroke="#8a3a3a" stroke-width="4" fill="none" stroke-linecap="round"/>'
+        : '<path d="M-14 50 Q0 62 14 50" stroke="#8a3a3a" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="-34" cy="36" rx="12" ry="6" fill="#ff8a9a" opacity=".45"/><ellipse cx="34" cy="36" rx="12" ry="6" fill="#ff8a9a" opacity=".45"/>'}
+      <path d="M-54 -2 C-56 -50 -20 -64 4 -62 C36 -60 56 -40 54 -4 C40 -26 20 -32 0 -30 C-22 -30 -42 -20 -54 -2Z" fill="#1f1714"/>
+    </g></g>`;
+  const kateBody = (x, y, sc) => `<g transform="translate(${x} ${y}) scale(${sc})"><g class="bobs" style="animation-delay:-.8s">
+      <path d="M-70 20 C-84 -80 -30 -110 0 -110 C40 -110 86 -78 70 20 C78 110 64 170 52 200 L-52 200 C-66 170 -80 110 -70 20Z" fill="#6b4630"/>
+      <path d="M-120 330 C-118 190 -70 146 0 142 C70 146 118 190 120 330Z" fill="#ff8cc6"/>
+      <rect x="-16" y="86" width="32" height="44" fill="#e6ad8a"/>
+      <ellipse cx="0" cy="22" rx="54" ry="62" fill="url(#sk)"/>
+      ${eyes(-21, 21, 18, 'calm')}
+      <path d="M-12 50 Q0 58 12 50" stroke="#a3404e" stroke-width="3.6" fill="none" stroke-linecap="round"/>
+      <ellipse cx="-34" cy="38" rx="12" ry="6" fill="#ff8a9a" opacity=".45"/><ellipse cx="34" cy="38" rx="12" ry="6" fill="#ff8a9a" opacity=".45"/>
+      <path d="M-56 0 C-50 -60 -10 -76 10 -72 C44 -66 58 -40 56 -6 C40 -34 14 -40 -6 -38 C-28 -30 -44 -16 -56 0Z" fill="#6b4630"/>
+      <path d="M-46 -40 l10 -16 l8 14Z" fill="#ff5ca8"/>
+    </g></g>`;
+  const coconut = (x, y) => `<g transform="translate(${x} ${y})"><circle r="22" fill="#7a4a24"/><circle r="17" fill="#f4efe2" cx="0" cy="-6"/><path d="M6 -20 L20 -52" stroke="#ff5ca8" stroke-width="4"/></g>`;
+
+  // flashback: Philipp hires Temar and James
+  $('sc-bribe').innerHTML = room('#120d16', '#1c1520', '#ffb347') + `
+    <path d="M120 0 L240 0 L300 520 L60 520Z" fill="#ffe7a0" opacity=".12"/>
+    <rect x="150" y="0" width="60" height="16" fill="#333"/><ellipse cx="180" cy="22" rx="30" ry="10" fill="#ffd36b"/>
+    ${temarBody(72, 330, .52)}
+    ${jamesBody(288, 330, .52)}
+    ${felBody(180, 250, .62, 'sly')}
+    <g transform="translate(180 395)"><rect x="-56" y="-30" width="112" height="64" rx="6" fill="#f3e3c3" stroke="#a88a5a" stroke-width="3"/><path d="M-56 -30 L0 6 L56 -30" fill="none" stroke="#a88a5a" stroke-width="3"/>
+      <text x="0" y="24" text-anchor="middle" font-family="Montserrat" font-weight="900" font-size="10" fill="#7a5a2a">ПЛАН «ТАИЛАНД»</text></g>
+    <g fill="#5fbf6a" stroke="#2e7d3a" stroke-width="2">
+      <g transform="translate(140 300)"><rect class="cash" x="-20" y="-10" width="40" height="20" rx="3"/></g>
+      <g transform="translate(220 290)"><rect class="cash b" x="-20" y="-10" width="40" height="20" rx="3"/></g>
+      <g transform="translate(180 280)"><rect class="cash c" x="-20" y="-10" width="40" height="20" rx="3"/></g>
+    </g>
+    <rect x="70" y="60" width="220" height="40" rx="10" fill="#ffd84d"/><text x="180" y="88" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="18" fill="#1d1420">2 НЕДЕЛИ НАЗАД</text>
+    <text x="180" y="140" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="24" fill="#ff8cc6" textLength="300" lengthAdjust="spacingAndGlyphs">ЗАКАЗЧИК: ФИЛИПП</text>`;
+
+  // Thailand: Katya and Philipp on the beach
+  $('sc-beach').innerHTML = `<rect width="360" height="640" fill="url(#sunset)"/>
+    <circle cx="180" cy="290" r="70" fill="#fff3c4" opacity=".9"/><circle cx="180" cy="290" r="120" fill="#fff3c4" opacity=".35" filter="url(#bl)"/>
+    <rect y="350" width="360" height="130" fill="#ff9fb8" opacity=".55"/><path d="M0 372 h360 M40 392 h120 M200 412 h120" stroke="#fff" stroke-width="3" opacity=".5"/>
+    <rect y="470" width="360" height="170" fill="#f6d79c"/>
+    <g class="sway" transform="translate(30 470)"><path d="M0 0 C6 -80 -4 -160 10 -230" stroke="#6b4630" stroke-width="12" fill="none"/>
+      <g fill="#2e8b57" transform="translate(10 -230)"><path d="M0 0 C-40 -20 -80 0 -100 30 C-60 10 -30 10 0 0Z"/><path d="M0 0 C40 -20 80 0 100 30 C60 10 30 10 0 0Z"/><path d="M0 0 C-30 20 -50 50 -60 80 C-30 50 -10 30 0 0Z"/></g></g>
+    ${kateBody(118, 360, .7)}
+    ${felBody(248, 360, .7, 'beach')}
+    ${coconut(70, 560)}${coconut(300, 560)}
+    <g fill="#ff3b6b" font-family="Unbounded" font-weight="900" font-size="30"><text class="heart" x="170" y="300">♥</text><text class="heart b" x="196" y="280">♥</text></g>
+    <text x="180" y="120" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="30" fill="#fff" style="paint-order:stroke" stroke="#c0306a" stroke-width="6">ТАИЛАНД</text>`;
+
+  // Temar and James walk off into the sunset
+  const walker = (x, beanie) => `<g transform="translate(${x} 0)"><g class="step${beanie ? ' b' : ''}">
+      <path d="M-26 -10 C-28 -80 -16 -110 0 -112 C16 -110 28 -80 26 -10Z" fill="#2a1236"/>
+      <rect x="-20" y="-12" width="14" height="60" rx="6" fill="#2a1236"/><rect x="6" y="-12" width="14" height="60" rx="6" fill="#2a1236"/>
+      <circle cy="-132" r="24" fill="#2a1236"/>
+      ${beanie ? '<path d="M-24 -136 C-24 -170 24 -170 24 -136Z" fill="#2a1236"/><circle cy="-166" r="8" fill="#2a1236"/>' : ''}
+    </g></g>`;
+  $('sc-walk').innerHTML = `<rect width="360" height="640" fill="url(#sunset)"/>
+    <circle cx="180" cy="330" r="90" fill="#fff3c4"/><circle cx="180" cy="330" r="150" fill="#fff3c4" opacity=".4" filter="url(#bl)"/>
+    <rect y="380" width="360" height="260" fill="#f0a35e"/><path d="M180 380 L60 640 H300Z" fill="#f6c27e" opacity=".6"/>
+    <g transform="translate(180 590)"><g class="walkers">${walker(-36, false)}${walker(36, true)}
+      <ellipse cy="50" rx="90" ry="8" fill="#2a1236" opacity=".25"/></g></g>
+    <text x="180" y="120" text-anchor="middle" font-family="Unbounded" font-weight="900" font-size="22" fill="#fff" style="paint-order:stroke" stroke="#c0306a" stroke-width="6" textLength="300" lengthAdjust="spacingAndGlyphs">ОПЕРАЦИЯ ВЫПОЛНЕНА</text>`;
+
   function cut(ms, name, dur, extra) {
     ev(ms, 'whoosh');
     at(ms, () => { const s = $('scn'); s.dataset.sc = name; Object.assign(s.dataset, extra || {}); s.classList.add('show'); });
@@ -528,10 +605,22 @@
     t += me(t, 'pink', 'Принято. Кокосы без давления', { hold: 1300 });
     t += app(t, 'dm');
     t += them(t, 'dm', 'ФЭЛ', 'Еблан что ты наделал', { wait: 900, hold: 1000 });
-    t += me(t, 'dm', 'Я всё правильно сделал, братан', { hold: 1800 });
-    cut(t, 'thai');
-    narr(t + 500, 'j4', 'Мы с Джамесом всё правильно сделали. Продолжение — в Таиланде.');
-    t += title(t, '<div class="k">ТЕМАР И ДЖАМЕС ОДОБРЯЮТ</div><div class="h">Продолжение — в Таиланде</div><div class="s">пиши в комменты: сведёт или нет?</div>', 5200, true);
+    t += me(t, 'dm', 'Я всё правильно сделал, братан', { hold: 1400 });
+
+    // ---- twist: Philipp ordered the whole thing ----
+    cut(t, 'bribe'); ev(t + 300, 'ding');
+    { const d = narr(t, 'k1', 'А теперь секрет. Весь этот план нам заказал сам Филипп. Он нас подкупил — чтобы мы помогли вернуть Катю.'); t += Math.max(d, 5000); at(t - 150, () => $('scn').classList.remove('show')); }
+    t += them(t, 'dm', 'ФЭЛ', '…спасибо, братва', { wait: 1000, hold: 900 });
+    t += me(t, 'dm', 'Удачи вам в отношениях, брат. Мы своё сделали', { hold: 1200 });
+
+    // ---- Thailand: Katya and Philipp ----
+    cut(t, 'beach'); flash(t);
+    { const d = narr(t, 'k2', 'Таиланд. Катя и Филипп. Дальше — уже без нас.'); t += Math.max(d, 3800); }
+
+    // ---- Temar and James walk off into the sunset ----
+    cut(t, 'walk');
+    { const d = narr(t, 'k3', 'Удачи вам, брат. Мы своё сделали. А мы с Джамесом уходим в закат.'); t += Math.max(d, 4400); }
+    t += title(t, '<div class="k">ТЕМАР И ДЖАМЕС</div><div class="h">Операция «Таиланд» выполнена</div><div class="s">пиши в комменты: сойдутся или нет?</div>', 4200, true);
     window.__timeline = { total: t, events: EVENTS };
   }
 
