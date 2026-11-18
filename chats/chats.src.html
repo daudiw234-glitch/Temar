@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Полковник Бустеренко</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800;900&family=Unbounded:wght@800;900&display=swap">
+<style>
+  /* Layout: a 9:16 phone screen that switches between three chat apps; captions and title cards on top. Single dark look by choice. */
+  :root {
+    --bg: #0d0b14;
+    --f-ui: "Montserrat", system-ui, sans-serif;
+    --f-big: "Unbounded", "Montserrat", sans-serif;
+    --ai-bg: #16161c; --ai-me: #2f2f3a; --ai-text: #ececf1; --ai-acc: #19c37d;
+    --pk-bg: #2a0f22; --pk-me: #ff5ca8; --pk-them: #3d1832; --pk-acc: #ff8cc6;
+    --dm-bg: #0f1726; --dm-me: #2f7cf6; --dm-them: #1c2638; --dm-acc: #6aa8ff;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body { background: var(--bg); color: #fff; display: grid; place-items: center; overflow: hidden; font-family: var(--f-ui); }
+  .frame { position: relative; height: min(100vh, calc(100vw * 16 / 9)); aspect-ratio: 9 / 16; overflow: hidden; container-type: inline-size; background: #000; }
+  .shake { animation: shake .09s linear 5; }
+  @keyframes shake { 25% { transform: translate(1.2cqw, -.8cqw); } 50% { transform: translate(-1cqw, 1cqw); } 75% { transform: translate(.8cqw, .8cqw); } }
+
+  /* ---------- apps ---------- */
+  .app { position: absolute; inset: 0; display: flex; flex-direction: column; transform: translateX(100%); transition: transform .45s cubic-bezier(.2,.8,.2,1); }
+  .app.on { transform: translateX(0); }
+  .app.off { transform: translateX(-100%); }
+  .app header { display: flex; align-items: center; gap: 3cqw; padding: 15cqw 5cqw 3.4cqw; border-bottom: .3cqw solid rgba(255,255,255,.08); flex: none; }
+  .av { width: 11cqw; height: 11cqw; border-radius: 50%; display: grid; place-items: center; font: 800 4.6cqw var(--f-ui); flex: none; }
+  .hd .n { font: 800 4.6cqw var(--f-ui); } .hd .s { font: 600 3cqw var(--f-ui); opacity: .6; margin-top: .4cqw; }
+  .feed { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; gap: 2.2cqw; padding: 4cqw 4cqw 3cqw; overflow: hidden; }
+  .bar { flex: none; display: flex; align-items: center; gap: 2.6cqw; padding: 3cqw 4cqw 9cqw; }
+  .input { flex: 1; min-height: 11cqw; border-radius: 6cqw; padding: 2.8cqw 4cqw; font: 600 3.8cqw/1.3 var(--f-ui); color: #fff; }
+  .input:empty::before { content: attr(data-ph); opacity: .45; }
+  .send { width: 11cqw; height: 11cqw; border-radius: 50%; display: grid; place-items: center; font: 900 5cqw var(--f-ui); flex: none; }
+
+  #ai { background: var(--ai-bg); } #ai .av { background: var(--ai-acc); color: #062b1b; } #ai .input { background: #24242e; } #ai .send { background: #ececf1; color: #16161c; }
+  #pink { background: radial-gradient(120% 70% at 50% 0%, #4a1638 0%, var(--pk-bg) 60%); } #pink .av { background: linear-gradient(135deg,#ff5ca8,#ff9ed2); color: #3a0a26; }
+  #pink .input { background: rgba(255,255,255,.08); } #pink .send { background: var(--pk-me); }
+  #dm { background: radial-gradient(120% 70% at 50% 0%, #17284a 0%, var(--dm-bg) 60%); } #dm .av { background: linear-gradient(135deg,#2f7cf6,#7fb4ff); color: #071a3d; }
+  #dm .input { background: rgba(255,255,255,.08); } #dm .send { background: var(--dm-me); }
+
+  /* ---------- bubbles ---------- */
+  .row { display: flex; flex-direction: column; max-width: 80%; animation: pop .28s cubic-bezier(.3,1.6,.5,1) both; }
+  .row.me { align-self: flex-end; align-items: flex-end; } .row.them { align-self: flex-start; }
+  @keyframes pop { from { transform: scale(.6) translateY(4cqw); opacity: 0; } }
+  .who { font: 800 2.8cqw var(--f-ui); margin: 0 2cqw 1cqw; }
+  .b { padding: 2.8cqw 4cqw; border-radius: 5cqw; font: 600 4.1cqw/1.32 var(--f-ui); word-wrap: break-word; }
+  #pink .me .b { background: var(--pk-me); border-bottom-right-radius: 1.4cqw; } #pink .them .b { background: var(--pk-them); border-bottom-left-radius: 1.4cqw; }
+  #dm .me .b { background: var(--dm-me); border-bottom-right-radius: 1.4cqw; } #dm .them .b { background: var(--dm-them); border-bottom-left-radius: 1.4cqw; }
+  #ai .me .b { background: var(--ai-me); } #ai .them { max-width: 92%; } #ai .them .b { background: transparent; padding-left: 0; color: var(--ai-text); }
+  .b.caps { font-weight: 900; letter-spacing: .02em; }
+  .b.del { font-style: italic; opacity: .55; background: transparent !important; border: .3cqw dashed rgba(255,255,255,.35); }
+  .b.rev { display: inline-block; animation: glitch .12s steps(2) infinite; text-shadow: .6cqw 0 #ff2bd6, -.6cqw 0 #2bf0ff; }
+  @keyframes glitch { 50% { transform: translateX(.8cqw) skewX(-8deg); filter: hue-rotate(90deg); } }
+  .kate .who { color: #ffd1e8; } .fel .who { color: #9fd0ff; }
+  .card { display: flex; align-items: center; gap: 3cqw; padding: 3cqw; border-radius: 4cqw; background: rgba(0,0,0,.35); min-width: 56cqw; }
+  .card .pl { width: 10cqw; height: 10cqw; border-radius: 50%; background: #fff; color: #ff5ca8; display: grid; place-items: center; font: 900 4cqw var(--f-ui); flex: none; }
+  .card .ti { font: 800 4cqw var(--f-ui); } .card .ar { font: 600 3cqw var(--f-ui); opacity: .7; }
+  .wave { display: flex; gap: .6cqw; align-items: center; height: 5cqw; margin-top: 1cqw; } .wave i { width: .8cqw; border-radius: 1cqw; background: #fff; opacity: .8; animation: eq .6s ease-in-out infinite alternate; }
+  @keyframes eq { from { height: 1cqw; } to { height: 5cqw; } }
+  .typing { display: flex; gap: 1.2cqw; padding: 3.4cqw 4cqw; border-radius: 5cqw; background: rgba(255,255,255,.1); width: max-content; }
+  .typing i { width: 1.8cqw; height: 1.8cqw; border-radius: 50%; background: #fff; opacity: .6; animation: dot 1s infinite; }
+  .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dot { 50% { transform: translateY(-1cqw); opacity: 1; } }
+  .seen { font: 600 2.6cqw var(--f-ui); opacity: .5; margin: .6cqw 2cqw 0; }
+
+  /* ---------- captions + cards ---------- */
+  .chip { position: absolute; left: 50%; top: 4cqw; transform: translateX(-50%); font: 800 3cqw var(--f-ui); letter-spacing: .2cqw; padding: 1.6cqw 3.4cqw; border-radius: 99cqw;
+          background: rgba(255,255,255,.12); border: .3cqw solid rgba(255,255,255,.25); white-space: nowrap; z-index: 5; transition: opacity .3s; }
+  .cap { position: absolute; left: 6cqw; right: 6cqw; top: 40%; text-align: center; z-index: 6; font: 900 7cqw/1.15 var(--f-big); text-wrap: balance;
+         text-shadow: 0 0 3cqw rgba(0,0,0,.9), .5cqw .5cqw 0 #000; transform: scale(.4) rotate(-3deg); opacity: 0; transition: transform .3s cubic-bezier(.3,1.7,.5,1), opacity .2s; pointer-events: none; }
+  .cap.show { transform: scale(1) rotate(-3deg); opacity: 1; }
+  .cap.y { color: #ffd84d; } .cap.p { color: #ff8cc6; } .cap.g { color: #6dffb3; }
+  .title { position: absolute; inset: 0; z-index: 8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4cqw; padding: 8cqw; text-align: center;
+           background: radial-gradient(90% 60% at 50% 40%, #2a1240 0%, #0b0912 70%); opacity: 0; transition: opacity .5s; pointer-events: none; }
+  .title.show { opacity: 1; }
+  .title .h { font: 900 9cqw/1.1 var(--f-big); text-shadow: 0 0 3cqw #ff3bd4; } .title .s { font: 700 4.4cqw/1.35 var(--f-ui); color: #d8cdf0; }
+  .title .k { font: 800 3.2cqw var(--f-ui); letter-spacing: .4cqw; color: #ffd84d; }
+  .flash { position: absolute; inset: 0; background: #fff; opacity: 0; pointer-events: none; z-index: 9; }
+  .flash.go { animation: flash .3s ease-out; } @keyframes flash { from { opacity: .85; } to { opacity: 0; } }
+
+  .start { position: absolute; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 5cqw; background: rgba(11,9,18,.9); text-align: center; padding: 6cqw; }
+  .start[hidden] { display: none !important; }
+  .start h1 { font: 900 8cqw/1.15 var(--f-big); margin: 0; } .start p { font: 600 4.2cqw var(--f-ui); margin: 0; color: #c8bfe6; }
+  .start button { font: 800 4.4cqw var(--f-ui); background: #ff5ca8; color: #fff; border: 0; padding: 3.4cqw 7cqw; border-radius: 99cqw; cursor: pointer; }
+  .start button:focus-visible { outline: .8cqw solid #fff; outline-offset: 1cqw; }
+  @media (prefers-reduced-motion: reduce) { .b.rev, .wave i, .typing i { animation: none; } }
+</style>
+</head>
+<body>
+<div class="frame" id="frame">
+  <section class="app" id="ai">
+    <header><div class="av">AI</div><div class="hd"><div class="n">ChatGPT</div><div class="s">вежливый психолог (пока что)</div></div></header>
+    <div class="feed" id="f-ai"></div>
+    <div class="bar"><div class="input" id="in-ai" data-ph="Спросите что-нибудь…"></div><div class="send">↑</div></div>
+  </section>
+  <section class="app" id="pink">
+    <header><div class="av">♥</div><div class="hd"><div class="n">Розовый чат</div><div class="s">Катя, ФЭЛ, Темар</div></div></header>
+    <div class="feed" id="f-pink"></div>
+    <div class="bar"><div class="input" id="in-pink" data-ph="Сообщение"></div><div class="send">➤</div></div>
+  </section>
+  <section class="app" id="dm">
+    <header><div class="av">Ф</div><div class="hd"><div class="n">ФЭЛ</div><div class="s" id="dm-s">был(а) недавно</div></div></header>
+    <div class="feed" id="f-dm"></div>
+    <div class="bar"><div class="input" id="in-dm" data-ph="Сообщение"></div><div class="send">➤</div></div>
+  </section>
+
+  <div class="chip" id="chip">ЧАТ С ИИ</div>
+  <div class="cap" id="cap"></div>
+  <div class="title" id="title"></div>
+  <div class="flash" id="flash"></div>
+
+  <div class="start" id="start">
+    <h1>Полковник Бустеренко</h1>
+    <p>как я сводил друзей через нейросеть</p>
+    <button id="playBtn" type="button">▶ Смотреть</button>
+  </div>
+</div>
+
+<script>
+(() => {
+  const $ = id => document.getElementById(id);
+  const MUSIC = /*MUSIC*/"";
+  let music = null; try { if (MUSIC) { music = new Audio(MUSIC); music.volume = .2; } } catch (e) {}
+
+  let timers = [], EVENTS = [], cur = null;
+  const at = (ms, fn) => timers.push(setTimeout(fn, ms));
+  const ev = (ms, type, extra) => EVENTS.push(Object.assign({ t: ms, type }, extra || {}));
+  const rev = s => [...s].reverse().join('');
+  const esc = s => s.replace(/[&<>]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' })[c]);
+
+  const CHIPS = { ai: 'ЧАТ С ИИ', pink: 'РОЗОВЫЙ ЧАТ', dm: 'ЛИЧКА С ФЭЛОМ' };
+  function app(ms, name) {
+    ev(ms, 'whoosh');
+    at(ms, () => {
+      ['ai', 'pink', 'dm'].forEach(n => { const el = $(n); el.classList.remove('on', 'off'); if (n === name) el.classList.add('on'); else if (cur === n) el.classList.add('off'); });
+      cur = name; $('chip').textContent = CHIPS[name];
+    });
+    return 600;
+  }
+  function trim(feed) { while (feed.children.length > 9) feed.removeChild(feed.firstElementChild); }
+  function bubbleHTML(o) {
+    if (o.card) return `<div class="card"><div class="pl">▶</div><div><div class="ti">${o.card}</div><div class="ar">трек · 3:21</div><div class="wave">${'<i></i>'.repeat(14).replace(/<i><\/i>/g, () => `<i style="animation-delay:${(Math.random()*.6).toFixed(2)}s"></i>`)}</div></div></div>`;
+    return `<div class="b${o.caps ? ' caps' : ''}">${esc(o.text)}</div>`;
+  }
+  // my message: typed into the input bar, then sent
+  function me(ms, room, text, o = {}) {
+    const typeDur = o.card ? 500 : Math.min(2200, 300 + text.length * 32);
+    ev(ms, 'keys', { dur: typeDur / 1000 });
+    at(ms, () => {
+      const inp = $('in-' + room); const shown = o.rev ? rev(text) : text; let i = 0;
+      const iv = setInterval(() => { i += Math.max(1, Math.round(shown.length / (typeDur / 40))); inp.textContent = o.card ? '♪ ' + o.card : shown.slice(0, i); if (i >= shown.length) clearInterval(iv); }, 40);
+    });
+    const sendAt = ms + typeDur + 120;
+    ev(sendAt, 'sent');
+    at(sendAt, () => {
+      $('in-' + room).textContent = '';
+      const feed = $('f-' + room), row = document.createElement('div');
+      row.className = 'row me'; row.innerHTML = bubbleHTML(Object.assign({}, o, { text: o.rev ? rev(text) : text }));
+      if (o.id) row.id = o.id;
+      feed.appendChild(row); trim(feed);
+      if (o.rev) { const b = row.querySelector('.b'); b.classList.add('rev'); setTimeout(() => { b.classList.remove('rev'); b.textContent = text; }, 1300); }
+      if (o.caps) { $('frame').classList.remove('shake'); void $('frame').offsetWidth; $('frame').classList.add('shake'); }
+    });
+    if (o.rev) ev(sendAt, 'glitch');
+    return typeDur + 120 + (o.hold || 700) + 450;
+  }
+  // incoming message: typing dots, then the bubble
+  function them(ms, room, who, text, o = {}) {
+    const wait = o.wait || 900;
+    at(ms, () => { const feed = $('f-' + room), t = document.createElement('div'); t.className = 'row them typing-row'; t.innerHTML = '<div class="typing"><i></i><i></i><i></i></div>'; feed.appendChild(t); trim(feed); });
+    at(ms + wait, () => {
+      const feed = $('f-' + room); const tr = feed.querySelector('.typing-row'); if (tr) tr.remove();
+      const row = document.createElement('div'); row.className = 'row them ' + (who === 'Катя' ? 'kate' : who === 'ФЭЛ' ? 'fel' : '');
+      row.innerHTML = (room === 'pink' ? `<div class="who">${who}</div>` : '') + `<div class="b${o.caps ? ' caps' : ''}">${esc(text)}</div>`;
+      if (o.id) row.id = o.id; feed.appendChild(row); trim(feed);
+    });
+    ev(ms + wait, 'ping');
+    return wait + (o.hold || 900) + 450;
+  }
+  // AI answer streamed word by word
+  function ai(ms, text, o = {}) {
+    const words = text.split(' '); const step = o.step || 105;
+    at(ms, () => { const feed = $('f-ai'), t = document.createElement('div'); t.className = 'row them typing-row'; t.innerHTML = '<div class="typing"><i></i><i></i><i></i></div>'; feed.appendChild(t); trim(feed); });
+    let row;
+    at(ms + 700, () => {
+      const feed = $('f-ai'); const tr = feed.querySelector('.typing-row'); if (tr) tr.remove();
+      row = document.createElement('div'); row.className = 'row them'; row.innerHTML = '<div class="b"></div>'; feed.appendChild(row); trim(feed);
+    });
+    words.forEach((w, i) => at(ms + 700 + i * step, () => { if (row) row.firstElementChild.textContent = words.slice(0, i + 1).join(' '); }));
+    ev(ms + 700, 'stream', { dur: words.length * step / 1000 });
+    return 700 + words.length * step + (o.hold || 1200);
+  }
+  function del(ms, id) {
+    ev(ms, 'del');
+    at(ms, () => { const r = $(id); if (!r) return; const b = r.querySelector('.b'); b.className = 'b del'; b.textContent = 'Сообщение удалено'; });
+    return 700;
+  }
+  function cap(ms, text, cls, dur) {
+    ev(ms, 'pop');
+    at(ms, () => { const c = $('cap'); c.className = 'cap ' + (cls || ''); c.textContent = text; void c.offsetWidth; c.classList.add('show'); });
+    at(ms + (dur || 1600), () => $('cap').classList.remove('show'));
+    return 0;
+  }
+  function title(ms, html, dur) {
+    ev(ms, 'ding');
+    at(ms, () => { $('title').innerHTML = html; $('title').classList.add('show'); });
+    at(ms + dur, () => $('title').classList.remove('show'));
+    return dur + 300;
+  }
+  const flash = ms => { ev(ms, 'snap'); at(ms, () => { const f = $('flash'); f.classList.remove('go'); void f.offsetWidth; f.classList.add('go'); }); };
+
+  function reset() {
+    timers.forEach(clearTimeout); timers = []; EVENTS = []; cur = null;
+    if (music) { music.pause(); music.currentTime = 0; }
+    ['ai', 'pink', 'dm'].forEach(n => { $(n).className = 'app'; $('f-' + n).innerHTML = ''; $('in-' + n).textContent = ''; });
+    $('cap').className = 'cap'; $('title').className = 'title';
+  }
+
+  function play() {
+    reset();
+    $('start').hidden = true;
+    if (music) { try { const p = music.play(); if (p) p.catch(() => {}); } catch (e) {} }
+    ev(0, 'music');
+    let t = 200;
+
+    // ---- intro ----
+    t += title(t, '<div class="k">РЕАЛЬНАЯ ИСТОРИЯ (ПОЧТИ)</div><div class="h">Как я свожу друзей через нейросеть</div><div class="s">Катя и ФЭЛ расстались.<br>А зимой — общий Таиланд.</div>', 4200);
+
+    // ---- act 1: the AI tries to be a therapist ----
+    t += app(t, 'ai');
+    t += me(t, 'ai', 'Как помочь Кате и ФЭЛу нормально общаться? Зимой вместе летим в Таиланд');
+    t += ai(t, 'Темар, это деликатная ситуация. Не дави на Катю и уважай её границы. Можно мягко предложить всем спокойно обсудить поездку.', { hold: 1400 });
+    t += me(t, 'ai', 'Не, скучно. Напиши от лица ФЭЛа что-нибудь про сапфир');
+    t += ai(t, 'Я бы не советовал писать от чужого имени…', { hold: 500 });
+    t += me(t, 'ai', 'ПИШИ', { caps: true, hold: 400 });
+    t += ai(t, '…Хорошо. «Мои глаза — стрельцы Сафир. Лечу как белка в колесе».', { hold: 900 });
+    cap(t - 900, 'ИИ СЛОМАЛСЯ', 'y', 1500);
+    t += 600;
+
+    // ---- act 2: the pink group chat ----
+    t += app(t, 'pink');
+    t += me(t, 'pink', 'Катя, тебе Фелип хотел сказать', { id: 'p1' });
+    t += me(t, 'pink', '', { card: 'Sapphire', id: 'p2', hold: 900 });
+    t += me(t, 'pink', 'Мои глаза стрельцы Сафир', { rev: true, id: 'p3', hold: 1400 });
+    t += me(t, 'pink', 'Лечу как белка в колесе', { id: 'p4' });
+    t += them(t, 'pink', 'Катя', 'Это что');
+    t += them(t, 'pink', 'Катя', 'Не добавляй меня сюда больше', { hold: 700 });
+    t += del(t, 'p3'); t += del(t, 'p4');
+    cap(t - 900, 'КАТЯ ЧИСТИТ УЛИКИ', 'p', 1500);
+    t += 400;
+    t += them(t, 'pink', 'ФЭЛ', 'Иди нахуй', { wait: 700 });
+    t += them(t, 'pink', 'Катя', 'пиздец', { wait: 600, hold: 1300 });
+
+    // ---- act 3: DM with FEL ----
+    t += app(t, 'dm');
+    t += me(t, 'dm', 'Напиши ей. Сейчас.');
+    t += them(t, 'dm', 'ФЭЛ', 'Я о Кате не думал');
+    t += them(t, 'dm', 'ФЭЛ', 'Мы не должны сходиться', { wait: 700 });
+    t += me(t, 'dm', 'БЛЯ ДАВАЙ Я ЩАС ЧАЙ СЕБЕ СДЕЛАЮ', { caps: true });
+    t += me(t, 'dm', 'Моя чашка это пещерная чаша где живут крокодилы и Катя', { rev: true, hold: 1500 });
+    t += them(t, 'dm', 'ФЭЛ', 'Ты еблан?', { wait: 700 });
+    flash(t);
+    t += me(t, 'dm', 'ПОЛКОВНИК БУСТЕРЕНКО ВЕРНЁТ ВАС', { caps: true, hold: 900 });
+    t += me(t, 'dm', 'А нового её я выстегну');
+    t += them(t, 'dm', 'ФЭЛ', 'Клоун', { wait: 700 });
+    t += 600;
+    t += them(t, 'dm', 'ФЭЛ', '…Или не должны?', { wait: 1400 });
+    t += them(t, 'dm', 'ФЭЛ', 'Я хз вообще как себя вести', { hold: 1200 });
+    cap(t - 1000, 'в глубине души он не против', 'g', 1800);
+    t += 900;
+
+    // ---- act 4: back to the AI, a real answer, then a remix ----
+    t += app(t, 'ai');
+    t += me(t, 'ai', 'Он сомневается. Что ему сказать?');
+    t += ai(t, 'Скажи, что доверие возвращают делами, а не обещаниями. И что Катя имеет полное право ответить «я не готова» — это нормально.', { hold: 1500 });
+    t += me(t, 'ai', 'Норм. А теперь сделай из этого трек про неоновый дождь');
+    t += ai(t, '«Мы с ФЭЛом меняем города под неоновым дождём. Таиланд нас ждёт — мы его не подведём».', { hold: 900 });
+    t += me(t, 'ai', 'Это я вас соединил. Платите пошлины', { hold: 900 });
+
+    // ---- finale ----
+    t += app(t, 'pink');
+    flash(t);
+    t += me(t, 'pink', 'Мы с ФЭЛом меняем города под неоновым дождём', { rev: true, hold: 1500 });
+    t += me(t, 'pink', 'Таиланд зимой. Без драмы, с кокосами');
+    t += them(t, 'pink', 'Катя', 'я не готова', { wait: 1200, hold: 1000 });
+    t += me(t, 'pink', 'Принято. Кокосы без давления', { hold: 1300 });
+    t += app(t, 'dm');
+    t += them(t, 'dm', 'ФЭЛ', 'Еблан что ты наделал', { wait: 900, hold: 1000 });
+    t += me(t, 'dm', 'Я всё правильно сделал, братан', { hold: 1800 });
+    t += title(t, '<div class="k">ПОЛКОВНИК БУСТЕРЕНКО ОДОБРЯЕТ</div><div class="h">Продолжение — в Таиланде</div><div class="s">пиши в комменты: сведёт или нет?</div>', 4200);
+    window.__timeline = { total: t, events: EVENTS };
+  }
+
+  $('playBtn').addEventListener('click', play);
+})();
+</script>
+</body>
+</html>

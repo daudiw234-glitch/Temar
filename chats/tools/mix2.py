@@ -1,0 +1,62 @@
+import json, wave, subprocess, numpy as np
+tl=json.load(open('timeline.json')); sr=44100; L=tl['total']/1000+0.3; n=int(L*sr)
+out=np.zeros(n)
+def rd(path):
+    raw=subprocess.check_output(['ffmpeg','-v','error','-i',path,'-f','s16le','-ac','1','-ar',str(sr),'-'])
+    return np.frombuffer(raw,np.int16).astype(float)/32768
+def add(sig,t,g=1.0):
+    i=int(t*sr); j=min(n,i+len(sig)); out[i:j]+=g*sig[:j-i]
+def blip(f0,f1,dur,vol,typ='square'):
+    t=np.arange(int(dur*sr))/sr; f=f0*(f1/f0)**(t/dur); ph=np.cumsum(f)/sr
+    w=np.where(ph%1<.5,1.,-1.) if typ=='square' else 2*np.abs(2*(ph%1)-1)-1
+    return vol*w*np.exp(np.log(.001/1)*t/dur)
+def soft(f0,f1,dur,vol):
+    tt=np.arange(int(dur*sr))/sr; f=f0*(f1/f0)**(tt/dur); ph=2*np.pi*np.cumsum(f)/sr
+    return vol*np.sin(ph)*np.exp(np.log(.001)*tt/dur)
+def whoosh():
+    m=int(.35*sr); x=np.random.default_rng(1).uniform(-1,1,m)*np.sin(np.pi*np.arange(m)/m)
+    y2=np.zeros(m); acc=0; a=.85
+    for i in range(m): acc=(1-a)*x[i]+a*acc; y2[i]=acc
+    return .25*(x-y2)*np.sin(np.pi*np.arange(m)/m)
+music=rd('music.wav')*0.75
+for e in tl['events']:
+    if e['type']=='musicstop':
+        i=int(e['t']/1000*sr); fl=int(.5*sr)
+        if i<len(music):
+            seg=music[i:i+fl]; music[i:i+len(seg)]*=np.linspace(1,0,len(seg)); music[i+fl:]=0
+add(music,0,0.18)
+buzz_on=None
+for e in tl['events']:
+    t=e['t']/1000
+    if e['type']=='voice': add(rd(f"voice/{e['k']}.mp3"),t,1.0)
+    elif e['type']=='pop': add(soft(620,900,.12,.10),t)
+    elif e['type']=='whoosh': add(whoosh(),t)
+    elif e['type']=='keys':
+        rk=np.random.default_rng(int(t*1000)); k=t
+        while k<t+e['dur']:
+            m=int(.018*sr); x=rk.uniform(-1,1,m)*np.exp(-np.arange(m)/sr*260); add(.10*(x-np.concatenate([[0],x[:-1]])),k); k+=rk.uniform(.055,.11)
+    elif e['type']=='stream':
+        k=t
+        while k<t+e['dur']: add(soft(1800,1700,.02,.02),k); k+=.12
+    elif e['type']=='sent': add(soft(500,1100,.12,.09),t)
+    elif e['type']=='ping': add(soft(880,880,.12,.08),t); add(soft(1320,1320,.2,.07),t+.09)
+    elif e['type']=='glitch':
+        rk=np.random.default_rng(3); m=int(.35*sr); x=rk.uniform(-1,1,m); sq=np.sign(np.sin(2*np.pi*90*np.arange(m)/sr)); add(.10*x*(sq>0)+.06*sq,t)
+    elif e['type']=='del': add(soft(700,200,.25,.10),t)
+    elif e['type']=='clip':
+        raw=subprocess.check_output(['ffmpeg','-v','error','-ss',str(e['from']),'-t',str(e['dur']),'-i',f"../clips/{e['src']}.mp4",'-f','s16le','-ac','1','-ar',str(sr),'-'])
+        c=np.frombuffer(raw,np.int16).astype(float)/32768; fl=int(.4*sr)
+        fl=int(.15*sr) if e.get('src') and e.get('dur',0)>6 else fl
+        c[:fl]*=np.linspace(0,1,fl); fo=int(e.get('fadeout',.15 if e.get('dur',0)>6 else .4)*sr); fo=min(fo,len(c)); c[-fo:]*=np.linspace(1,0,fo)
+        rms=max(1e-6,np.sqrt(np.mean(c**2))); c=np.tanh(c/rms*0.2*1.6)/1.6; add(c,t)
+    elif e['type']=='snap': add(whoosh()*0.8,t); add(soft(2400,1800,.05,.12),t)
+    elif e['type']=='ding': add(soft(1320,1310,1.1,.09)+np.pad(soft(1980,1970,.8,.05),(0,int(.3*sr)))[:int(1.1*sr)],t)
+    elif e['type']=='buzzOn': buzz_on=t
+    elif e['type']=='buzzOff' and buzz_on is not None:
+        d=t-buzz_on; tt=np.arange(int(d*sr))/sr; f=118+14*np.sin(2*np.pi*9*tt); ph=np.cumsum(f)/sr
+        saw=2*(ph%1)-1; a=np.exp(-2*np.pi*1400/sr); y=np.zeros_like(saw); acc=0
+        for k in range(len(saw)): acc=(1-a)*saw[k]+a*acc; y[k]=acc
+        env=np.minimum(1,np.minimum(tt/.1,(tt[-1]-tt)/.15)); add(0.16*y/np.max(np.abs(y))*env,buzz_on)
+out=out/max(1,np.max(np.abs(out))/0.95)
+w=wave.open('mix_story.wav','wb'); w.setnchannels(1); w.setsampwidth(2); w.setframerate(sr); w.writeframes((out*32767).astype(np.int16).tobytes()); w.close()
+print('len',L)
