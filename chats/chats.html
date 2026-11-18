@@ -250,8 +250,8 @@
     const d = Math.round((VDUR[k] || 2) * 1000);
     ev(ms, 'voice', { k });
     at(ms, () => { const a = voices[k]; if (a) { try { a.currentTime = 0; const p = a.play(); if (p) p.catch(() => {}); } catch (e) {} }
-      const n = $('narr'); n.textContent = text; n.classList.add('show'); });
-    at(ms + d + 150, () => $('narr').classList.remove('show'));
+      const n = $('narr'); n.textContent = text; n.dataset.k = k; n.classList.add('show'); });
+    at(ms + d + 150, () => { const n = $('narr'); if (n.dataset.k === k) n.classList.remove('show'); });
     return d + 250;
   }
   function del(ms, id) {
