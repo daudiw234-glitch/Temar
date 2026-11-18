@@ -130,7 +130,7 @@
 <body>
 <div class="frame" id="frame">
   <section class="app" id="ai">
-    <header><div class="av">AI</div><div class="hd"><div class="n">ChatGPT</div><div class="s">вежливый психолог (пока что)</div></div></header>
+    <header><div class="av">AI</div><div class="hd"><div class="n">ChatGPT</div><div class="s">помогает начать разговор</div></div></header>
     <div class="feed" id="f-ai"></div>
     <div class="bar"><div class="input" id="in-ai" data-ph="Спросите что-нибудь…"></div><div class="send">↑</div></div>
   </section>
@@ -210,14 +210,15 @@
   function me(ms, room, text, o = {}) {
     const typeDur = o.card ? 500 : Math.min(2200, 300 + text.length * 32);
     ev(ms, 'keys', { dur: typeDur / 1000 });
+    let iv = null;
     at(ms, () => {
       const inp = $('in-' + room); const shown = o.rev ? rev(text) : text; let i = 0;
-      const iv = setInterval(() => { i += Math.max(1, Math.round(shown.length / (typeDur / 40))); inp.textContent = o.card ? '♪ ' + o.card : shown.slice(0, i); if (i >= shown.length) clearInterval(iv); }, 40);
+      iv = setInterval(() => { i += Math.max(1, Math.ceil(shown.length / ((typeDur - 80) / 40))); inp.textContent = o.card ? '♪ ' + o.card : shown.slice(0, i); if (i >= shown.length) clearInterval(iv); }, 40);
     });
     const sendAt = ms + typeDur + 120;
     ev(sendAt, 'sent');
     at(sendAt, () => {
-      $('in-' + room).textContent = '';
+      clearInterval(iv); $('in-' + room).textContent = '';
       const feed = $('f-' + room), row = document.createElement('div');
       row.className = 'row me'; row.innerHTML = bubbleHTML(Object.assign({}, o, { text: o.rev ? rev(text) : text }));
       if (o.id) row.id = o.id;
@@ -225,7 +226,7 @@
       if (o.rev) { const b = row.querySelector('.b'); b.classList.add('rev'); setTimeout(() => { b.classList.remove('rev'); b.textContent = text; }, 1300); }
       if (o.caps) { $('frame').classList.remove('shake'); void $('frame').offsetWidth; $('frame').classList.add('shake'); }
     });
-    if (o.rev) ev(sendAt, 'glitch');
+    
     return typeDur + 120 + (o.hold || 700) + 100;
   }
   // incoming message: typing dots, then the bubble
@@ -533,79 +534,50 @@
     // ---- meet James ----
     cut(t, 'james'); { const d = narr(t, 'j2', 'Джамес — мой напарник. Он отвечает за план. Я — за хаос.'); t += Math.max(d, 3200); at(t - 150, () => $('scn').classList.remove('show')); }
 
-    // ---- act 1: the AI tries to be a therapist ----
+    // ---- the chatbot only gets the conversation started ----
     t += app(t, 'ai');
-    cut(t, 'temar'); const dv2 = narr(t, 'v2', 'Я попросил нейросеть помочь. Она начала как психолог.'); at(t + dv2 - 150, () => $('scn').classList.remove('show')); t += dv2;
-    t += me(t, 'ai', 'Как помочь Кате и ФЭЛу нормально общаться? Зимой вместе летим в Таиланд');
-    t += ai(t, 'Темар, это деликатная ситуация. Не дави на Катю и уважай её границы. Можно мягко предложить всем спокойно обсудить поездку.', { hold: 1400 });
-    t += me(t, 'ai', 'Не, скучно. Напиши от лица ФЭЛа что-нибудь про сапфир');
-    t += ai(t, 'Я бы не советовал писать от чужого имени…', { hold: 500 });
-    t += me(t, 'ai', 'ПИШИ', { caps: true, hold: 400 });
-    t += ai(t, '…Хорошо. «Мои глаза — стрельцы Сафир. Лечу как белка в колесе».', { hold: 900 });
-    cap(t - 900, 'ИИ СЛОМАЛСЯ', 'y', 1500);
-    t += 600;
-    cut(t, 'robot', 0, { rb: 'ok' }); at(t + 700, () => { $('scn').dataset.rb = 'broke'; }); ev(t + 700, 'glitch');
-    { const d = narr(t, 'v3', 'Психолог продержался секунд десять.'); t += Math.max(d, 2600); at(t - 150, () => $('scn').classList.remove('show')); }
+    t += me(t, 'ai', 'Как начать разговор в чате, чтобы Катя и ФЭЛ снова общались?');
+    t += ai(t, 'Начните с общей темы — с поездки в Таиланд. Спокойно и без давления.', { hold: 600 });
+    t += narr(t, 'n0', 'Нейросеть помогла только начать разговор. Дальше — мы с Джамесом.');
 
-    // ---- act 2: the pink group chat ----
-    t += app(t, 'pink');
+    // ---- the pink group chat ----
     cut(t, 'temar'); { const d = narr(t, 'v4', 'Розовый чат. Пишу от лица ФЭЛа.'); t += d; at(t - 150, () => $('scn').classList.remove('show')); }
+    t += app(t, 'pink');
     t += me(t, 'pink', 'Катя, тебе Фелип хотел сказать', { id: 'p1' });
-    t += me(t, 'pink', '', { card: 'Sapphire', id: 'p2', hold: 900 });
-    t += them(t, 'pink', 'Джамес', 'Катя, это шедевр, послушай', { wait: 800 });
-    t += me(t, 'pink', 'Мои глаза стрельцы Сафир', { rev: true, id: 'p3', hold: 1400 });
-    t += me(t, 'pink', 'Лечу как белка в колесе', { id: 'p4' });
-    t += them(t, 'pink', 'Катя', 'Это что');
-    t += them(t, 'pink', 'Катя', 'Не добавляй меня сюда больше', { hold: 700 });
-    t += del(t, 'p3'); t += del(t, 'p4');
-    cap(t - 900, 'КАТЯ ЧИСТИТ УЛИКИ', 'p', 1500);
-    t += 400;
-    cut(t, 'kate'); ev(t + 300, 'del'); ev(t + 800, 'del'); { const d = narr(t, 'v5', 'Катя оценила. Удалила всё.'); t += Math.max(d, 2600); at(t - 150, () => $('scn').classList.remove('show')); }
-    t += them(t, 'pink', 'ФЭЛ', 'Иди нахуй', { wait: 700 });
-    t += them(t, 'pink', 'Катя', 'пиздец', { wait: 600, hold: 1300 });
+    t += me(t, 'pink', '', { card: 'Sapphire', id: 'p2', hold: 700 });
+    t += them(t, 'pink', 'Джамес', 'Катя, это шедевр, послушай', { wait: 700 });
+    t += me(t, 'pink', 'Мои глаза стрельцы Сафир', { id: 'p3' });
+    t += them(t, 'pink', 'Катя', 'Не добавляй меня сюда больше', { hold: 500 });
+    t += del(t, 'p3');
+    t += them(t, 'pink', 'ФЭЛ', 'Иди нахуй', { wait: 600 });
+    t += them(t, 'pink', 'Катя', 'пиздец', { wait: 600, hold: 600 });
+    cut(t, 'kate'); ev(t + 300, 'del'); { const d = narr(t, 'v5', 'Катя оценила. Удалила всё.'); t += Math.max(d, 2600); at(t - 150, () => $('scn').classList.remove('show')); }
 
-    // ---- act 3: DM with FEL ----
-    t += app(t, 'dm');
+    // ---- DM with FEL ----
     cut(t, 'fel', 0, { fel: 'sulk' }); { const d = narr(t, 'v6', 'Ладно. Иду в личку к ФЭЛу.'); t += Math.max(d, 2400); at(t - 150, () => $('scn').classList.remove('show')); }
+    t += app(t, 'dm');
     t += me(t, 'dm', 'Напиши ей. Сейчас.');
-    t += them(t, 'dm', 'ФЭЛ', 'Я о Кате не думал');
     t += them(t, 'dm', 'ФЭЛ', 'Мы не должны сходиться', { wait: 700 });
     t += me(t, 'dm', 'БЛЯ ДАВАЙ Я ЩАС ЧАЙ СЕБЕ СДЕЛАЮ', { caps: true });
-    t += me(t, 'dm', 'Моя чашка это пещерная чаша где живут крокодилы и Катя', { rev: true, hold: 1500 });
-    t += them(t, 'dm', 'ФЭЛ', 'Ты еблан?', { wait: 700 });
-    flash(t);
-    t += me(t, 'dm', 'ПОЛКОВНИК БУСТЕРЕНКО ВЕРНЁТ ВАС', { caps: true, hold: 300 });
-    cut(t, 'james'); { const d = narr(t, 'j3', 'Джамес тем временем рисовал план. Стрелочки, сердечки, Таиланд.'); t += Math.max(d, 3000); at(t - 150, () => $('scn').classList.remove('show')); }
+    t += me(t, 'dm', 'Моя чашка это пещерная чаша где живут крокодилы и Катя', { hold: 900 });
+    t += them(t, 'dm', 'ФЭЛ', 'Ты еблан?', { wait: 600 });
     t += me(t, 'dm', 'А нового её я выстегну');
-    t += them(t, 'dm', 'ФЭЛ', 'Клоун', { wait: 700 });
-    t += 600;
-    t += them(t, 'dm', 'ФЭЛ', '…Или не должны?', { wait: 1400 });
-    t += them(t, 'dm', 'ФЭЛ', 'Я хз вообще как себя вести', { hold: 1200 });
-    cap(t - 1000, 'в глубине души он не против', 'g', 1800);
-    t += 900;
+    cut(t, 'james'); { const d = narr(t, 'j3', 'Джамес тем временем рисовал план. Стрелочки, сердечки, Таиланд.'); t += Math.max(d, 3000); at(t - 150, () => $('scn').classList.remove('show')); }
+    t += them(t, 'dm', 'ФЭЛ', '…Или не должны?', { wait: 1100 });
+    t += them(t, 'dm', 'ФЭЛ', 'Я хз вообще как себя вести', { hold: 600 });
     cut(t, 'fel', 0, { fel: 'shy' }); ev(t + 400, 'ding'); { const d = narr(t, 'v7', 'Но я-то вижу — он не против. Просто боится.'); t += Math.max(d, 2800); at(t - 150, () => $('scn').classList.remove('show')); }
 
-    // ---- act 4: back to the AI, a real answer, then a remix ----
-    t += app(t, 'ai');
-    cut(t, 'robot', 0, { rb: 'fixed' }); { const d = narr(t, 'v8', 'Возвращаюсь к нейросети. В этот раз — за нормальным советом.'); t += d; at(t - 150, () => $('scn').classList.remove('show')); }
-    t += me(t, 'ai', 'Он сомневается. Что ему сказать?');
-    t += ai(t, 'Скажи, что доверие возвращают делами, а не обещаниями. И что Катя имеет полное право ответить «я не готова» — это нормально.', { hold: 1500 });
-    t += me(t, 'ai', 'Норм. А теперь сделай из этого трек про неоновый дождь');
-    t += ai(t, '«Мы с ФЭЛом меняем города под неоновым дождём. Таиланд нас ждёт — мы его не подведём».', { hold: 900 });
-    t += me(t, 'ai', 'Это я вас соединил. Платите пошлины', { hold: 900 });
-
-    // ---- finale ----
+    // ---- finale in the group ----
     t += app(t, 'pink');
     t += narr(t, 'v9', 'И отправляю шедевр в группу.');
     flash(t);
-    t += me(t, 'pink', 'Мы с ФЭЛом меняем города под неоновым дождём', { rev: true, hold: 1500 });
-    t += me(t, 'pink', 'Таиланд зимой. Без драмы, с кокосами');
-    t += them(t, 'pink', 'Джамес', 'Мы просто хотим спокойный отпуск. Без давления, честно', { wait: 900 });
-    t += them(t, 'pink', 'Катя', 'я не готова', { wait: 1200, hold: 1000 });
-    t += me(t, 'pink', 'Принято. Кокосы без давления', { hold: 1300 });
+    t += me(t, 'pink', 'Мы с ФЭЛом меняем города под неоновым дождём', { hold: 900 });
+    t += them(t, 'pink', 'Джамес', 'Таиланд зимой. Без драмы, с кокосами', { wait: 700 });
+    t += them(t, 'pink', 'Катя', 'я не готова', { wait: 1100, hold: 700 });
+    t += me(t, 'pink', 'Принято. Кокосы без давления', { hold: 900 });
     t += app(t, 'dm');
-    t += them(t, 'dm', 'ФЭЛ', 'Еблан что ты наделал', { wait: 900, hold: 1000 });
-    t += me(t, 'dm', 'Я всё правильно сделал, братан', { hold: 1400 });
+    t += them(t, 'dm', 'ФЭЛ', 'Еблан что ты наделал', { wait: 800, hold: 700 });
+    t += me(t, 'dm', 'Я всё правильно сделал, братан', { hold: 1000 });
 
     // ---- twist: Philipp ordered the whole thing ----
     cut(t, 'bribe'); ev(t + 300, 'ding');
